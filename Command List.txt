@@ -13,3 +13,6 @@ cd garelabo_project
 
 サーバ起動
 python manage,py runserver
+
+
+test1
