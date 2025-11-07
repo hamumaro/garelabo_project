@@ -1,0 +1,15 @@
+Command List
+
+全体モジュールのインストール
+pip install -r requirements.txt
+
+
+ディレクトリ移動
+仮想環境起動
+.\venv\Scripts\activate
+
+移動
+cd garelabo_project
+
+サーバ起動
+python manage,py runserver
