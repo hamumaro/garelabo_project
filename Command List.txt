@@ -13,3 +13,14 @@ cd garelabo_project
 
 サーバ起動
 python manage,py runserver
+
+
+GitHub 初期設定
+git config user.name
+git config user.email
+
+# 自分の名前に置き換えてください
+git config --global user.name "Your Name"
+
+# 自分のメールアドレスに置き換えてください
+git config --global user.email "you@example.com"
