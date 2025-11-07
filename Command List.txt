@@ -26,4 +26,9 @@ git config --global user.name "Your Name"
 git config --global user.email "you@example.com"
 
 
-test
+venv削除用　
+rmdir /s /q venv
+
+ 
+新規venv
+python -m venv venv
