@@ -24,3 +24,6 @@ git config --global user.name "Your Name"
 
 # 自分のメールアドレスに置き換えてください
 git config --global user.email "you@example.com"
+
+
+test1
