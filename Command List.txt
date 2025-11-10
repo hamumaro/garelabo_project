@@ -32,3 +32,5 @@ rmdir /s /q venv
  
 新規venv
 python -m venv venv
+
+
