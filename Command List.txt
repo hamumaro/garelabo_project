@@ -12,7 +12,7 @@ pip install -r requirements.txt
 cd garelabo_project
 
 サーバ起動
-python manage,py runserver
+python manage.py runserver
 
 
 GitHub 初期設定
@@ -26,4 +26,14 @@ git config --global user.name "Your Name"
 git config --global user.email "you@example.com"
 
 
-test1
+venv削除用　
+rmdir /s /q venv
+
+ 
+新規venv
+python -m venv venv
+
+
+k
+
+test
