@@ -1,0 +1,28 @@
+# 1. 秘密情報 (django-environ)
+.env
+*.env
+
+# 2. 仮想環境
+venv/
+.venv/
+env/
+
+# 3. Python / Django のキャッシュ
+__pycache__/
+*.pyc
+
+# 4. 開発用データベース (PostgreSQLを使っている場合でも、
+# 開発初期にsqlite3を使うことがあるため念のため)
+*.sqlite3
+db.sqlite3
+
+# 5. ログファイル
+*.log
+logs/
+
+# 6. ユーザーがアップロードしたメディアファイル (boto3でS3管理なら不要かも)
+media/
+
+# 7. OS固有のファイル
+.DS_Store
+Thumbs.db
