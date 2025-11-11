@@ -1,3 +1,4 @@
+## Gitの無視リスト
 # 1. 秘密情報 (django-environ)
 .env
 *.env
