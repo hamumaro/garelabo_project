@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>アカウント画面</title>
+        <link rel="stylesheet" href="../CSS/account.css">
+    </head>
+
+    <body>
+        <header>
+            <div class="logo">
+                <img src="../Images/logo.png" alt="GARELABO+" class="logo">
+            </div>
+            <div class="user-info">
+                <span class="userName">✕✕さん</span>
+                <div class="user-icon"></div>
+            </div>
+        </header>
+        <main>
+            <div class="form-group">
+                <label>ニックネーム </label>
+                <input type="userName" value="${userName}" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label>メールアドレス</label>
+                <input type="email" value="${email}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>パスワード</label>
+                <input type="password" value="${password}" readonly>
+            </div>
+
+            <div class="button">
+                <button class="btnchange" type="submit">変更</button>
+                <button class="btnsignout" type="submit">サインアウト</button>
+            </div>
+        </main>
+        <footer>
+            <p>&copy; 2025 garelabo_project</p>
+        </footer>
+    </body>
+</html>
