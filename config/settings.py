@@ -12,22 +12,29 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os # ★ 1. os をインポート
+import environ # ★ 2. environ をインポート
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # このプロジェクトのルートディレクトリ（manage.py がある場所）を指します
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# --- ★ 3. environ の設定を追加 ---
+env = environ.Env()
+# .env ファイルを読み込む (BASE_DIR 直下に .env がある前提)
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+# ---
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# Djangoプロジェクト固有の秘密鍵です。本番環境では外部に漏らさないでください。
-SECRET_KEY = "django-insecure-@4*bvgd%$*ks2(7k3_bw@v(2%xj3_#$^(!2@xr_kag0t^q%ne#"
+# .env ファイルから読み込むように変更 (推奨)
+SECRET_KEY = env('SECRET_KEY', default="django-insecure-@4*bvgd%$*ks2(7k3_bw@v(2%xj3_#$^(!2@xr_kag0t^q%ne#")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# デバッグモード。開発中は True にしてエラー詳細を表示し、本番環境では False にします。
-DEBUG = True
+# デバッグモード。
+DEBUG = env.bool('DEBUG', default=True)
 
 # サーバーを公開する（本番環境の）ドメイン名やIPアドレスを指定します。
 ALLOWED_HOSTS = []
@@ -36,18 +43,28 @@ ALLOWED_HOSTS = []
 # Application definition
 # このDjangoプロジェクトにインストールされているアプリの一覧です。
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    # "django.contrib.admin", # ★ 4. adminは不要なためコメントアウト
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    # appsをアプリとして設定
+    'api_app.apps.ApiAppConfig',
+
+    # サードパーティ製アプリ
+    'rest_framework',
+    'corsheaders',
 ]
 
 # リクエストとレスポンスの間で実行される処理（ミドルウェア）です。
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    
+    "corsheaders.middleware.CorsMiddleware", # ★ 5. CORSミドルウェアを追加
+    
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -56,7 +73,6 @@ MIDDLEWARE = [
 ]
 
 # このプロジェクトのメインとなるURL設定ファイル（urls.py）の場所を指定します。
-# (前回のエラー箇所)
 ROOT_URLCONF = 'config.urls'
 
 # テンプレート（HTMLファイル）に関する設定です。
@@ -76,24 +92,21 @@ TEMPLATES = [
 ]
 
 # WSGI (Web Server Gateway Interface) アプリケーションの場所を指定します。
-# (★ここが修正点です)
 WSGI_APPLICATION = "config.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 # データベースの接続設定です。
+# ★ 6. DATABASES 設定を .env から読み込むように変更
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    # .env ファイルから "DATABASE_URL" という名前の変数を読み込む
+    "default": env.db()
 }
 
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-# パスワードの強度を検証するためのルールです。
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -111,27 +124,44 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
-# 言語設定（例: 日本語にする場合は 'ja'）
-LANGUAGE_CODE = "en-us"
-
-# タイムゾーン（例: 日本時間にする場合は 'Asia/Tokyo'）
-TIME_ZONE = "UTC"
-
-# 国際化（翻訳機能）を有効にするか
+# https://docs.djangoproject.com/en/5.2/topics/i1n/
+LANGUAGE_CODE = "ja" # (日本語に変更)
+TIME_ZONE = "Asia/Tokyo" # (日本時間に変更)
 USE_I18N = True
-
-# タイムゾーンを有効にするか
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
-# CSS、JavaScript、画像などの静的ファイル（staticファイル）のURLプレフィックスです。
 STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-# モデルの主キー（ID）に自動的に使われるフィールドの型です。
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# -----------------------------------------------------------------
+# ★ 7. カスタムUserモデルの指定 (これはOK)
+# -----------------------------------------------------------------
+AUTH_USER_MODEL = 'api_app.User'
+
+# -----------------------------------------------------------------
+# ★ 8. メディアファイル (ImageField) の設定 (追記)
+# -----------------------------------------------------------------
+# ユーザーがアップロードしたファイル (media/) へのURL
+MEDIA_URL = '/media/'
+# ユーザーがアップロードしたファイルを保存する実際のフォルダの場所
+# (C:\garelabo_project\media フォルダを指す)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# -----------------------------------------------------------------
+# ★ 9. CORS (django-cors-headers) の設定 (追記)
+# -----------------------------------------------------------------
+# (例) React (localhost:3000) や Vue (localhost:5173) からのアクセスを許可
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+]
+# (開発中、すべて許可する場合)
+# CORS_ALLOW_ALL_ORIGINS = True
