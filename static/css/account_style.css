@@ -1,0 +1,121 @@
+/* 基本リセットとフォント */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4; /* 画面全体のわずかなグレーの背景 */
+    color: #333;
+}
+
+/* --- ヘッダーのスタイル --- */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1a1a1a; /* ほぼ黒 */
+    color: white;
+    padding: 10px 20px;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 30px; /* 画像内のロゴのサイズに合わせて調整 */
+    /* 実際には画像を直接使う */
+}
+
+.header-user {
+    display: flex;
+    align-items: center;
+}
+
+.user-name {
+    margin-right: 10px;
+    font-size: 1.1em;
+}
+
+.user-icon {
+    width: 35px;
+    height: 35px;
+    background-color: #ccc; /* 仮のアイコン色 */
+    border-radius: 50%;
+    border: 2px solid white; /* 画像の白い縁取り */
+}
+
+
+/* --- メインコンテンツ/フォームのスタイル --- */
+.container {
+    display: flex;
+    justify-content: center;
+    padding-top: 50px; /* フォームを画面上部から少し下に配置 */
+}
+
+.profile-form {
+    width: 100%;
+    max-width: 400px; /* フォームの最大幅 */
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 30px; /* グループ間のスペースを広めに取る */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 1em;
+    font-weight: bold; /* 画像の文字は太くないが、見やすさのために強調 */
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px 0; /* 垂直方向のパディングを減らし、水平方向は0 */
+    border: none; /* 枠線をなくす */
+    border-bottom: 1px solid #333; /* 下線のみ */
+    box-sizing: border-box;
+    font-size: 1.1em;
+    outline: none; /* フォーカス時の青い枠線を消す */
+    background-color: transparent; /* 背景を透明に */
+}
+
+/* 入力値のフォントを画像に合わせる */
+#nickname, #email, #password {
+    color: #333;
+    /* フォームの値がセンターではなく左寄せに見えるように調整 */
+    text-align: left;
+}
+
+/* --- ボタンのスタイル --- */
+.form-actions {
+    display: flex;
+    justify-content: space-between; /* 左右にボタンを配置 */
+    margin-top: 50px;
+}
+
+.btn {
+    padding: 10px 30px;
+    border: 1px solid #333;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: white;
+}
+
+.btn-change {
+    /* 「変更」ボタンは通常のスタイル */
+    color: #333;
+    border-color: #333;
+}
+
+.btn-logout {
+    /* 「サインアウト」ボタンは赤い枠線 */
+    color: #e74c3c; /* 赤いテキスト */
+    border: 1px solid #e74c3c; /* 赤い枠線 */
+}
+
+.btn-save {
+    color: #333;
+    border-color: #333;
+}

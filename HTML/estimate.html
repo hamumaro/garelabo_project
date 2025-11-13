@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カスタム見積もり</title>
+    <link rel="stylesheet" href="../static/css/estimate_style.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-left">
+            <div class="header-logo">
+                <img src="../static/assets/ガレラボ+.png" alt="GARELABO+" class="logo-img">
+            </div>
+        </div>
+        
+        <div class="header-center">
+            <div class="center-icon">
+                <img src="" alt="Estimate Icon" class="icon-img">    
+            </div>
+            <div class="center-text">
+                カスタム見積もり<br>
+                <span class="center-subtext">CUSTOM ESTIMATE</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <span class="user-name">××さん</span>
+            <div class="user-icon"></div>
+            <dr><a href="#" class="back-link">カスタムに戻る</a></dr>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <section class="estimate-section color-section">
+            <h2 class="section-title">ボディーカラー</h2>
+            <div class="item-list">
+                <div class="item">
+                    <span class="item-name" value="${BodyColorCode}"></span>
+                    <span class="item-price">JPY~</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="estimate-section option-section">
+            <h2 class="section-title">選択したオプション</h2>
+            <div class="item-list">
+                <div class="item">
+                    <span class="item-name" value="${wheel_ID}"></span>
+                    <span class="item-price">JPY</span>
+                </div>
+                <div class="item">
+                    <span class="item-name" value="${bumper_ID}"></span>
+                    <span class="item-price">JPY</span>
+                </div>
+                <div class="item">
+                    <span class="item-name" value="${LightColorCode}"></span>
+                    <span class="item-price">JPY</span>
+                </div>
+                <div class="item">
+                    <span class="item-name" value="aeroparts_ID"></span>
+                    <span class="item-price">JPY</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="footer">
+        <hr class="separator">
+        <div class="total-area">
+            <button class="total-button">合計金額</button>
+            <span class="total-price" value="totalAmount">JPY~</span>
+        </div>
+    </footer>
+
+</body>
+</html>

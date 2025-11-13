@@ -1,45 +1,46 @@
 <!DOCTYPE html>
 <html lang="ja">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>アカウント画面</title>
-        <link rel="stylesheet" href="../CSS/account.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アカウント</title>
+    <link rel="stylesheet" href="../static/css/account_style.css">
+</head>
+<body>
 
-    <body>
-        <header>
-            <div class="logo">
-                <img src="../Images/logo.png" alt="GARELABO+" class="logo">
-            </div>
-            <div class="user-info">
-                <span class="userName">✕✕さん</span>
-                <div class="user-icon"></div>
-            </div>
-        </header>
-        <main>
+    <header class="header">
+        <div class="header-logo">
+            <img src="../static/assets/ガレラボ+.png" alt="GARELABO+" class="logo-img">
+        </div>
+        <div class="header-user">
+            <span class="user-name">××さん</span>
+            <div class="user-icon"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <form class="profile-form" method="dialog">
             <div class="form-group">
-                <label>ニックネーム </label>
-                <input type="userName" value="${userName}" readonly>
-            </div>
-            
-            <div class="form-group">
-                <label>メールアドレス</label>
-                <input type="email" value="${email}" readonly>
+                <label for="nickname">ニックネーム</label>
+                <input type="text" id="nickname" value="${userName}" readonly>
             </div>
 
             <div class="form-group">
-                <label>パスワード</label>
-                <input type="password" value="${password}" readonly>
+                <label for="email">メールアドレス</label>
+                <input type="text" id="email" value="${email}" readonly>
             </div>
 
-            <div class="button">
-                <button class="btnchange" type="submit">変更</button>
-                <button class="btnsignout" type="submit">サインアウト</button>
+            <div class="form-group">
+                <label for="password">パスワード</label>
+                <input type="text" id="password" value="${password}" readonly>
             </div>
-        </main>
-        <footer>
-            <p>&copy; 2025 garelabo_project</p>
-        </footer>
-    </body>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-change">変更</button>
+                <button type="button" class="btn btn-logout">サインアウト</button>
+            </div>
+        </form>
+    </main>
+
+</body>
 </html>
