@@ -92,5 +92,16 @@ h1 {
     background-color: #444;
 }
 
+.form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
 
+.error-message {
+    color: red;
+    font-size: 12px;
+    display: none;
+    margin-bottom: 5px;
+}
 
