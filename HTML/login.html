@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <link rel="icon" type="image/png" href="assets/Garelabo_Logo.png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GARELABO+｜ログイン</title>
+    <link rel="stylesheet" href="../CSS/Login_style.css">
+    
+</head>
+<body>
+    <header class="site-header">
+        <img class="site-logo" src="assets/ガレラボ+.png"  alt="GARELABO+">
+    </header>
+
+    <h1 class="page-title">ログイン</h1>
+
+    <main class="card" role="main">
+        <form action="#" method="post" novalidate>
+            <div class="form-row">
+                <label class="label" for="email">メールアドレス</label>
+                <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    class="underline-input"
+                    placeholder="メールアドレスを入力してください。"
+                    autocomplete="email"
+                    required>
+            </div>
+
+            <div class="form-row">
+                <label class="label" for="password">パスワード</label>
+                <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    class="underline-input"
+                    placeholder="パスワードを入力してください。"
+                    autocomplete="current-password"
+                    required>
+            </div>
+
+            <div class="actions">
+                <button class="btn" type="submit">ログイン</button>
+                <a class="register-link" href="#">新規会員登録</a>
+            </div>
+        </form>
+    </main>
+</body>
+</html>
