@@ -1,0 +1,168 @@
+/* 基本リセットとフォント */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4; /* わずかにグレーの背景 */
+    color: #333;
+}
+
+/* --- ヘッダーのスタイル --- */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1a1a1a; /* ほぼ黒 */
+    color: white;
+    height: 80px;
+    position: relative; /* 子要素の絶対配置の基準 */
+}
+
+/* 中央部分 (カスタム見積もり) */
+.header-center {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 250px; /* 画像の占める幅 */
+    height: 100%;
+    background-color: #333; /* 中央の濃いグレーの背景 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding-top: 5px;
+    z-index: 10;
+}
+
+.center-icon .icon-wrench {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 2px;
+}
+
+.center-text {
+    line-height: 1.2;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.center-subtext {
+    font-size: 0.7em;
+    font-weight: normal;
+}
+
+/* 左側 (ロゴ) */
+.header-left {
+    padding-left: 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    z-index: 20;
+}
+
+.logo-img {
+    height: 30px;
+}
+
+/* 右側 (ユーザー情報と戻るリンク) */
+.header-right {
+    padding-right: 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1em;
+    z-index: 20;
+}
+
+.user-name {
+    margin-right: 5px;
+}
+
+.user-icon {
+    width: 35px;
+    height: 35px;
+    background-color: #ccc;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.back-link {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9em;
+    margin-left: 10px;
+    padding-top: 30px; /* 縦方向の位置を画像に合わせる */
+    align-self: flex-start;
+}
+
+/* --- メインコンテンツ --- */
+.container {
+    padding: 30px 20%; /* 左右に大きな余白を持たせる */
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.estimate-section {
+    margin-bottom: 40px;
+}
+
+.section-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.item-list {
+    padding: 0 10px; /* セクションのタイトルより少し内側 */
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 1.1em;
+}
+
+.item-price {
+    font-weight: bold;
+    white-space: nowrap; /* 価格が折り返されないように */
+    margin-left: 20px;
+}
+
+/* --- フッター/合計金額 --- */
+.footer {
+    padding: 0 20%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.separator {
+    border: none;
+    border-top: 1px solid #333; /* 太めの水平線 */
+    margin: 20px 0;
+}
+
+.total-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 50px;
+}
+
+.total-button {
+    background-color: white;
+    border: 1px solid #333;
+    padding: 10px 20px;
+    font-size: 1.1em;
+    cursor: default;
+    /* ボタンのように見せかけたテキストボックス */
+}
+
+.total-price {
+    font-size: 1.8em;
+    font-weight: bold;
+    white-space: nowrap;
+}
