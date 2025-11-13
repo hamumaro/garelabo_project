@@ -4,7 +4,7 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
     // 各要素
     const nickname = document.getElementById("nickname");
     const email = document.getElementById("email");
-    const passwpord = document.getElementById("password");
+    const password = document.getElementById("password");
 
     // エラーメッセージ要素
     const nicknameError = document.getElementById("nickname-error");
@@ -17,6 +17,9 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
     passwordError.style.display = "none";
 
     let hasError = false;
+
+    // 半角英数字の正規表現
+    const halfWidthAlphaNum = /^[A-Za-z0-9]+$/;
 
     // ニックネーム
     if (nickname.value.trim() === "") {
@@ -33,11 +36,11 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
     } 
 
     // パスワード
-    if (passwpord.value.trim() === "") {
+    if (password.value.trim() === "") {
         passwordError.textContent = "パスワードを入力してください。";
         passwordError.style.display = "block";
         hasError = true;
-    } else if (!halfWidthAlphaNum.test(passwordValue)) {
+    } else if (!halfWidthAlphaNum.test(password.value)) {
         passwordError.textContent = "パスワードは半角英数字で入力してください。";
         passwordError.style.display = "block";
         hasError = true;
