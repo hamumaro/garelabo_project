@@ -1,0 +1,69 @@
+body {
+    font-family: "Noto Sans JP", "Segoe UI", sans-serif;
+    background-color: #fff;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: #222;
+}
+
+header {
+    background-color: #111;
+    padding: 10px 0;
+}
+
+.logo {
+    height: 80px;
+    width: auto;
+    display: block;
+    margin: 0;
+}
+
+/* メインコンテンツ */
+.error-container {
+    max-width: 600px;
+    margin: 100px auto;
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px 30px;
+}
+
+/* タイトル */
+#error-title {
+    color: #e32d2d;
+    font-size: 35px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* メッセージ本文 */
+#error-message {
+    font-size: 25px;
+    color: #e32d2d;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+/* ボタンエリア */
+.error-button {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* ボタン */
+.error-button button {
+    background-color: #bebebe;
+    color: #222;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* ホバー時 */
+.error-button button:hover {
+    background-color: #e1e1e1;
+}
