@@ -1,9 +1,6 @@
 :root {
-    --black: #0a0a0a;
-    --ink: #f5f5f5;
     --blue: #2a6edc;
     --blue-dk: #1b4fa2;
-    --panel: #ffffff;
 }
 
 * {
@@ -14,183 +11,114 @@ html,
 body {
     margin: 0;
     background: #efefef;
-    color: #222;
     font-family: Inter, "Noto Sans JP", system-ui, sans-serif;
 }
 
-/* ====== ヘッダー ====== */
+/* ===== ヘッダー全体 ===== */
 .header {
-    position: relative;
     background: #000;
-    color: var(--ink);
-    min-height: 220px;
-    overflow: hidden;
+    color: #fff;
 }
 
-.header-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-    align-items: end;
+.header-inner {
     width: min(1100px, 96vw);
     margin: 0 auto;
-    padding: 18px 0 22px;
-    height: 100%;
+    padding: 10px 0 14px;
 }
 
+/* ===== 上段：3枚の画像 ===== */
+.header-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.4fr; /* 右だけ少し広めにして見切れにくく */
+    height: 260px;
+    gap: 12px;
+    align-items: center;
+}
+
+/* 共通パネル */
 .panel {
-    position: relative;
-    height: 170px;
-    border-radius: 4px;
+    height: 100%;
     overflow: hidden;
-    background: #111;
+    background: #000;
 }
 
 .panel img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.92;
+    object-position: center top; /* 上側優先でトリミング */
 }
 
-/* ロゴと右側 */
+/* 右パネル（ログイン＋ロゴ） */
 .brand-area {
+    position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    height: 170px;
+    align-items: flex-end;
     padding: 8px 8px 10px;
 }
 
 .login-btn {
     align-self: flex-end;
     background: #fff;
-    color: #111;
-    font-size: 12px;
-    border: none;
+    color: #000;
+    padding: 6px 12px;
     border-radius: 4px;
-    padding: 8px 14px;
-    cursor: pointer;
+    text-decoration: none;
+    font-size: 12px;
+    margin-bottom: 8px;
 }
 
-.brand-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: auto;
+/* GARELABOロゴ画像 */
+.garelabo-logo {
+    max-width: 100%;
+    height: auto;
+    align-self: flex-end;
 }
 
-.palm {
-    width: 46px;
-    height: 46px;
-    background: url("assets/palm-neon.png") center/contain no-repeat;
-    flex: 0 0 auto;
-    filter: drop-shadow(0 0 2px #00ff95);
-}
-
-.logo {
-    height: 40px;
-    width: auto;
-    object-fit: contain;
-}
-
-/* リボンボタン */
+/* ===== 下段：リボンボタン（右画像の真下寄せ） ===== */
 .ribbons {
-    position: absolute;
-    bottom: 14px;
-    left: 50%;
-    transform: translateX(-50%);
+    margin-top: 14px;
     display: flex;
-    gap: 14px;
+    justify-content: flex-end; /* 右寄せ */
+    gap: 18px;
 }
 
 .ribbon {
     --bg: var(--blue);
     --bg2: var(--blue-dk);
-    position: relative;
-    padding: 12px 22px 12px 42px;
-    color: #fff;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 14px;
-    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%);
-    background: linear-gradient(135deg, var(--bg), var(--bg2));
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    min-width: 180px;
+    padding: 12px 24px 12px 20px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+    background: linear-gradient(135deg, var(--bg), var(--bg2));
+    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%);
 }
 
-.ribbon .icon {
-    position: absolute;
-    left: 12px;
-    font-size: 18px;
-    opacity: 0.95;
+.ribbon img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
 }
 
-/* セクション見出し（白字・下線） */
+/* ===== セクション見出し ===== */
 .section-title {
-    position: relative;
     background: #000;
     color: #fff;
     font-weight: 900;
     letter-spacing: 0.2em;
-    text-align: center;
-    padding: 8px 0 10px;
+    text-align: center;      /* 真ん中寄せ */
+    padding: 10px 0 12px;
+    font-size: 26px;
 }
 
-.section-title::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 2px;
-    background: #fff;
-    opacity: 0.9;
-}
-
-/* コンテンツ領域 */
+/* ===== コンテンツ ===== */
 .content {
-    min-height: 420px;
-    background: #fff;
-    width: 100%;
-    padding: 18px;
-}
-
-/* ====== レスポンシブ ====== */
-@media (max-width: 980px) {
-    .ribbons {
-        position: static;
-        transform: none;
-        justify-content: center;
-        margin-top: 10px;
-    }
-
-    .hero-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .brand-area {
-        grid-column: 1 / -1;
-    }
-}
-
-@media (max-width: 640px) {
-    .hero-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .panel {
-        height: 160px;
-    }
-
-    .ribbons {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .ribbon {
-        min-width: 220px;
-    }
+    min-height: 450px;
+    background: #fff;        /* 下の白い余白は維持 */
+    padding: 20px;
 }
