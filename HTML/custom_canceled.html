@@ -24,7 +24,7 @@
             <!-- 右：ユーザー名＋さん＋アイコン（DB参照） -->
             <div class="header-user">
             <span class="user-name">{{ user_name }}さん</span>
-            <a href="/account" class="user-icon">
+            <a href="account.html" class="user-icon">
                 <img src="../static/assets/アカウントアイコン.png" alt="">
                 <!-- データベース使用時: src="{{ user_icon_url }}" -->
             </a>
@@ -33,13 +33,13 @@
         </div>
     </header>
 
-    <!-- メイン（横幅いっぱい） -->
+    <!-- メイン -->
     <main class="cancel-main">
         <h1 class="cancel-title">カスタムを中止しますか？</h1>
 
         <div class="cancel-buttons">
             <a href="#" class="cancel-btn">YES</a>
-            <a href="#" class="cancel-btn">NO</a>
+            <a href="custom_menu.html" class="cancel-btn">NO</a>
         </div>
     </main>
 
