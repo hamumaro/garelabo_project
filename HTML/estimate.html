@@ -1,80 +1,79 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>カスタム見積もり</title>
-    <link rel="stylesheet" href="../static/css/estimate_style.css">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>カスタム見積もり</title>
+        <link rel="stylesheet" href="../static/css/estimate_style.css">
+    </head>
+    <body>
 
-    <header class="header">
-        <div class="header-left">
+        <header class="header">
             <div class="header-logo">
                 <img src="../static/assets/ガレラボ+.png" alt="GARELABO+" class="logo-img">
             </div>
-        </div>
-        
-        <div class="header-center">
-            <div class="center-icon">
-                <img src="" alt="Estimate Icon" class="icon-img">    
-            </div>
-            <div class="center-text">
-                カスタム見積もり<br>
-                <span class="center-subtext">CUSTOM ESTIMATE</span>
-            </div>
-        </div>
-
-        <div class="header-right">
-            <span class="user-name">××さん</span>
-            <div class="user-icon"></div>
-            <dr><a href="#" class="back-link">カスタムに戻る</a></dr>
-        </div>
-    </header>
-
-    <main class="container">
-        
-        <section class="estimate-section color-section">
-            <h2 class="section-title">ボディーカラー</h2>
-            <div class="item-list">
-                <div class="item">
-                    <span class="item-name" value="${BodyColorCode}"></span>
-                    <span class="item-price">JPY~</span>
+            
+            <div class="header-center">
+                <div class="custom-estimate-box">
+                    <img src="../static/assets/見積り.png" alt="GARELABO+" class="logo-img">
                 </div>
             </div>
-        </section>
 
-        <section class="estimate-section option-section">
-            <h2 class="section-title">選択したオプション</h2>
-            <div class="item-list">
-                <div class="item">
-                    <span class="item-name" value="${wheel_ID}"></span>
-                    <span class="item-price">JPY</span>
+            <div class="header-user">
+                <div class="user-info">
+                    <span class="user-name">××さん</span>
+                    <div class="user-icon"></div>
                 </div>
-                <div class="item">
-                    <span class="item-name" value="${bumper_ID}"></span>
-                    <span class="item-price">JPY</span>
+                <a href="#" class="btn-back">カスタムに戻る</a>
+            </div>
+        </header>
+
+        <main class="container">
+            
+            <section class="estimate-section">
+                <h2 class="section-title">ボディカラー</h2>
+                <div class="item-list">
+                    <div class="item-row">
+                        <span class="item-name" value="${BodyColorCode}"></span>
+                        <span class="item-price" data-price="100000">JPY〜</span>
+                    </div>
                 </div>
-                <div class="item">
-                    <span class="item-name" value="${LightColorCode}"></span>
-                    <span class="item-price">JPY</span>
+            </section>
+
+            <section class="estimate-section options-section">
+                <h2 class="section-title">選択したオプション</h2>
+                <div class="item-list">
+                    <div class="item-row">
+                        <span class="item-name" value="${wheel_ID}"></span>
+                        <span class="item-price" data-price="50000">JPY</span>
+                    </div>
+                    <div class="item-row">
+                        <span class="item-name" value="${bumper_ID}"></span>
+                        <span class="item-price" data-price="80000">JPY</span>
+                    </div>
+                    <div class="item-row">
+                        <span class="item-name" value="${LightColorCode}"></span>
+                        <span class="item-price" data-price="30000">JPY</span>
+                    </div>
+                    <div class="item-row">
+                        <span class="item-name" value="${areoparts_ID}"></span>
+                        <span class="item-price" data-price="15000">JPY</span>
+                    </div>
                 </div>
-                <div class="item">
-                    <span class="item-name" value="aeroparts_ID"></span>
-                    <span class="item-price">JPY</span>
+            </section>
+
+            <hr class="separator">
+
+            <div class="total-area">
+                <div class="total-label">
+                    <button class="btn-total">合計金額</button>
+                </div>
+                <div class="total-price">
+                    <span class="price-value" id="totalAmont">JPY〜</span>
                 </div>
             </div>
-        </section>
 
-    </main>
-    
-    <footer class="footer">
-        <hr class="separator">
-        <div class="total-area">
-            <button class="total-button">合計金額</button>
-            <span class="total-price" value="totalAmount">JPY~</span>
-        </div>
-    </footer>
-
-</body>
+        </main>
+        <script src="../static/js/estimate.js"></script>
+    </body>
 </html>
