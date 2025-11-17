@@ -1,168 +1,195 @@
-/* 基本リセットとフォント */
+/* 基本的なリセット */
 body {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4; /* わずかにグレーの背景 */
-    color: #333;
+    background-color: #ffffff; /* メインコンテンツの背景色 */
+    color: #000000;
 }
 
 /* --- ヘッダーのスタイル --- */
 .header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    background-color: #1a1a1a; /* ほぼ黒 */
-    color: white;
-    height: 80px;
-    position: relative; /* 子要素の絶対配置の基準 */
+    align-items: stretch; /* 子要素の高さ揃え */
+    background-color: #000000;
+    color: #ffffff;
+    height: 100px; /* ヘッダーの高さ */
 }
 
-/* 中央部分 (カスタム見積もり) */
-.header-center {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 250px; /* 画像の占める幅 */
-    height: 100%;
-    background-color: #333; /* 中央の濃いグレーの背景 */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding-top: 5px;
-    z-index: 10;
-}
-
-.center-icon .icon-wrench {
-    width: 30px;
-    height: 30px;
-    margin-bottom: 2px;
-}
-
-.center-text {
-    line-height: 1.2;
-    font-size: 1em;
-    font-weight: bold;
-}
-
-.center-subtext {
-    font-size: 0.7em;
-    font-weight: normal;
-}
-
-/* 左側 (ロゴ) */
-.header-left {
-    padding-left: 20px;
-    height: 100%;
+/* ロゴエリア */
+.header-logo {
     display: flex;
     align-items: center;
-    z-index: 20;
+    padding: 0 20px;
+    background-color: #000000; /* ロゴエリアを少し暗く */
+    width: 250px; /* 左側の画像の幅に合わせて調整 */
 }
 
 .logo-img {
-    height: 30px;
+    height: 70px;
 }
 
-/* 右側 (ユーザー情報と戻るリンク) */
-.header-right {
-    padding-right: 20px;
-    height: 100%;
+/* 中央の見積もりタイトルエリア */
+.header-center {
+    flex-grow: 1;
     display: flex;
+    background-color: #000000; /* 中央エリアの背景色 */
+    border-left: 1px solid #000000;
+    border-right: 1px solid #000000;
+    
+    justify-content: center;
     align-items: center;
-    gap: 10px;
-    font-size: 1em;
-    z-index: 20;
+}
+
+.custom-estimate-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 10px 30px;
+    background-color: #000000; /* カスタム見積もりボックスの色 */
+    
+    height: 100%; /* 親要素(header-center)と同じ高さにする */
+    width: 300px; /* ボックスの幅を固定または調整 */
+    background-color: #000000; /* 中央のボックスの背景をヘッダーより少し濃く */
+    box-sizing: border-box;
+    
+    justify-content: center;
+    padding: 0;
+}
+
+/* 画像に合わせたスタイル調整 */
+.custom-estimate-box img {
+    /* 画像のサイズを調整 */
+    width: 130px;
+    height: auto;
+}
+
+.custom-estimate-box .english {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* ユーザー情報とボタンエリア */
+.header-user {
+    display: flex;
+    flex-direction: column; 
+    
+    align-items: flex-end; /* 右端揃え */
+    justify-content: center; /* 垂直方向中央 */
+    
+    padding: 0 20px;
+    width: 300px; /* 右側の画像の幅に合わせて調整 */
+}
+
+/* ユーザー名とアイコンを横並びにするコンテナ */
+.user-info {
+    display: flex;
+    align-items: center; /* 垂直方向中央揃え */
+    margin-bottom: 5px; /* ボタンとの間にスペース */
 }
 
 .user-name {
-    margin-right: 5px;
+    font-size: 16px;
+    margin-right: 10px; 
+    margin-bottom: 0; /* 縦並びの親要素から移動したためリセット */
 }
 
 .user-icon {
-    width: 35px;
-    height: 35px;
-    background-color: #ccc;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    border: 2px solid white;
+    background-color: #ccc; /* 仮のアイコン色 */
+    border: 2px solid #ffffff;
+    margin-right: 0;
+    margin-bottom: 0; /* 縦並びの親要素から移動したためリセット */
 }
 
-.back-link {
-    color: white;
+.btn-back {
+    color: #ffffff;
     text-decoration: none;
-    font-size: 0.9em;
-    margin-left: 10px;
-    padding-top: 30px; /* 縦方向の位置を画像に合わせる */
-    align-self: flex-start;
+    font-size: 14px;
+    padding: 5px 10px;
+    border: 1px solid #ffffff;
+    border-radius: 3px;
+    white-space: nowrap; /* 折り返しを防ぐ */
+    margin-top: 5px; /* user-info との間隔 */
 }
 
-/* --- メインコンテンツ --- */
+/* --- メインコンテンツのスタイル --- */
+
 .container {
-    padding: 30px 20%; /* 左右に大きな余白を持たせる */
     max-width: 1000px;
     margin: 0 auto;
+    padding: 40px 20px;
 }
 
-.estimate-section {
-    margin-bottom: 40px;
-}
-
+/* セクションタイトル */
 .section-title {
-    font-size: 1.2em;
+    font-size: 20px;
     font-weight: bold;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
+/* 見積もり項目のリスト */
 .item-list {
-    padding: 0 10px; /* セクションのタイトルより少し内側 */
+    margin-bottom: 30px;
 }
 
-.item {
+.item-row {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
-    font-size: 1.1em;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee; /* オプションの下線 */
+}
+
+/* ボディカラーは下線がないため、個別調整 */
+.estimate-section:not(.options-section) .item-row {
+    border-bottom: none;
+    padding-bottom: 20px;
+}
+
+.item-name {
+    font-size: 16px;
+    font-weight: normal;
 }
 
 .item-price {
+    font-size: 16px;
     font-weight: bold;
-    white-space: nowrap; /* 価格が折り返されないように */
-    margin-left: 20px;
 }
 
-/* --- フッター/合計金額 --- */
-.footer {
-    padding: 0 20%;
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
+/* 区切り線 */
 .separator {
-    border: none;
-    border-top: 1px solid #333; /* 太めの水平線 */
-    margin: 20px 0;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 30px 0;
 }
 
+/* 合計金額エリア */
 .total-area {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 50px;
+    margin-top: 30px;
 }
 
-.total-button {
-    background-color: white;
+.btn-total {
+    background-color: #ffffff;
+    color: #333;
     border: 1px solid #333;
     padding: 10px 20px;
-    font-size: 1.1em;
-    cursor: default;
-    /* ボタンのように見せかけたテキストボックス */
+    font-size: 18px;
+    cursor: pointer;
+    font-weight: bold;
+    min-width: 150px;
 }
 
 .total-price {
-    font-size: 1.8em;
+    font-size: 30px;
     font-weight: bold;
-    white-space: nowrap;
+    color: #333;
 }
