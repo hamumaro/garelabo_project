@@ -3,56 +3,66 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GARELABO+｜一覧</title>
+    <title>GARELABO+｜車両選択</title>
 
     <link rel="icon" type="image/png" href="../static/assets/Garelabo_Logo.png">
     <link rel="stylesheet" href="../static/css/List_style.css">
+    <link rel="stylesheet" href="../static/css/car_select_style.css"> 
 </head>
 <body>
 
 <header class="header">
     <div class="header-inner">
-
-        <!-- 上段：3枚の画像 -->
         <div class="header-grid">
-
-            <!-- 左：メーター -->
             <div class="panel">
                 <img src="../static/assets/メーター.png" alt="メーター">
             </div>
-
-            <!-- 中央：R32/R34 -->
             <div class="panel">
                 <img src="../static/assets/R32.png" alt="R32">
             </div>
-
-            <!-- 右：ログインボタン + GARELABOロゴ -->
             <div class="panel brand-area">
                 <a href="login.html" class="login-btn">ログイン</a>
                 <img class="garelabo-logo" src="../static/assets/garelabo_title.png" alt="GARELABO+">
             </div>
-
         </div>
 
         <nav class="ribbons" aria-label="メインメニュー">
             <a class="ribbon" href="#build">
                 <img src="../static/assets/カスタム作成.png" alt="">
-                カスタム作成
+                カスタム作成　
             </a>
             <a class="ribbon" href="Favorite_List.html">
-                <img src="../static/assets/お気に入り.png" alt="">
-                お気に入り一覧
+                <img src="../static/assets/一覧.png" alt="">
+                　　一覧へ　　
             </a>
         </nav>
-
     </div>
 </header>
 
-<!-- セクション見出し -->
-<div class="section-title">一覧</div>
+<div class="section-title">車両選択</div>
 
-<!-- コンテンツ -->
 <main class="content">
+
+    <!-- ▼ 車両選択枠 -->
+    <section class="car-select" aria-label="車両選択">
+        <div class="car-display">
+            <button class="arrow-btn left" type="button" aria-label="前へ">&lt;</button>
+
+            <div class="car-frame" aria-live="polite">
+                <!-- DBから取得した画像URLをここに入れる -->
+                <!--  <img src="{{ car.image_url }}" alt="{{ car.name }}" class="car-image"> -->
+                <img src="" alt="" class="car-image" hidden>
+                <div class="car-skeleton">画像を読み込み中…</div>
+            </div>
+
+            <button class="arrow-btn right" type="button" aria-label="次へ">&gt;</button>
+        </div>
+
+        <p class="car-name">
+            <!--  {{ car.manufacturer }}・{{ car.model }}（型式：{{ car.code }}） -->
+            <span data-bind="car-name">車名（型式）</span>
+        </p>
+    </section>
 </main>
 
 </body>

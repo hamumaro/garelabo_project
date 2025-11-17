@@ -1,0 +1,167 @@
+:root {
+    --header-bg: #000000;
+    --page-bg: #ffffff;
+    --text-main: #222222;
+    --btn-border: #555555;
+}
+
+/* リセット */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    background: var(--page-bg);
+    color: var(--text-main);
+}
+
+/* ===== ヘッダー ===== */
+
+.top-header {
+    background: var(--header-bg);
+    color: #ffffff;
+    width: 100%;
+}
+
+.top-header-inner {
+    width: 100%;
+    height: 200px;
+    padding: 0 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* 左ロゴ */
+.header-logo img {
+    height: 186px;
+    width: auto;
+    display: block;
+}
+
+/* 右：ユーザー名＋アイコン */
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-user-name {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.header-user-suffix {
+    margin-left: 2px;
+    font-weight: 400;
+}
+
+/* 丸アイコン（header-user-icon と user-icon 両方に適用） */
+.header-user-icon,
+.user-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #ffffff;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 中の画像サイズも両方に適用 */
+.header-user-icon img,
+.user-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ===== メイン：中央に表示 ===== */
+
+.cancel-main {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 120px 0 160px;   /* 上下の余白を多めに */
+    background: #ffffff;
+    text-align: center;
+}
+
+/* 「カスタムを中止しますか？」 */
+.cancel-title {
+    margin: 0 0 100px;
+    font-size: 52px;          /* でかくした */
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: #111;
+}
+
+/* YES / NO ボタン配置 */
+.cancel-buttons {
+    display: inline-flex;
+    gap: 120px;               /* ボタンの間隔 */
+}
+
+/* YES / NO ボタン（大型版） */
+.cancel-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 180px;             /* 幅アップ */
+    height: 50px;             /* 高さアップ */
+    border: 2px solid var(--btn-border);
+    border-radius: 999px;
+
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 18px;          /* 文字も大きく */
+    font-weight: 600;
+    letter-spacing: 0.1em;
+
+    background: #ffffff;
+    transition: 0.15s ease;
+}
+
+.cancel-btn:hover {
+    background: #f1f1f1;
+    transform: translateY(-2px);
+}
+
+.cancel-btn:active {
+    transform: translateY(1px);
+}
+
+/* ざっくりレスポンシブ（スマホ用） */
+@media (max-width: 768px) {
+    .top-header-inner {
+        padding: 0 16px;
+    }
+
+    .cancel-main {
+        padding: 80px 16px 120px;
+    }
+
+    .cancel-title {
+        font-size: 32px;
+        margin-bottom: 60px;
+        letter-spacing: 0.12em;
+    }
+
+    .cancel-buttons {
+        gap: 32px;
+    }
+
+    .cancel-btn {
+        width: 140px;
+        height: 44px;
+        font-size: 16px;
+    }
+}
