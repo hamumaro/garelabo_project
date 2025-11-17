@@ -4,7 +4,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f4f4f4; /* 画面全体のわずかなグレーの背景 */
-    color: #333;
+    color: #000000;
 }
 
 /* --- ヘッダーのスタイル --- */
@@ -12,7 +12,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #1a1a1a; /* ほぼ黒 */
+    background-color: #000000; /* ほぼ黒 */
     color: white;
     padding: 10px 20px;
 }
@@ -55,12 +55,13 @@ body {
 
 .profile-form {
     width: 100%;
-    max-width: 400px; /* フォームの最大幅 */
+    max-width: 400px;
     padding: 20px;
 }
 
 .form-group {
     margin-bottom: 30px; /* グループ間のスペースを広めに取る */
+    position: relative;
 }
 
 .form-group label {
@@ -118,4 +119,21 @@ body {
 .btn-save {
     color: #333;
     border-color: #333;
+}
+
+/* account_style.css に必要な設定 */
+
+.error-message {
+    /* デフォルトでは非表示 */
+    display: none; 
+    
+    /* 赤字とサイズ設定 */
+    color: #e74c3c; 
+    font-size: 0.9em;
+    
+    /* 画面の画像のような位置に配置するため */
+    position: absolute; 
+    top: 45px; /* 入力欄の下に配置 */
+    left: 120px; /* 適切な横位置に調整 */
+    white-space: nowrap; 
 }
