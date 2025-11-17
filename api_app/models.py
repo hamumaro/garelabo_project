@@ -15,11 +15,25 @@ class MyUserManager(BaseUserManager):
         user.set_password(password) # パスワードをハッシュ化
         user.save(using=self._db)
         return user
+    
+    #管理者作成
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
+
+        
 
 # --- ここからインデントを修正 (クラスはネストしない) ---
 
 # --- 2. User テーブル ---
-class User(AbstractBaseUser):
+class User(AbstractBaseUser,PermissionsMixin):
     # user_idは(AutoField)
     
     # メール
@@ -33,6 +47,9 @@ class User(AbstractBaseUser):
 
     # ログイン設定
     is_active = models.BooleanField(default=True)
+
+    #管理者
+    is_staff = models.BooleanField(default=False)
 
     # UserManager　紐付け
     objects = MyUserManager()
