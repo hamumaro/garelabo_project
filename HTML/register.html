@@ -14,21 +14,21 @@
         <main>
             <h1>新規登録</h1>
             <div class="register-box">
-                <form id="registerForm">
+                <form id="registerForm" action="login.html" method="post" novalidate>
                     <div class="form-group">
                         <label for="nickname">ニックネーム</label>
                         <span id="nickname-error" class="error-message"></span>
-                        <input type="text" id="nickname" placeholder="ニックネームを入力してください。">
+                        <input type="text" id="nickname" name="nickname" placeholder="ニックネームを入力してください。">
                     </div>
                     <div class="form-group">
                         <label for="email">メールアドレス</label>
                         <span id="email-error" class="error-message"></span>
-                        <input type="email" id="email" placeholder="メールアドレスを入力してください。">
+                        <input type="email" id="email" name="email" placeholder="メールアドレスを入力してください。">
                     </div>
                     <div class="form-group">
                         <label for="password">パスワード</label>
                         <span id="password-error" class="error-message"></span>
-                        <input type="password" id="password" placeholder="パスワードを入力してください。">
+                        <input type="password" id="password" name="password" placeholder="パスワードを入力してください。">
                     </div>
                     <div class="form-button">
                         <button type="submit">登録</button>

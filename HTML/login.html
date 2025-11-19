@@ -1,49 +1,43 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <link rel="icon" type="image/png" href="../static/assets/Garelabo_Logo.png">
+    <link rel="icon" type="image/png" href="{% static 'assets/'Garelabo_Logo.png %}">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>GARELABO+｜ログイン</title>
-    <link rel="stylesheet" href="../static/css/Login_style.css">
+    <link rel="stylesheet" href="{% static 'css/Login_style.css' %}">
     
 </head>
 <body>
     <header class="site-header">
-        <img class="site-logo" src="../static/assets/ガレラボ+.png"  alt="GARELABO+">
+        <img class="site-logo" src="{% static 'assets/ガレラボ+.png' %}"  alt="GARELABO+">
     </header>
 
     <h1 class="page-title">ログイン</h1>
 
     <main class="card" role="main">
-        <form action="#" method="post" novalidate>
+        <form action="{% url 'login' %}" method="post" novalidate>
+            {% csrf_token %}
             <div class="form-row">
-                <label class="label" for="email">メールアドレス</label>
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    class="underline-input"
-                    placeholder="メールアドレスを入力してください。"
-                    autocomplete="email"
-                    required>
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="error">{{ form.username.errors }}</div>
+                {% endif %}
             </div>
 
             <div class="form-row">
-                <label class="label" for="password">パスワード</label>
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    class="underline-input"
-                    placeholder="パスワードを入力してください。"
-                    autocomplete="current-password"
-                    required>
+                {{ form.password.label_tag }}
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <div class="error">{{ form.password.errors }}</div>
+                {% endif %}
             </div>
 
             <div class="actions">
                 <button class="btn" type="submit">ログイン</button>
-                <a class="register-link" href="../HTML/register.html">新規会員登録</a>
+                <a class="register-link" href="{% url 'register' %}">新規会員登録</a>
             </div>
         </form>
     </main>
