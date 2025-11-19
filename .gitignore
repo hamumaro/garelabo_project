@@ -9,8 +9,9 @@ venv/
 env/
 
 # 3. Python / Django のキャッシュ
-__pycache__/
 *.pyc
+__pycache__/
+
 
 # 4. 開発用データベース (PostgreSQLを使っている場合でも、
 # 開発初期にsqlite3を使うことがあるため念のため)
