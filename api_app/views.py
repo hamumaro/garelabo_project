@@ -19,4 +19,4 @@ def login_view(request):
             return redirect('login')
     else:
         form = LoginForm()
-    return render(request, "api_app/login.html", {"form": form})
+    return render(request, "login.html")
