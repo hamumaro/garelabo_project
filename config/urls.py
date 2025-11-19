@@ -30,7 +30,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     # API用のURLを追加
-    path('api/', include('api_app.urls')),  # ← api_app/urls.py を読み込む
+    path('', include('api_app.urls')),  # ← api_app/urls.py を読み込む
 
     
 ]
