@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アカウント</title>
+    <link rel="stylesheet" href="../static/css/account_style.css">
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-logo">
+            <img src="../static/assets/ガレラボ+.png" alt="GARELABO+" class="logo-img">
+        </div>
+        <div class="header-user">
+            <span class="user-name">××さん</span>
+            <div class="user-icon"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <form class="profile-form" method="dialog">
+            <div class="form-group">
+                <label for="nickname">ニックネーム</label>
+                <input type="text" id="nickname" value="${userName}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="email">メールアドレス</label>
+                <input type="text" id="email" value="${email}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="password">パスワード</label>
+                <input type="text" id="password" value="${password}" readonly>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-change">変更</button>
+                <button type="button" class="btn btn-logout">サインアウト</button>
+            </div>
+        </form>
+    </main>
+
+</body>
+</html>

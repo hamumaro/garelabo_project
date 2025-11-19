@@ -27,11 +27,15 @@ Including another URLconf
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
 
 urlpatterns = [
     # API用のURLを追加
     path('api/', include('api_app.urls')),  # ← api_app/urls.py を読み込む
 
+    path('admin/', admin.site.urls),
+    
+    path('', include('api_app.urls')), 
     
 ]
 

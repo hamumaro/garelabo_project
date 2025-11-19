@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}"/>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GARELABO+｜一覧</title>
+    <link rel="stylesheet" href="{% static "css/List_style.css" %}"/>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-inner">
+            <div class="header-grid">
+                
+                <div class="panel">
+                    <img src="{% static "assets/メーター.png" %}" alt="メーター">
+                </div>
+
+                <div class="panel">
+                    <img src="{% static "assets/R34.png" %}" alt="R34">
+                </div>
+
+                <div class="brand-area">
+                    <a href="{% url "login_page" %}" class="login-btn">ログイン</a>
+                    
+                    <img class="garelabo-logo" src="{% static "assets/garelabo_title.png" %}" alt="GARELABO+">
+                </div>
+            </div>
+
+            <nav class="ribbons" aria-label="メインメニュー">
+                
+                <a class="ribbon" href="#build">
+                    <img src="{% static "assets/カスタム作成.png" %}" alt="" width="35" height="35">
+                    カスタム作成
+                </a>
+
+                <a class="ribbon" href="{% url 'favorite_page' %}">
+                    <img src="{% static "assets/お気に入り.png" %}" alt="" width="35" height="35">
+                    お気に入り<br>一覧
+                </a>
+            </nav>
+        </div> </header>
+
+    <div class="section-title">一覧</div>
+
+    <main class="content">
+    </main>
+
+</body>
+</html>
