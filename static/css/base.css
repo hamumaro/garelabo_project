@@ -1,4 +1,4 @@
-/* ===== ヘッダー：上段3枚画像エリア共通レイアウト ===== */
+
 .header-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -7,13 +7,12 @@
     height: clamp(120px, 18vw, 240px);
 }
 
-/* ヘッダー内のパネル共通設定 */
 .header-grid .panel {
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: visible;          /* トリミングしない */
+    overflow: visible;          
 }
 
 /* 画像タグで入れている場合 */
@@ -22,7 +21,7 @@
     max-height: 100%;
     width: auto;
     height: auto;
-    object-fit: contain;        /* cover は使わない */
+    object-fit: contain;        
     object-position: center;
 }
 

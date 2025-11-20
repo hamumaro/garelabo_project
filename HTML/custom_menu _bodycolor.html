@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="../static/assets/Garelabo_Logo.png">
+    <title>GARELABO+｜ボディカラー</title>
+    <link rel="stylesheet" href="../static/css/custom_menu_style.css">
+</head>
+<body>
+
+    <!-- ▼ ヘッダー -->
+    <header class="header">
+        <div class="header-left">
+            <img src="../static/assets/ガレラボ+.png" class="logo" alt="GARELABO+">
+        </div>
+
+        <nav class="header-nav">
+            <a href="/custom/auto" class="nav-btn">自動カスタム</a>
+            <a href="favorite_List.html" class="nav-btn">お気に入り</a>
+            <a href="estimate.html" class="nav-btn">カスタム見積り</a>
+            <a href="custom_canceled.html" class="nav-btn">カスタム中止</a>
+        </nav>
+
+        <div class="header-user">
+            <span class="user-name">{{ user_name }}さん</span>
+            <a href="account.html" class="user-icon">
+                <img src="../static/assets/アカウントアイコン.png" alt="">
+            </a>
+        </div>
+    </header>
+
+    <!-- ▼ メインレイアウト -->
+    <main class="main-layout">
+
+        <!-- 左メニュー -->
+        <aside class="side-menu">
+            <div class="day-night-switch">
+                <button class="day-night-toggle" type="button">
+                    <span class="icon sun">☀</span>
+                    <span class="icon moon">🌙</span>
+                </button>
+            </div>
+
+            <!-- ボディカラーが選択中 -->
+            <a href="custom_menu_bodycolor.html" class="side-btn-link is-active">ボディカラー</a>
+            <a href="#" class="side-btn-link">ホイール</a>
+            <a href="#" class="side-btn-link">バンパー</a>
+            <a href="#" class="side-btn-link">ライト</a>
+            <a href="#" class="side-btn-link">エアロパーツ</a>
+        </aside>
+
+        <!-- ▼ 車表示エリア ＋ カラーパレット ＋ 保存ボタン -->
+        <section class="car-display-area">
+
+            <!-- 車画像 -->
+            <div class="car-frame">
+                <!-- DB画像差し込み予定 -->
+                <div class="car-placeholder">ここに車画像が入ります（DB）</div>
+            </div>
+
+            <!-- 360°ヒント -->
+            <div class="rotate-hint">
+                <img src="../static/assets/rotate.png" alt="">
+                <span>360°</span>
+            </div>
+
+            <!-- カラーパレット（4色） -->
+            <div class="color-palette-area">
+                <div class="color-row normal-colors">
+                    <button class="color-dot" type="button" data-color="#0a33f5" aria-label="ブルー"></button>
+                    <button class="color-dot" type="button" data-color="#ffffff" aria-label="ホワイト"></button>
+                    <button class="color-dot" type="button" data-color="#000000" aria-label="ブラック"></button>
+                    <button class="color-dot" type="button" data-color="#d11c1c" aria-label="レッド"></button>
+                </div>
+            </div>
+
+            <!-- ★ カラーの列と同じ高さあたり・右寄せに保存ボタンを配置 -->
+            <div class="save-area">
+                <button type="button" class="save-custom-btn">
+                    カスタム内容保存
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ▼ JS：色選択の反映処理（仮） -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const colorButtons = document.querySelectorAll('.color-dot');
+            const carFrame = document.querySelector('.car-frame');
+
+            colorButtons.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const color = btn.getAttribute('data-color');
+
+                    // 選択状態の見た目
+                    colorButtons.forEach(function (b) {
+                        b.classList.toggle('is-selected', b === btn);
+                    });
+
+                    // 仮の表示：枠の背景色を変更
+                    // 本番では車画像差し替えなどに置き換え
+                    carFrame.style.backgroundColor = color;
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
