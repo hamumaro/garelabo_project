@@ -186,6 +186,9 @@ class SavedCustom(models.Model):
     # saved_at : DATETIME
     saved_at = models.DateTimeField(auto_now_add=True)
 
+    # updated_at : DATETIME
+    updated_at =  models.DateTimeField(auto_now=True)
+
     # is_favorite : BOOLEAN (★お気に入り機能)
     is_favorite = models.BooleanField(default=False)
 
