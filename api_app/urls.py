@@ -33,6 +33,7 @@ urlpatterns = [
     path("custom_menu/<int:custom_id>/", views.custom_menu, name="custom_menu"),#カスタムメニュー画面 (既存編集)
     
     path("custom_menu/bodycolor/", views.custom_menu_bodycolor, name="custom_menu_bodycolor"),#ボディーカラー選択画面
+    path('carselect/', views.car_select, name='car_select'),  # 車種選択ページ
 
 
     path('car/', views.car_view, name='car'),

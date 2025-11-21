@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from .forms import LoginForm, RegisterForm
-from django.shortcuts import render
+from .models import Vehicle
 
 
 from .forms import LoginForm
@@ -112,3 +112,16 @@ def car_view(request):
         'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_XH32TC_x1.jpg'
     ]
     return render(request, 'car.html', {'images': images})
+
+def car_select(request):
+    vehicles = Vehicle.objects.all().order_by('id')
+    return render(request, 'carselect.html', {'vehicles': vehicles})
+
+# def custom_menu_view(request, car_id):
+#     car = get_object_or_404(Vehicle, id=car_id)
+
+#     context = {
+#         "car_image_url": "/media/" + car.base_image_path,
+#         "car_name": car.name,
+#     }
+#     return render(request, 'custom_menu.html', context)
