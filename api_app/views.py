@@ -2,6 +2,8 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from .forms import LoginForm, RegisterForm
+from django.shortcuts import render
+
 
 from .forms import LoginForm
 from .models import SavedCustom
@@ -79,3 +81,9 @@ def delete_item(request, item_id):
     # 削除
     item.delete()
     return redirect('list_page')
+
+def custom_menu(request):
+    return render(request, "custom_menu.html")
+
+def custom_menu_bodycolor(request):
+    return render(request, "custom_menu_bodycolor.html")
