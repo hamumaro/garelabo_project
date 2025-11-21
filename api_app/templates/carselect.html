@@ -72,7 +72,7 @@
                 {
                     id: {{ v.id }},
                     name: "{{ v.name }}",
-                    image: "/media/{{ v.base_image_path }}"
+                    image: "/media/{{ v.base_image_path.url }}"
                 }{% if not forloop.last %},{% endif %}
                 {% endfor %}
             ];
