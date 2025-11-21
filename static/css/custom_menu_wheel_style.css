@@ -9,7 +9,9 @@ body {
     color: #222;
 }
 
-/* ===== ヘッダー ===== */
+/* ================================
+ヘッダー
+================================ */
 .header {
     background: #ffffff;
     height: 80px;
@@ -46,7 +48,7 @@ body {
     transform: translateY(-1px);
 }
 
-/* 右上ユーザー */
+/* 右上ユーザー表示 */
 .header-user {
     display: flex;
     align-items: center;
@@ -54,6 +56,7 @@ body {
 }
 
 .user-name {
+    color: #000;
     font-weight: 600;
 }
 
@@ -63,6 +66,7 @@ body {
     border-radius: 50%;
     overflow: hidden;
     background: #fff;
+    display: block;
 }
 
 .user-icon img {
@@ -71,14 +75,18 @@ body {
     object-fit: cover;
 }
 
-/* ===== メインレイアウト ===== */
+/* ================================
+メインレイアウト
+================================ */
 .main-layout {
     display: flex;
     gap: 30px;
     padding: 20px 24px 40px;
 }
 
-/* ===== 左メニュー ===== */
+/* ================================
+左サイドメニュー
+================================ */
 .side-menu {
     width: 180px;
     display: flex;
@@ -86,6 +94,7 @@ body {
     gap: 20px;
 }
 
+/* 昼夜切替ボタン */
 .day-night-switch {
     display: flex;
     justify-content: center;
@@ -102,6 +111,7 @@ body {
     justify-content: space-around;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    transition: background 0.2s ease, transform 0.1s ease;
 }
 
 .day-night-toggle .icon {
@@ -109,23 +119,34 @@ body {
     color: #fff;
 }
 
+/* サイドメニューボタン共通 */
 .side-btn-link {
     display: block;
     width: 100%;
     padding: 16px 0;
     text-align: center;
+    font-size: 16px;
+    text-decoration: none;
     border: 1px solid #333;
     border-radius: 4px;
     background: #fff;
-    text-decoration: none;
     color: #111;
+    transition: 0.2s;
 }
 
 .side-btn-link:hover {
     background: #f2f2f2;
 }
 
-/* ===== 車表示エリア（ホイール画面と完全一致） ===== */
+/* 選択中タブ（黒） */
+.side-btn-link.is-active {
+    background: #111;
+    color: #fff !important;
+}
+
+/* ================================
+車表示エリア
+================================ */
 .car-display-area {
     width: 100%;
     display: flex;
@@ -136,14 +157,12 @@ body {
 .car-frame {
     width: 82%;
     max-width: 1200px;
-    aspect-ratio: 16/9;
+    aspect-ratio: 16 / 9;
     background: #000;
     border-radius: 12px;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     overflow: hidden;
 }
 
@@ -160,8 +179,73 @@ body {
     align-items: center;
     gap: 6px;
     font-size: 18px;
+    color: #333;
 }
 
 .rotate-hint img {
     width: 28px;
+    height: 28px;
+}
+
+/* 保存ボタン */
+.save-area {
+    width: 82%;
+    max-width: 1200px;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+.save-custom-btn {
+    padding: 14px 28px;
+    background: #1e52ff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+.save-custom-btn:hover {
+    background: #3b6cff;
+}
+
+/* ================================
+ライト設定エリア
+================================ */
+.color-palette-area {
+    width: 82%;
+    max-width: 1200px;
+    margin-top: 28px;
+    padding-bottom: 16px;
+}
+
+.color-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.palette-label {
+    font-size: 16px;
+    color: #333;
+}
+
+/* ライト専用チップ */
+.light-option-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #555;
+    cursor: pointer;
+}
+
+.light-option-dot:hover {
+    transform: scale(1.05);
+}
+
+.light-option-dot.is-selected {
+    outline: 3px solid #1e52ff;
+    outline-offset: 2px;
 }

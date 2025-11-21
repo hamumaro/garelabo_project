@@ -25,5 +25,9 @@ urlpatterns = [
     path('dashboard/',  views.dashboard_view, name='dashboard'),  # ログイン後ページ
     path("custom_menu/", views.custom_menu, name="custom_menu"),#カスタムメニュー画面
     path("custom_menu/bodycolor/", views.custom_menu_bodycolor, name="custom_menu_bodycolor"),#ボディーカラー選択画面
+    path("custom_menu/wheel/", views.custom_menu_wheel, name="custom_menu_wheel"),#ホイール選択画面
+    path("custom_menu/bumper/", views.custom_menu_bumper, name="custom_menu_bumper"),#バンパー選択画面
+    path("custom_menu/light/", views.custom_menu_light, name="custom_menu_light"),#ライト選択画面
+    path("custom_menu/aeroparts/", views.custom_menu_aeroparts, name="custom_menu_aeroparts"),#エアロパーツ選択画面
 
 ]

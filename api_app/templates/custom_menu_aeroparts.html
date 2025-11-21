@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GARELABO+｜カスタムメニュー</title>
+    <title>GARELABO+｜ホイール</title>
 
-    <link rel="stylesheet" href="{% static 'css/custom_menu_style.css' %}">
+    <!-- 共通CSS読み込み -->
+    <link rel="stylesheet" href="{% static 'css/custom_menu_aeroparts_style.css' %}">
 </head>
 <body>
 
@@ -34,7 +35,7 @@
     <!-- ▼ メインレイアウト -->
     <main class="main-layout">
 
-        <!-- ▼ 左タブ -->
+        <!-- 左サイドメニュー -->
         <aside class="side-menu">
 
             <div class="day-night-switch">
@@ -48,21 +49,33 @@
             <a href="{% url 'custom_menu_wheel' %}" class="side-btn-link">ホイール</a>
             <a href="{% url 'custom_menu_bumper' %}" class="side-btn-link">バンパー</a>
             <a href="{% url 'custom_menu_light' %}" class="side-btn-link">ライト</a>
-            <a href="{% url 'custom_menu_aeroparts' %}" class="side-btn-link">エアロパーツ</a>
+            <a href="{% url 'custom_menu_aeroparts' %}" class="side-btn-link is-active" style="background:#111; color:#fff;">エアロパーツ</a>
 
         </aside>
 
-        <!-- ▼ 車の枠 -->
+        <!-- ▼ 車 + 下のエアロパーツ枠 -->
         <section class="car-display-area">
 
             <div class="car-frame">
-                <img src="{% static 'assets/R34_sample.png' %}" class="car-image" alt="R34">
+                <!-- DB画像 -->
+                <img src="{% static 'assets/r34_sample.png' %}" class="car-image" alt="車">
             </div>
 
             <div class="rotate-hint">
-                <img src="{% static 'assets/rotate.png' %}">
+                <img src="{% static 'assets/rotate.png' %}" alt="">
                 <span>360°</span>
             </div>
+
+            <div class="save-area">
+                <button class="save-custom-btn">カスタム内容保存</button>
+            </div>
+
+            <!-- ▼ エアロパーツ枠だけ -->
+            <section class="aeroparts-list-area">
+                <div class="aeroparts-placeholder">
+                    エアロパーツ選択エリア（後で実装）
+                </div>
+            </section>
 
         </section>
 

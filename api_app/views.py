@@ -87,3 +87,15 @@ def custom_menu(request):
 
 def custom_menu_bodycolor(request):
     return render(request, "custom_menu_bodycolor.html")
+
+def custom_menu_wheel(request):
+    return render(request, "custom_menu_wheel.html")
+
+def custom_menu_bumper(request):
+    return render(request, "custom_menu_bumper.html")
+
+def custom_menu_light(request):
+    return render(request, "custom_menu_light.html")
+
+def custom_menu_aeroparts(request):
+    return render(request, "custom_menu_aeroparts.html")
