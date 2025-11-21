@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GARELABO+｜ボディカラー</title>
+    <link rel="stylesheet" href="../static/css/custom_menu_style.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <img src="../static/assets/ガレラボ+.png" class="logo" alt="GARELABO+">
+    </div>
+
+    <nav class="header-nav">
+        <a href="auto_custom.html" class="nav-btn">自動カスタム</a>
+        <a href="favorite_List.html" class="nav-btn">お気に入り</a>
+        <a href="estimate.html" class="nav-btn">カスタム見積り</a>
+        <a href="custom_canceled.html" class="nav-btn">カスタム中止</a>
+    </nav>
+
+    <div class="header-user">
+        <span class="user-name">{{ user_name }}さん</span>
+        <a href="account.html" class="user-icon">
+            <img src="../static/assets/アカウントアイコン.png" alt="">
+        </a>
+    </div>
+</header>
+
+<main class="main-layout">
+
+    <!-- ▼ サイドメニュー -->
+    <aside class="side-menu">
+
+        <div class="day-night-switch">
+            <button class="day-night-toggle" type="button">
+                <span class="icon sun">☀</span>
+                <span class="icon moon">🌙</span>
+            </button>
+        </div>
+
+        <!-- ★ ボディカラーページなので確定で黒（インラインCSS） -->
+        <a href="custom_menu_bodycolor.html"
+            class="side-btn-link"
+            style="background:#111; color:#fff;">
+            ボディカラー
+        </a>
+
+        <a href="custom_menu_wheel.html" class="side-btn-link">ホイール</a>
+        <a href="custom_menu_bumper.html" class="side-btn-link">バンパー</a>
+        <a href="custom_menu_light.html" class="side-btn-link">ライト</a>
+        <a href="custom_menu_aero.html" class="side-btn-link">エアロパーツ</a>
+
+    </aside>
+
+    <!-- ▼ 車・カラー・保存ボタン -->
+    <section class="car-display-area">
+
+        <div class="car-frame">
+            <div class="car-placeholder">ここに車画像が入ります（DB）</div>
+        </div>
+
+        <div class="rotate-hint">
+            <img src="../static/assets/rotate.png" alt="">
+            <span>360°</span>
+        </div>
+
+        <div class="color-palette-area">
+            <div class="color-row">
+                <button class="color-dot" data-color="#0a33f5"></button>
+                <button class="color-dot" data-color="#ffffff"></button>
+                <button class="color-dot" data-color="#000000"></button>
+                <button class="color-dot" data-color="#d11c1c"></button>
+            </div>
+        </div>
+
+        <div class="save-area">
+            <button class="save-custom-btn">カスタム内容保存</button>
+        </div>
+
+    </section>
+
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const dots = document.querySelectorAll('.color-dot');
+    const frame = document.querySelector('.car-frame');
+
+    dots.forEach(btn => {
+        btn.addEventListener('click', () => {
+            dots.forEach(b => b.classList.remove('is-selected'));
+            btn.classList.add('is-selected');
+            frame.style.backgroundColor = btn.dataset.color;
+        });
+    });
+});
+</script>
+
+</body>
+</html>
