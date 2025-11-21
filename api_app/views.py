@@ -17,7 +17,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('dashboard')  # ログイン後のリダイレクト先 (一覧画面が出来たら変える)
+            return redirect('list_page')  # ログイン後のリダイレクト先 (一覧画面が出来たら変える)
     else:
         form = LoginForm()
     return render(request, "login.html", {'form': form})
