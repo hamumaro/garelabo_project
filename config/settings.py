@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'django.contrib.admin', 
 
     # appsをアプリとして設定
     'api_app.apps.ApiAppConfig',
