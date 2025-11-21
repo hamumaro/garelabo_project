@@ -90,7 +90,7 @@ body {
     width: 100%;
     max-width: none;
     margin: 0;
-    padding: 120px 0 160px;   /* 上下の余白を多めに */
+    padding: 120px 0 160px;   
     background: #ffffff;
     text-align: center;
 }
@@ -98,7 +98,7 @@ body {
 /* 「カスタムを中止しますか？」 */
 .cancel-title {
     margin: 0 0 100px;
-    font-size: 52px;          /* でかくした */
+    font-size: 52px;         
     font-weight: 600;
     letter-spacing: 0.18em;
     color: #111;
@@ -107,22 +107,21 @@ body {
 /* YES / NO ボタン配置 */
 .cancel-buttons {
     display: inline-flex;
-    gap: 120px;               /* ボタンの間隔 */
-}
+    gap: 120px;              
 
-/* YES / NO ボタン（大型版） */
+/* YES / NO ボタン */
 .cancel-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 180px;             /* 幅アップ */
-    height: 50px;             /* 高さアップ */
+    width: 180px;             
+    height: 50px;             
     border: 2px solid var(--btn-border);
     border-radius: 999px;
 
     text-decoration: none;
     color: var(--text-main);
-    font-size: 18px;          /* 文字も大きく */
+    font-size: 18px;         
     font-weight: 600;
     letter-spacing: 0.1em;
 
@@ -139,7 +138,7 @@ body {
     transform: translateY(1px);
 }
 
-/* ざっくりレスポンシブ（スマホ用） */
+
 @media (max-width: 768px) {
     .top-header-inner {
         padding: 0 16px;
