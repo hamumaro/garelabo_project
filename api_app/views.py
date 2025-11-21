@@ -104,3 +104,11 @@ def custom_menu(request, custom_id= None):
 # カラー
 def custom_menu_bodycolor(request):
     return render(request, "custom_menu_bodycolor.html")
+
+def car_view(request):
+    images = [
+        'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_S42_x2.jpg',
+        'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_S42_x3.jpg',
+        'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_XH32TC_x1.jpg'
+    ]
+    return render(request, 'car.html', {'images': images})

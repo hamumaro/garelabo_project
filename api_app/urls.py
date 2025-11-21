@@ -4,12 +4,16 @@
 from django.urls import path
 from .views import login_view #, register_view, dashboard_view
 from . import views
+from django.contrib import admin
+from .models import Vehicle
 
+admin.site.register(Vehicle)
 urlpatterns = [
     path('test/', views.test_view),  # 動作確認用
-
+    
     # path('', login_view, name='login'),
 
+    # path('', login_view, name='login'),
     path('login/', login_view, name='login'),  # ログイン
 
     path('list/<int:custom_id>', views.list_page_view, name='list_page'), # 一覧
@@ -30,4 +34,6 @@ urlpatterns = [
     
     path("custom_menu/bodycolor/", views.custom_menu_bodycolor, name="custom_menu_bodycolor"),#ボディーカラー選択画面
 
+
+    path('car/', views.car_view, name='car'),
 ]
