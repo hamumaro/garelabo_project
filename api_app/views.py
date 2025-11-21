@@ -32,13 +32,14 @@ def login_view(request):
 
 # 一覧ページ表示
 def list_page_view(request):
+    #ログイン済み
     if request.user.is_authenticated:
         custom_items = SavedCustom.objects.filter(
             user=request.user
         ).order_by('-saved_at')
+    # 未ログイン
     else:
-        custom_items = []  # 未ログインでもページは表示する
-
+        custom_items = []
     return render(request, 'List.html', {
         'custom_items': custom_items,
         'user': request.user,
@@ -46,19 +47,20 @@ def list_page_view(request):
 
 # お気に入りページ表示
 def favorite_page_view(request):
-    # 未ログインならログイン画面へ (HTMLファイル名ではなくURL名を指定)
+    #ログイン済み
     if request.user.is_authenticated:
         items = SavedCustom.objects.filter(
             user=request.user,
-            favorite=True
+            is_favorite=True
         ).order_by('-saved_at')
+    # 未ログインならログイン画面へ
     else:
         items = []
     return render(request, 'Favorite_List.html', {'items': items})
 
     # return render(request, "login.html", {'form': form})
 
-
+# 新規登録ページ表示
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -70,6 +72,7 @@ def register_view(request):
     return render(request, "register.html", {'form': form})
 
 
+# テスト用ページ
 def dashboard_view(request):
     """ログイン後のテスト用ページ"""
     return render(request, 'dashboard.html')
