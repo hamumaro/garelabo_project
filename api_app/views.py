@@ -20,6 +20,11 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             return redirect('list_page')  # ログイン後のリダイレクト先 (一覧画面が出来たら変える)
+        else:
+            print("--------------------------------------------------")
+            print("ログインエラー:", form.errors)
+            print("送信されたデータ:", request.POST)
+            print("--------------------------------------------------")
     else:
         form = LoginForm()
     return render(request, "login.html", {'form': form})
@@ -85,8 +90,17 @@ def delete_item(request, item_id):
     item.delete()
     return redirect('list_page')
 
-def custom_menu(request):
+# カスタムメニュー
+def custom_menu(request, custom_id= None):
+    if  custom_id:
+        # IDがある場合（一覧から来た場合）：そのデータを取得して表示
+        custom_item = get_object_or_404(SavedCustom, pk=custom_id, user=request.user)
+    else:
+        # IDがない場合（新規作成）
+        pass
     return render(request, "custom_menu.html")
 
+
+# カラー
 def custom_menu_bodycolor(request):
     return render(request, "custom_menu_bodycolor.html")

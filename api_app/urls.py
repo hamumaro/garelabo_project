@@ -12,7 +12,7 @@ urlpatterns = [
 
     path('login/', login_view, name='login'),  # ログイン
 
-    path('list/', views.list_page_view, name='list_page'), # 一覧
+    path('list/<int:custom_id>', views.list_page_view, name='list_page'), # 一覧
 
     path('delete/<int:item_id>/',views.delete_item, name='delete_item'), #削除
 
@@ -23,7 +23,11 @@ urlpatterns = [
     path('register/',  views.register_view, name='register'),  # 新規登録
 
     path('dashboard/',  views.dashboard_view, name='dashboard'),  # ログイン後ページ
-    path("custom_menu/", views.custom_menu, name="custom_menu"),#カスタムメニュー画面
+    
+    path("custom_menu/", views.custom_menu, name="custom_menu"),#カスタムメニュー画面 (新規作成)
+    
+    path("custom_menu/<int:custom_id>/", views.custom_menu, name="custom_menu"),#カスタムメニュー画面 (既存編集)
+    
     path("custom_menu/bodycolor/", views.custom_menu_bodycolor, name="custom_menu_bodycolor"),#ボディーカラー選択画面
 
 ]
