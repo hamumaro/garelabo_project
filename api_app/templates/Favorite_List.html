@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}"/>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>GARELABO+｜一覧</title>
+        <link rel="stylesheet" href="{% static 'css/List_style.css' %}"/>
+    </head>
+    <body>
+
+    <header class="header">
+        <div class="header-inner">
+
+            <!-- 上段ヘッダー -->
+            <div class="header-grid">
+
+                <div class="panel">
+                    <img src="{% static 'assets/メーター.png' %}" alt="メーター">
+                </div>
+
+                <div class="panel">
+                    <img src="{% static 'assets/R34.png' %}" alt="R34">
+                </div>
+
+                <div class="brand-area">
+
+                    {% if user.is_authenticated %}
+                        <!-- ログイン時（右画像の状態） -->
+                        <div class="user-info">
+                            <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
+                            <span class="username">{{ user.username }} さん</span>
+                        </div>
+                    {% else %}
+                        <!-- 未ログイン時（左画像の状態） -->
+                        <a href="{% url 'login' %}" class="login-btn">ログイン</a>
+                    {% endif %}
+
+                    <img class="garelabo-logo" src="{% static 'assets/garelabo_title.png' %}" alt="GARELABO+"> 
+                </div>
+            </div>
+
+            <!-- リボンメニュー -->
+            <nav class="ribbons" aria-label="メインメニュー">
+
+                {% if user.is_authenticated %}
+                    <!-- ログイン時 -->
+                <a class="ribbon" href="#build">
+                    <img src="{% static 'assets/カスタム作成.png' %}" alt="カスタム作成ボタン" width="35" height="35">
+                    カスタム作成                    
+                </a>
+                {% else %}
+                    <!-- 未ログイン時 -->
+                <a class="ribbon" href="{% url 'login' %}">
+                    <img src="{% static 'assets/カスタム作成.png' %}" alt="カスタム作成ボタン" width="35" height="35">
+                    カスタム作成                    
+                    </a>
+                {% endif %}
+                
+                <a class="ribbon" href="{% url 'list_page' %}">
+                    <img src="{% static 'assets/一覧.png' %}" alt="一覧ボタン" width="35" height="35">
+                    　　一覧　　
+                </a>
+
+            </nav>
+
+        </div>
+    </header>
+
+    <!-- セクションタイトル -->
+    <div class="section-title">お気に入り一覧</div>
+
+    <main class="content">
+
+        {% if user.is_authenticated %}
+            <h2>あなたのお気に入りカスタムデータ</h2>
+
+            <!-- カスタム車両一覧（右画像の下部） -->
+            <div class="custom-data-list">
+
+                {% for item in custom_items %}
+                <div class="custom-card">
+                    <a href="{% url 'custom_menu' item_id %}">
+                        <img src="{{ item.thumbnail_url.url }}" class="preview-img">
+                    </a>
+                    <p>最終保存：{{ item.updated_at|date:"Y/m/d" }}</p>
+                    <form action="{% url 'delete_item.id' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-btn">🗑</button>
+                    </form>
+                </div>
+                {% empty %}
+                    <p>まだお気に入りのカスタム車両がありません。</p>
+                {% endfor %}
+
+            </div>
+        {% endif %}
+
+    </main>
+
+    </body>
+</html>
+

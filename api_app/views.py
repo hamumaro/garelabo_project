@@ -1,11 +1,16 @@
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from .forms import LoginForm, RegisterForm
 
+from .forms import LoginForm
+from .models import SavedCustom
+
+# 動作確認用
 def test_view(request):
     return HttpResponse("API is working!")
 
+# ログイン処理
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
@@ -17,11 +22,39 @@ def login_view(request):
         form = LoginForm()
     return render(request, "login.html", {'form': form})
 
-def list_page_view(request):
-    return render(request, 'list.html')
+# def list_page_view(request):
+#     return render(request, 'list.html')
+#             # ログイン成功後は一覧ページへ
+#             return redirect('list_page')
+#     else:
+#         form = LoginForm()
+#     return render(request, "login.html", {'form': form})
 
+# 一覧ページ表示
+def list_page_view(request):
+    if request.user.is_authenticated:
+        custom_items = SavedCustom.objects.filter(
+            user=request.user
+        ).order_by('-saved_at')
+    else:
+        custom_items = []  # 未ログインでもページは表示する
+
+    return render(request, 'List.html', {
+        'custom_items': custom_items,
+        'user': request.user,
+    })
+
+# お気に入りページ表示
 def favorite_page_view(request):
-    return render(request, 'Favorite_List.html')
+    # 未ログインならログイン画面へ (HTMLファイル名ではなくURL名を指定)
+    if request.user.is_authenticated:
+        items = SavedCustom.objects.filter(
+            user=request.user,
+            favorite=True
+        ).order_by('-saved_at')
+    else:
+        items = []
+    return render(request, 'Favorite_List.html', {'items': items})
 
     # return render(request, "login.html", {'form': form})
 
@@ -40,3 +73,9 @@ def register_view(request):
 def dashboard_view(request):
     """ログイン後のテスト用ページ"""
     return render(request, 'dashboard.html')
+# 削除機能
+def delete_item(request, item_id):
+    item = get_object_or_404(SavedCustom, id=item_id, user=request.user)
+    # 削除
+    item.delete()
+    return redirect('list_page')
