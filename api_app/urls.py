@@ -12,7 +12,7 @@ urlpatterns = [
 
     path('login/', login_view, name='login'),  # ログイン
 
-    path('list/', views.list_page_view, name='list_page'),
+    path('list/', views.list_page_view, name='list_page'), # 一覧
 
     path('delete/<int:item_id>/',views.delete_item, name='delete_item'), #削除
 
