@@ -1,53 +1,59 @@
-document.getElementById("registerForm").addEventListener("submit", function (e) {
-    e.preventDefault();
+window.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById("registerForm");
 
-    // 各要素
-    const nickname = document.getElementById("nickname");
-    const email = document.getElementById("email");
-    const password = document.getElementById("password");
+    form.addEventListener("submit", function(e) {
+        e.preventDefault();
 
-    // エラーメッセージ要素
-    const nicknameError = document.getElementById("nickname-error");
-    const emailError = document.getElementById("email-error");
-    const passwordError = document.getElementById("password-error");
+        // 入力要素
+        const nickname = document.getElementById("nickname");
+        const email = document.getElementById("email");
+        const password = document.getElementById("password");
 
-    // エラー初期化
-    nicknameError.style.display = "none";
-    emailError.style.display = "none";
-    passwordError.style.display = "none";
+        // エラー表示要素
+        const nicknameError = document.getElementById("nickname-error");
+        const emailError = document.getElementById("email-error");
+        const passwordError = document.getElementById("password-error");
 
-    let hasError = false;
+        // エラー初期化
+        if (nicknameError) nicknameError.textContent = "";
+        if (emailError) emailError.textContent = "";
+        if (passwordError) passwordError.textContent = "";
 
-    // 半角英数字の正規表現
-    const halfWidthAlphaNum = /^[A-Za-z0-9]+$/;
+        let hasError = false;
+        const halfWidthAlphaNum = /^[A-Za-z0-9]+$/;
 
-    // ニックネーム
-    if (nickname.value.trim() === "") {
-        nicknameError.textContent ="ニックネームを入力してください。";
-        nicknameError.style.display = "block";
-        hasError = true;
-    }
+        // ニックネーム
+        if (!nickname.value.trim()) {
+            if (nicknameError) nicknameError.textContent = "ニックネームを入力してください。";
+            hasError = true;
+        }
 
-    // メールアドレス
-    if (email.value.trim() === "") {
-        emailError.textContent = "メールアドレスを入力してください。";
-        emailError.style.display = "block";
-        hasError = true;
-    } 
+        // メールアドレス
+        if (!email.value.trim()) {
+            if (emailError) emailError.textContent = "メールアドレスを入力してください。";
+            hasError = true;
+        }
 
-    // パスワード
-    if (password.value.trim() === "") {
-        passwordError.textContent = "パスワードを入力してください。";
-        passwordError.style.display = "block";
-        hasError = true;
-    } else if (!halfWidthAlphaNum.test(password.value)) {
-        passwordError.textContent = "パスワードは半角英数字で入力してください。";
-        passwordError.style.display = "block";
-        hasError = true;
-    }
+        // パスワード
+        if (!password.value.trim()) {
+            if (passwordError) passwordError.textContent = "パスワードを入力してください。";
+            hasError = true;
+        } else if (!halfWidthAlphaNum.test(password.value)) {
+            if (passwordError) passwordError.textContent = "パスワードは半角英数字で入力してください。";
+            hasError = true;
+        }
 
-    // エラーがなければフォーム送信
-    if (!hasError) {
-        this.submit();
+        // バリデーションOKなら送信
+        if (!hasError) {
+            form.submit();
+        }
+    });
+
+    // キャンセルボタン
+    const cancelBtn = document.querySelector(".cancel");
+    if (cancelBtn) {
+        cancelBtn.addEventListener("click", function() {
+            window.location.href = "{% url 'login' %}";
+        });
     }
 });
