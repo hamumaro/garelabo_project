@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login
+from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, RegisterForm
 from .models import Vehicle
 
@@ -56,14 +57,21 @@ def list_page_view(request):
 def favorite_page_view(request):
     #ログイン済み
     if request.user.is_authenticated:
-        items = SavedCustom.objects.filter(
+        custom_items = SavedCustom.objects.filter(
             user=request.user,
             is_favorite=True
         ).order_by('-saved_at')
+<<<<<<< HEAD
     # 未ログインならログイン画面へ
+=======
+    # 未ログイン
+>>>>>>> e1507d37c12b739b1c6241effee4f97bafca15dd
     else:
-        items = []
-    return render(request, 'Favorite_List.html', {'items': items})
+        custom_items = []
+
+    return render(request, 'Favorite_List.html', {
+        'custom_items': custom_items
+    })
 
     # return render(request, "login.html", {'form': form})
 
@@ -78,6 +86,14 @@ def register_view(request):
         form = RegisterForm()
     return render(request, "register.html", {'form': form})
 
+# アカウント表示
+def account_view(request):
+    user = request.user  # ログイン中のユーザー
+    return render(request, "account.html", {
+        "nickname": user.nickname,
+        "email": user.email,
+        "password": "********"  # パスワードは実際には直接取得不可
+    })
 
 # テスト用ページ
 def dashboard_view(request):
@@ -105,6 +121,7 @@ def custom_menu(request, custom_id= None):
 def custom_menu_bodycolor(request):
     return render(request, "custom_menu_bodycolor.html")
 
+<<<<<<< HEAD
 def custom_menu_wheel(request):
     return render(request, "custom_menu_wheel.html")
 
@@ -130,6 +147,8 @@ def account(request):
     return render(request, "account.html")
 
 
+=======
+>>>>>>> e1507d37c12b739b1c6241effee4f97bafca15dd
 def car_view(request):
     images = [
         'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_S42_x2.jpg',
