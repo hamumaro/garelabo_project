@@ -28,7 +28,9 @@
                     {% if user.is_authenticated %}
                         <div class="user-info">
                             <span class="username">{{ user.nickname }} さん</span>
-                            <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
+                            <a href="{% url 'account' %}">
+                                <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
+                            </a>
                         </div>
                     {% else %}
                         <a href="{% url 'login' %}" class="login-btn">ログイン</a>

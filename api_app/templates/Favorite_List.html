@@ -30,7 +30,9 @@
                         <!-- ログイン時（右画像の状態） -->
                         <div class="user-info">
                             <span class="username">{{ user.nickname }} さん</span>
-                            <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
+                            <a href="{% url 'account' %}">
+                                <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
+                            </a>
                         </div>
                     {% else %}
                         <!-- 未ログイン時（左画像の状態） -->
@@ -81,11 +83,12 @@
 
                 {% for item in custom_items %}
                 <div class="custom-card">
-                    <a href="{% url 'custom_menu' item_id %}">
-                        <img src="{{ item.thumbnail_url.url }}" class="preview-img">
+                    <a href="{% url 'custom_menu' item.id %}">
+                        <!--仮の画像を使用中。カスタムが出来次第、カスタムした画像に変える-->
+                            <img src="{% static 'assets/一覧車両.png' %}" class="preview-img">
                     </a>
-                    <p>最終保存：{{ item.updated_at|date:"Y/m/d" }}</p>
-                    <form action="{% url 'delete_item.id' %}" method="post">
+                    <p class="saved-date">最終保存：{{ item.updated_at|date:"Y/m/d" }}</p>
+                    <form action="{% url 'delete_item' item.id %}" method="post" class="delete-form">
                         {% csrf_token %}
                         <button type="submit" class="delete-btn">🗑</button>
                     </form>
