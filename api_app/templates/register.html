@@ -1,48 +1,79 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ja">
-    <head>
-        <meta charset="UTF-8">
-        <title>新規登録</title>
-        <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    </head>
-    <body>
-        <header>
-            <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARERABO+" class="logo">
-        </header>
+  <head>
+    <meta charset="UTF-8" />
+    <title>新規登録</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <body>
+    <header>
+      <img
+        src="{% static 'assets/ガレラボ+.png' %}"
+        alt="GARERABO+"
+        class="logo"
+      />
+    </header>
 
-        <main>
-            <h1>新規登録</h1>
-            <div class="register-box">
-                <form id="registerForm" action="{% url 'register' %}" method="post">
-                    {% csrf_token %}
+    <main>
+      <h1>新規登録</h1>
+      <div class="register-box">
+        <form id="registerForm" action="{% url 'register' %}" method="post">
+          {% csrf_token %}
 
-                    <div class="form-group">
-                        {{ form.nickname.label_tag }}
-                        {{ form.nickname }}
-                        <span id="nickname-error" class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        {{ form.email.label_tag }}
-                        {{ form.email }}
-                        <span id="email-error" class="error-message"></span>
-                    </div>
-
-                    <div class="form-group">
-                        {{ form.password.label_tag }}
-                        {{ form.password }}
-                        <span id="password-error" class="error-message"></span>
-                    </div>
-
-                    <div class="form-button">
-                        <button type="submit">登録</button>
-                        <button type="button" class="cancel">キャンセル</button>
-                    </div>
-                </form>
+          {% if form.non_field_errors %}
+            <div class="error-message" style="display:block; color:red; margin-bottom:15px;">
+              {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+              {% endfor %}
             </div>
-        </main>
+          {% endif %}
 
-        <script src="{% static 'js/register.js' %}"></script>
+          <div class="form-group">
+            {{ form.nickname.label_tag }} 
+            {{ form.nickname }}
+            {% if form.nickname.errors %}
+              <div class="error-message" style="display:block; color:red;">
+                {% for error in form.nickname.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            {{ form.email.label_tag }} 
+            {{ form.email }}
+            {% if form.email.errors %}
+              <div class="error-message" style="display:block; color:red;">
+                {% for error in form.email.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            {{ form.password.label_tag }} 
+            {{ form.password }}
+            {% if form.password.errors %}
+              <div class="error-message" style="display:block; color:red;">
+                {% for error in form.password.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-button">
+            <button type="submit">登録</button>
+            <button type="button" onclick="history.back()" class="cancel">
+              キャンセル
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+
     </body>
 </html>
