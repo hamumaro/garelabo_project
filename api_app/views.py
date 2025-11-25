@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login
+from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, RegisterForm
 from .models import Vehicle
 
@@ -56,14 +57,17 @@ def list_page_view(request):
 def favorite_page_view(request):
     #ログイン済み
     if request.user.is_authenticated:
-        items = SavedCustom.objects.filter(
+        custom_items = SavedCustom.objects.filter(
             user=request.user,
             is_favorite=True
         ).order_by('-saved_at')
-    # 未ログインならログイン画面へ
+    # 未ログイン
     else:
-        items = []
-    return render(request, 'Favorite_List.html', {'items': items})
+        custom_items = []
+
+    return render(request, 'Favorite_List.html', {
+        'custom_items': custom_items
+    })
 
     # return render(request, "login.html", {'form': form})
 
@@ -78,6 +82,50 @@ def register_view(request):
         form = RegisterForm()
     return render(request, "register.html", {'form': form})
 
+# アカウント表示
+def account_view(request):
+    user = request.user  # ログイン中のユーザー
+    return render(request, "account.html", {
+        "nickname": user.nickname,
+        "email": user.email,
+        "password": "********"  # パスワードは実際には直接取得不可
+    })
+
+# アカウント情報更新表示
+def account_update_view(request):
+    user = request.user  # ログイン中のユーザー
+    return render(request, "account_update.html", {
+        "nickname": user.nickname,
+        "email": user.email,
+        "password": "********"  # パスワードは実際には直接取得不可
+    })
+
+# アカウント情報保存処理
+def account_save_view(request):
+    if request.method == 'POST':
+        user = request.user  # ログイン中のユーザー
+        nickname = request.POST.get('nickname')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        # ユーザー情報の更新
+        user.nickname = nickname
+        user.email = email
+        password != "********"
+        user.set_password(password)
+        
+        update_session_auth_hash(request, user)
+        
+        user.save()
+
+        return redirect('account')  # アカウントページへリダイレクト
+    else:
+        return redirect('account_update')  # 更新ページへリダイレクト
+
+# ログアウト
+def logout_view(request):
+    logout(request)
+    return redirect('list_page')
 
 # テスト用ページ
 def dashboard_view(request):

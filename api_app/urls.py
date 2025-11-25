@@ -2,7 +2,7 @@
 
 
 from django.urls import path
-from .views import login_view #, register_view, dashboard_view
+from .views import login_view, logout_view #, register_view, dashboard_view
 from . import views
 from django.contrib import admin
 from .models import Vehicle
@@ -37,4 +37,12 @@ urlpatterns = [
 
 
     path('car/', views.car_view, name='car'),
+
+    path('account/', views.account_view, name='account'),
+
+    path('account_update/', views.account_update_view, name='account_update'),
+
+    path('account_save/', views.account_save_view, name='account_save'),
+
+    path('logout/', logout_view, name='logout'),
 ]
