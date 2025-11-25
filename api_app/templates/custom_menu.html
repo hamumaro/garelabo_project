@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+  <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GARELABO+｜カスタムメニュー</title>
@@ -17,15 +18,15 @@
         </div>
 
         <nav class="header-nav">
-            <a href="/custom/auto" class="nav-btn">自動カスタム</a>
+            <a href="{% url 'auto_custom' %}" class="nav-btn">自動カスタム</a>
             <a href="{% url 'favorite_page' %}" class="nav-btn">お気に入り</a>
-            <a href="#" class="nav-btn">カスタム見積り</a>
-            <a href="#" class="nav-btn">カスタム中止</a>
+            <a href="{% url 'estimate' %}" class="nav-btn">カスタム見積り</a>
+            <a href="{% url 'custom_cancel' %}" class="nav-btn">カスタム中止</a>
         </nav>
 
         <div class="header-user">
-            <span class="user-name">{{ user_name }}さん</span>
-            <a href="{% url 'dashboard' %}" class="user-icon">
+            <span class="username">{{ user.nickname }} さん</span>
+            <a href="{% url 'account' %}" class="user-icon">
                 <img src="{% static 'assets/アカウントアイコン.png' %}" alt="">
             </a>
         </div>

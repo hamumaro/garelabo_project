@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アカウント</title>
+
+    <!-- Django 静的ファイル -->
+    <link rel="stylesheet" href="{% static 'css/account_style.css' %}">
+</head>
+
+<body>
+
+    <header class="header">
+
+        <!-- 左ロゴ -->
+        <div class="header-logo">
+            <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo-img">
+        </div>
+
+        <!-- 右上ユーザー情報 -->
+        <div class="header-user">
+            <span class="user-name">{{ user.nickname }}さん</span>
+            <div class="user-icon">
+                <img src="{% static 'assets/アカウントアイコン.png' %}" alt="">
+            </div>
+        </div>
+
+    </header>
+
+    <main class="container">
+        <form class="profile-form" method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="nickname">ニックネーム</label>
+                <input type="text" id="nickname" value="{{ user.nickname }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="email">メールアドレス</label>
+                <input type="text" id="email" value="{{ user.email }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="password">パスワード</label>
+                <input type="password" id="password" value="{{ user.password }}" readonly>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-change">変更</button>
+                <button type="button" class="btn btn-logout">サインアウト</button>
+            </div>
+        </form>
+    </main>
+
+</body>
+</html>

@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+
+from .models import User
 from django.contrib.auth.hashers import make_password
 
 # ログイン
@@ -20,8 +22,8 @@ class LoginForm(AuthenticationForm):
             "class" : "underline-input",
             "placeholder" : "パスワードを入力してください",
             "autocomplete" : "current-password",
-            "id" : "password"
-        })   
+            "id" : "password",
+        })
     )
 
 # 新規登録
@@ -53,7 +55,8 @@ class RegisterForm(forms.Form):
 
     def save(self, commit=True):
         user = User(
-            username=self.cleaned_data["nickname"],
+            # 修正2: カスタムユーザーモデルには 'username' がないので 'nickname' に変更
+            nickname=self.cleaned_data["nickname"],
             email=self.cleaned_data["email"],
             password=make_password(self.cleaned_data["password"])
         )
@@ -61,6 +64,9 @@ class RegisterForm(forms.Form):
             user.save()
         return user
 
-        
-
-
+    # メアド重複チェック
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("このメールアドレスは既に登録されています。")
+        return email

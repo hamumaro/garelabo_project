@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カスタム見積もり</title>
+
+    <!-- Djangoのstaticから読み込み -->
+    <link rel="stylesheet" href="{% static 'css/estimate_style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <!-- 左：ロゴ -->
+    <div class="header-logo">
+        <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo-img">
+    </div>
+
+    <!-- 中央：見積りタイトル -->
+    <div class="header-center">
+        <div class="custom-estimate-box">
+            <img src="{% static 'assets/カスタム見積り.png' %}" alt="カスタム見積り" class="estimate-title-img">
+        </div>
+    </div>
+
+    <!-- 右：ユーザー名＋アイコン＋戻るボタン -->
+    <div class="header-user">
+        <div class="user-info">
+            <span class="username">{{ user.nickname }} さん</span>
+            <a href="{% url 'account' %}" class="user-icon">
+                <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン">
+            </a>
+        </div>
+
+        <a href="{% url 'custom_menu' %}" class="btn-back">カスタムに戻る</a>
+    </div>
+</header>
+
+<main class="container">
+
+    <!-- ボディカラー -->
+    <section class="estimate-section">
+        <h2 class="section-title">ボディカラー</h2>
+        <div class="item-list">
+            <div class="item-row">
+                <span class="item-name" value="${BodyColorCode}"></span>
+                <span class="item-price" data-price="100000">JPY〜</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 選択したオプション -->
+    <section class="estimate-section options-section">
+        <h2 class="section-title">選択したオプション</h2>
+        <div class="item-list">
+            <div class="item-row">
+                <span class="item-name" value="${wheel_ID}"></span>
+                <span class="item-price" data-price="50000">JPY</span>
+            </div>
+            <div class="item-row">
+                <span class="item-name" value="${bumper_ID}"></span>
+                <span class="item-price" data-price="80000">JPY</span>
+            </div>
+            <div class="item-row">
+                <span class="item-name" value="${LightColorCode}"></span>
+                <span class="item-price" data-price="30000">JPY</span>
+            </div>
+            <div class="item-row">
+                <span class="item-name" value="${areoparts_ID}"></span>
+                <span class="item-price" data-price="15000">JPY</span>
+            </div>
+        </div>
+    </section>
+
+    <hr class="separator">
+
+    <!-- 合計金額 -->
+    <div class="total-area">
+        <div class="total-label">
+            <button class="btn-total">合計金額</button>
+        </div>
+        <div class="total-price">
+            <!-- JSで合計を書き換える想定（idは元のまま totalAmont） -->
+            <span class="price-value" id="totalAmont">JPY〜</span>
+        </div>
+    </div>
+
+</main>
+
+<!-- JSもstaticから -->
+<script src="{% static 'js/estimate.js' %}"></script>
+</body>
+</html>

@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from .forms import LoginForm, RegisterForm
-from django.shortcuts import render
+from .models import Vehicle
 
 
 from .forms import LoginForm
@@ -20,6 +20,11 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             return redirect('list_page')  # ログイン後のリダイレクト先 (一覧画面が出来たら変える)
+        else:
+            print("--------------------------------------------------")
+            print("ログインエラー:", form.errors)
+            print("送信されたデータ:", request.POST)
+            print("--------------------------------------------------")
     else:
         form = LoginForm()
     return render(request, "login.html", {'form': form})
@@ -34,13 +39,14 @@ def login_view(request):
 
 # 一覧ページ表示
 def list_page_view(request):
+    #ログイン済み
     if request.user.is_authenticated:
         custom_items = SavedCustom.objects.filter(
             user=request.user
         ).order_by('-saved_at')
+    # 未ログイン
     else:
-        custom_items = []  # 未ログインでもページは表示する
-
+        custom_items = []
     return render(request, 'List.html', {
         'custom_items': custom_items,
         'user': request.user,
@@ -48,19 +54,20 @@ def list_page_view(request):
 
 # お気に入りページ表示
 def favorite_page_view(request):
-    # 未ログインならログイン画面へ (HTMLファイル名ではなくURL名を指定)
+    #ログイン済み
     if request.user.is_authenticated:
         items = SavedCustom.objects.filter(
             user=request.user,
-            favorite=True
+            is_favorite=True
         ).order_by('-saved_at')
+    # 未ログインならログイン画面へ
     else:
         items = []
     return render(request, 'Favorite_List.html', {'items': items})
 
     # return render(request, "login.html", {'form': form})
 
-
+# 新規登録ページ表示
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -72,6 +79,7 @@ def register_view(request):
     return render(request, "register.html", {'form': form})
 
 
+# テスト用ページ
 def dashboard_view(request):
     """ログイン後のテスト用ページ"""
     return render(request, 'dashboard.html')
@@ -82,9 +90,18 @@ def delete_item(request, item_id):
     item.delete()
     return redirect('list_page')
 
-def custom_menu(request):
+# カスタムメニュー
+def custom_menu(request, custom_id= None):
+    if  custom_id:
+        # IDがある場合（一覧から来た場合）：そのデータを取得して表示
+        custom_item = get_object_or_404(SavedCustom, pk=custom_id, user=request.user)
+    else:
+        # IDがない場合（新規作成）
+        pass
     return render(request, "custom_menu.html")
 
+
+# カラー
 def custom_menu_bodycolor(request):
     return render(request, "custom_menu_bodycolor.html")
 
@@ -99,3 +116,37 @@ def custom_menu_light(request):
 
 def custom_menu_aeroparts(request):
     return render(request, "custom_menu_aeroparts.html")
+
+def auto_custom(request):
+    return render(request, "auto_custom.html")
+
+def estimate_view(request):
+    return render(request, "estimate.html")
+
+def custom_cancel(request):
+    return render(request, "custom_canceled.html")
+
+def account(request):
+    return render(request, "account.html")
+
+
+def car_view(request):
+    images = [
+        'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_S42_x2.jpg',
+        'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_S42_x3.jpg',
+        'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_XH32TC_x1.jpg'
+    ]
+    return render(request, 'car.html', {'images': images})
+
+def car_select(request):
+    vehicles = Vehicle.objects.all().order_by('id')
+    return render(request, 'carselect.html', {'vehicles': vehicles})
+
+# def custom_menu_view(request, car_id):
+#     car = get_object_or_404(Vehicle, id=car_id)
+
+#     context = {
+#         "car_image_url": "/media/" + car.base_image_path,
+#         "car_name": car.name,
+#     }
+#     return render(request, 'custom_menu.html', context)

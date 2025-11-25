@@ -29,8 +29,10 @@
                     {% if user.is_authenticated %}
                         <!-- ログイン時（右画像の状態） -->
                         <div class="user-info">
+                            <span class="username">{{ user.nickname }} さん</span>
+                            <a href="{% url 'account' %}">
                             <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
-                            <span class="username">{{ user.username }} さん</span>
+                            </a>
                         </div>
                     {% else %}
                         <!-- 未ログイン時（左画像の状態） -->
@@ -46,7 +48,7 @@
 
                 {% if user.is_authenticated %}
                     <!-- ログイン時 -->
-                <a class="ribbon" href="#build">
+                <a class="ribbon" href="{% url 'custom_menu' %}">
                     <img src="{% static 'assets/カスタム作成.png' %}" alt="カスタム作成ボタン" width="35" height="35">
                     カスタム作成                    
                 </a>

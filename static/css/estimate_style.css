@@ -3,41 +3,37 @@ body {
     font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #ffffff; /* メインコンテンツの背景色 */
+    background-color: #ffffff;
     color: #000000;
 }
 
-/* --- ヘッダーのスタイル --- */
+/* --- ヘッダー全体 --- */
 .header {
     display: flex;
     justify-content: space-between;
-    align-items: stretch; /* 子要素の高さ揃え */
+    align-items: center;        
     background-color: #000000;
     color: #ffffff;
-    height: 100px; /* ヘッダーの高さ */
+    height: 200px;
+    padding: 0 20px;
 }
 
-/* ロゴエリア */
+/* 左：ロゴエリア */
 .header-logo {
     display: flex;
     align-items: center;
-    padding: 0 20px;
-    background-color: #000000; /* ロゴエリアを少し暗く */
-    width: 250px; /* 左側の画像の幅に合わせて調整 */
+    width: 250px;
 }
 
 .logo-img {
-    height: 70px;
+    height: 100px;
+    width: auto;
 }
 
-/* 中央の見積もりタイトルエリア */
+/* 中央：タイトルエリア */
 .header-center {
     flex-grow: 1;
     display: flex;
-    background-color: #000000; /* 中央エリアの背景色 */
-    border-left: 1px solid #000000;
-    border-right: 1px solid #000000;
-    
     justify-content: center;
     align-items: center;
 }
@@ -46,80 +42,65 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: #ffffff;
-    font-weight: bold;
-    padding: 10px 30px;
-    background-color: #000000; /* カスタム見積もりボックスの色 */
-    
-    height: 100%; /* 親要素(header-center)と同じ高さにする */
-    width: 300px; /* ボックスの幅を固定または調整 */
-    background-color: #000000; /* 中央のボックスの背景をヘッダーより少し濃く */
-    box-sizing: border-box;
-    
     justify-content: center;
-    padding: 0;
+    color: #ffffff;
+    width: 260px;
 }
 
-/* 画像に合わせたスタイル調整 */
-.custom-estimate-box img {
-    /* 画像のサイズを調整 */
+.estimate-title-img {
     width: 130px;
     height: auto;
 }
 
-.custom-estimate-box .english {
-    font-size: 14px;
-    opacity: 0.8;
-}
-
-/* ユーザー情報とボタンエリア */
+/* 右：ユーザー情報・戻るボタン */
 .header-user {
     display: flex;
-    flex-direction: column; 
-    
-    align-items: flex-end; /* 右端揃え */
-    justify-content: center; /* 垂直方向中央 */
-    
-    padding: 0 20px;
-    width: 300px; /* 右側の画像の幅に合わせて調整 */
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 8px;
+    width: 260px;
 }
 
-/* ユーザー名とアイコンを横並びにするコンテナ */
+/* ユーザー名＋アイコンを横並びに */
 .user-info {
     display: flex;
-    align-items: center; /* 垂直方向中央揃え */
-    margin-bottom: 5px; /* ボタンとの間にスペース */
+    align-items: center;
+    gap: 10px;
 }
 
-.user-name {
-    font-size: 16px;
-    margin-right: 10px; 
-    margin-bottom: 0; /* 縦並びの親要素から移動したためリセット */
+.username {
+    font-size: 30px;
 }
 
+/* アイコン本体 */
 .user-icon {
-    width: 30px;
-    height: 30px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    background-color: #ccc; /* 仮のアイコン色 */
+    overflow: hidden;
     border: 2px solid #ffffff;
-    margin-right: 0;
-    margin-bottom: 0; /* 縦並びの親要素から移動したためリセット */
+    display: block;
 }
 
+.user-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 戻るボタン */
 .btn-back {
     color: #ffffff;
     text-decoration: none;
-    font-size: 14px;
-    padding: 5px 10px;
+    font-size: 30px;
+    padding: 12px 24px;
     border: 1px solid #ffffff;
-    border-radius: 3px;
-    white-space: nowrap; /* 折り返しを防ぐ */
-    margin-top: 5px; /* user-info との間隔 */
+    border-radius: 4px;
+    white-space: nowrap;
 }
 
-/* --- メインコンテンツのスタイル --- */
-
+/* --- メインコンテンツ --- */
 .container {
     max-width: 1000px;
     margin: 0 auto;
@@ -143,10 +124,10 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 5px 0;
-    border-bottom: 1px solid #eee; /* オプションの下線 */
+    border-bottom: 1px solid #eee;
 }
 
-/* ボディカラーは下線がないため、個別調整 */
+/* ボディカラーは下線なし */
 .estimate-section:not(.options-section) .item-row {
     border-bottom: none;
     padding-bottom: 20px;

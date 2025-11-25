@@ -7,6 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>GARELABO+｜一覧</title>
         <link rel="stylesheet" href="{% static 'css/List_style.css' %}"/>
+        
     </head>
     <body>
 
@@ -27,8 +28,10 @@
 
                     {% if user.is_authenticated %}
                         <div class="user-info">
+                            <span class="username">{{ user.nickname }} さん</span>
+                            <a href="{% url 'account' %}">
                             <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
-                            <span class="username">{{ user.username }} さん</span>
+                            </a>
                         </div>
                     {% else %}
                         <a href="{% url 'login' %}" class="login-btn">ログイン</a>
@@ -41,7 +44,7 @@
             <nav class="ribbons" aria-label="メインメニュー">
 
                 {% if user.is_authenticated %}
-                    <a class="ribbon" href="#build">
+                    <a class="ribbon" href="{% url "custom_menu" %}">
                         <img src="{% static 'assets/カスタム作成.png' %}" alt="カスタム作成ボタン" width="35" height="35">
                         カスタム作成
                     </a>
@@ -74,7 +77,8 @@
                 {% for item in custom_items %}
                     <div class="custom-card">
                         <a href="{% url 'custom_menu' item.id %}">
-                            <img src="{{ item.thumbnail_url.url }}" class="preview-img">
+                            <!--仮の画像を使用中。カスタムが出来次第、カスタムした画像に変える-->
+                            <img src="{% static 'assets/一覧車両.png' %}" class="preview-img">
                         </a>
                         <p class="saved-date">最終保存：{{ item.updated_at|date:"Y/m/d" }}</p>
 
