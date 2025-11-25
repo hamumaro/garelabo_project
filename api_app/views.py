@@ -1,8 +1,9 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login
+from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, RegisterForm
-from django.shortcuts import render
+from .models import Vehicle
 
 
 from .forms import LoginForm
@@ -56,14 +57,17 @@ def list_page_view(request):
 def favorite_page_view(request):
     #ログイン済み
     if request.user.is_authenticated:
-        items = SavedCustom.objects.filter(
+        custom_items = SavedCustom.objects.filter(
             user=request.user,
             is_favorite=True
         ).order_by('-saved_at')
-    # 未ログインならログイン画面へ
+    # 未ログイン
     else:
-        items = []
-    return render(request, 'Favorite_List.html', {'items': items})
+        custom_items = []
+
+    return render(request, 'Favorite_List.html', {
+        'custom_items': custom_items
+    })
 
     # return render(request, "login.html", {'form': form})
 
@@ -78,6 +82,50 @@ def register_view(request):
         form = RegisterForm()
     return render(request, "register.html", {'form': form})
 
+# アカウント表示
+def account_view(request):
+    user = request.user  # ログイン中のユーザー
+    return render(request, "account.html", {
+        "nickname": user.nickname,
+        "email": user.email,
+        "password": "********"  # パスワードは実際には直接取得不可
+    })
+
+# アカウント情報更新表示
+def account_update_view(request):
+    user = request.user  # ログイン中のユーザー
+    return render(request, "account_update.html", {
+        "nickname": user.nickname,
+        "email": user.email,
+        "password": "********"  # パスワードは実際には直接取得不可
+    })
+
+# アカウント情報保存処理
+def account_save_view(request):
+    if request.method == 'POST':
+        user = request.user  # ログイン中のユーザー
+        nickname = request.POST.get('nickname')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        # ユーザー情報の更新
+        user.nickname = nickname
+        user.email = email
+        password != "********"
+        user.set_password(password)
+        
+        update_session_auth_hash(request, user)
+        
+        user.save()
+
+        return redirect('account')  # アカウントページへリダイレクト
+    else:
+        return redirect('account_update')  # 更新ページへリダイレクト
+
+# ログアウト
+def logout_view(request):
+    logout(request)
+    return redirect('list_page')
 
 # テスト用ページ
 def dashboard_view(request):
@@ -104,3 +152,24 @@ def custom_menu(request, custom_id= None):
 # カラー
 def custom_menu_bodycolor(request):
     return render(request, "custom_menu_bodycolor.html")
+
+def car_view(request):
+    images = [
+        'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_S42_x2.jpg',
+        'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_S42_x3.jpg',
+        'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_XH32TC_x1.jpg'
+    ]
+    return render(request, 'car.html', {'images': images})
+
+def car_select(request):
+    vehicles = Vehicle.objects.all().order_by('id')
+    return render(request, 'carselect.html', {'vehicles': vehicles})
+
+# def custom_menu_view(request, car_id):
+#     car = get_object_or_404(Vehicle, id=car_id)
+
+#     context = {
+#         "car_image_url": "/media/" + car.base_image_path,
+#         "car_name": car.name,
+#     }
+#     return render(request, 'custom_menu.html', context)

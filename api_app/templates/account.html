@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アカウント</title>
+    <link rel="stylesheet" href="{% static 'css/account_style.css'%}">
+</head>
+<body>
+
+<header class="header">
+    <div class="header-logo">
+        <a href="{% url 'list_page' %}">
+            <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo-img">
+        </a>
+    </div>
+    <div class="header-user">
+        <span class="user-name">{{ nickname }} さん</span>
+        <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
+    </div>
+</header>
+
+<main class="container">
+    <form class="profile-form">
+        <div class="form-group">
+            <label for="nickname">ニックネーム</label>
+            <input type="text" id="nickname" value="{{ nickname }}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="email">メールアドレス</label>
+            <input type="text" id="email" value="{{ email }}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="password">パスワード</label>
+            <input type="text" id="password" value="{{ password }}" readonly>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'account_update' %}" class="btn btn-change">変更</a>
+            <a href="{% url 'logout' %}" class="btn btn-logout">サインアウト</a>
+        </div>
+    </form>
+</main>
+
+</body>
+</html>
