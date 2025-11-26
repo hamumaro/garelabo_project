@@ -22,8 +22,6 @@ db.sqlite3
 *.log
 logs/
 
-# 6. ユーザーがアップロードしたメディアファイル (boto3でS3管理なら不要かも)
-media/
 
 # 7. OS固有のファイル
 .DS_Store
