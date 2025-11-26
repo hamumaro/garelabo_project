@@ -227,37 +227,51 @@ def delete_item(request, item_id):
 #     vehicle = Vehicle.objects.get(pk=custom_id)
 #     print("DEBUG:", vehicle.base_image_path.url)
 #     return render(request, "custom_menu.html", {"vehicle": vehicle})
-def custom_menu(request):
-    vehicles = Vehicle.objects.all().order_by('id')  # 全車両取得
-    return render(request, "custom_menu.html", {"vehicles": vehicles})
-
-# --- 各パーツ選択画面 ---
+# カスタムメニュー
+def custom_menu(request, custom_id= None):
+    if  custom_id:
+        # IDがある場合（一覧から来た場合）：そのデータを取得して表示
+        custom_item = get_object_or_404(SavedCustom, pk=custom_id, user=request.user)
+    else:
+        # IDがない場合（新規作成）
+        pass
+    return render(request, "custom_menu.html")
+ 
+ 
+# カラー
 def custom_menu_bodycolor(request):
     return render(request, "custom_menu_bodycolor.html")
-
+ 
 def custom_menu_wheel(request):
     return render(request, "custom_menu_wheel.html")
-
+ 
 def custom_menu_bumper(request):
     return render(request, "custom_menu_bumper.html")
-
+ 
 def custom_menu_light(request):
     return render(request, "custom_menu_light.html")
-
+ 
 def custom_menu_aeroparts(request):
     return render(request, "custom_menu_aeroparts.html")
-
+ 
 def auto_custom(request):
     return render(request, "auto_custom.html")
-
+ 
+def estimate_view(request):
+    return render(request, "estimate.html")
+ 
 def custom_cancel(request):
     return render(request, "custom_canceled.html")
-
-def carselect(request):
+ 
+def account(request):
+    return render(request, "account.html")
+ 
+def account_update(request):
+    return render(request, "account_update.html")
+ 
+def car_select(request):
     vehicles = Vehicle.objects.all().order_by('id')
-    return render(request, 'carselect.html', {'vehicles': vehicles})
-
-
+    return render(request, 'car_select.html', {'vehicles': vehicles})
 
 def car_view(request):
     # 画像リストは必要に応じてDBから取得するか、固定にする
