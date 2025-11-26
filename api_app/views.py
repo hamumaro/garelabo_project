@@ -215,12 +215,14 @@ def delete_item(request, item_id):
     item.delete()
     return redirect('list_page')
 
-# カスタムメニュー (一覧から戻る場合など)
-def custom_menu(request, custom_id=None):
-    if custom_id:
-        # 既存データの編集などはここに追加
-        pass
-    return render(request, "custom_menu.html")
+# カスタムメニュー
+# def custom_menu(request, custom_id= None):
+#     vehicle = Vehicle.objects.get(pk=custom_id)
+#     print("DEBUG:", vehicle.base_image_path.url)
+#     return render(request, "custom_menu.html", {"vehicle": vehicle})
+def custom_menu(request):
+    vehicles = Vehicle.objects.all().order_by('id')  # 全車両取得
+    return render(request, "custom_menu.html", {"vehicles": vehicles})
 
 # --- 各パーツ選択画面 ---
 def custom_menu_bodycolor(request):
@@ -305,3 +307,10 @@ def estimate_view(request):
     }
 
     return render(request, "estimate.html", context)
+#     context = {
+#         "car_image_url": "/media/" + car.base_image_path,
+#         "car_name": car.name,
+#     }
+#     return render(request, 'custom_menu.html', context)
+
+
