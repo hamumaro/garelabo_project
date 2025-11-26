@@ -84,3 +84,4 @@ class VerificationForm(forms.Form):
             "id": "authCode"
         })
     )
+        return email

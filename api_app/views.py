@@ -3,9 +3,13 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, update_session_auth_hash, get_user_model
 from django.contrib.auth.decorators import login_required
+from .forms import LoginForm, RegisterForm
+from .models import Vehicle
+import random
 from django.core.mail import send_mail
 from django.db import transaction
 import random
+
 
 # モデルとフォームのインポート
 from .forms import LoginForm, RegisterForm, VerificationForm
@@ -64,6 +68,7 @@ def favorite_page_view(request):
     })
 
 # 新規登録ページ表示
+# views.py の register_view をこれに差し替え
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -161,6 +166,7 @@ def verify_code_view(request):
     return render(request, 'verify_code.html', {'form': form, 'message': message})
 
 
+
 # アカウント表示
 @login_required(login_url='/login/')
 def account_view(request):
@@ -204,6 +210,7 @@ def account_save_view(request):
 def logout_view(request):
     logout(request)
     return redirect('list_page')
+
 
 # テスト用ページ
 def dashboard_view(request):
@@ -249,6 +256,8 @@ def custom_cancel(request):
 def carselect(request):
     vehicles = Vehicle.objects.all().order_by('id')
     return render(request, 'carselect.html', {'vehicles': vehicles})
+
+
 
 def car_view(request):
     # 画像リストは必要に応じてDBから取得するか、固定にする
