@@ -121,19 +121,17 @@ body {
     border-color: #333;
 }
 
-/* account_style.css に必要な設定 */
+.verification-input.error-input {
+    border: 1px solid red;
+  color: red; /* 入力文字も赤にする場合 */
+}
+.verification-input.error-input::placeholder {
+    color: red;
+}
 
-.error-message {
-    /* デフォルトでは非表示 */
-    display: none; 
-    
-    /* 赤字とサイズ設定 */
-    color: #e74c3c; 
-    font-size: 0.9em;
-    
-    /* 画面の画像のような位置に配置するため */
-    position: absolute; 
-    top: 45px; /* 入力欄の下に配置 */
-    left: 120px; /* 適切な横位置に調整 */
-    white-space: nowrap; 
+.form-group .error {
+    color: red;
+    font-size: 12px;
+    display: block;
+    margin-top: 5px;
 }
