@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>自動カスタム</title>
+    <link rel="stylesheet" href="{% static 'css/auto_custom_style.css' %}">
+</head>
+
+<body>
+    <header>
+        <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo">
+
+        <div class="title-box">
+            <img src="{% static 'assets/自動カスタム.png' %}" alt="custom-icon" class="icon">
+            <div class="title-text">
+                <h1>自動カスタム</h1>
+                <p>　　　～ AIが導く、最高の一台へ ～</p>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- 車画像エリア -->
+        <div class="car-area">
+            <img src="{% static 'assets/auto_custom_R35.jpg' %}"
+                alt="carImage"
+                class="car-img">
+
+            <div class="rotate">
+                <span>⟲ 360°</span>
+            </div>
+        </div>
+
+        <!-- 右側エリア -->
+        <div class="right-area">
+
+            <!-- ボタン行（onclick版） -->
+            <div class="btn-row">
+                <button type="button" onclick="loadCustomData()">
+                    自動カスタム
+                </button>
+
+                <button type="button"
+                        onclick="location.href='{% url 'custom_menu' %}'">
+                    メニューに戻る
+                </button>
+            </div>
+
+            <!-- カスタム内容 -->
+            <div class="custom-box">
+                <h2 class="custom-title">カスタム内容表示▼</h2>
+
+                <div id="custom-content" class="custom-content">
+                    <!-- JSで結果が入る -->
+                </div>
+
+                <p class="note">※AIによって自動カスタムされています</p>
+            </div>
+
+            <!-- 保存ボタン -->
+            <button class="save-btn" type="button" onclick="saveCustom()">
+                カスタム内容保存
+            </button>
+        </div>
+    </main>
+
+    <script src="{% static 'js/auto_custom.js' %}"></script>
+</body>
+</html>
