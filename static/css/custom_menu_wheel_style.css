@@ -1,4 +1,3 @@
-
 * {
     box-sizing: border-box;
 }
@@ -95,13 +94,12 @@ body {
     gap: 20px;
 }
 
-/* 昼夜切替ボタンコンテナ */
+/* 昼夜切替ボタン */
 .day-night-switch {
     display: flex;
     justify-content: center;
 }
 
-/* 昼夜切替ボタン本体 */
 .day-night-toggle {
     width: 120px;
     height: 60px;
@@ -116,17 +114,12 @@ body {
     transition: background 0.2s ease, transform 0.1s ease;
 }
 
-.day-night-toggle:hover {
-    background: #444;
-    transform: translateY(-1px);
-}
-
 .day-night-toggle .icon {
     font-size: 24px;
     color: #fff;
 }
 
-/* 左メニューのボタン共通 */
+/* サイドメニューボタン共通 */
 .side-btn-link {
     display: block;
     width: 100%;
@@ -148,7 +141,7 @@ body {
 /* 選択中タブ（黒） */
 .side-btn-link.is-active {
     background: #111;
-    color: #fff;
+    color: #fff !important;
 }
 
 /* ================================
@@ -179,12 +172,7 @@ body {
     object-fit: cover;
 }
 
-.car-placeholder {
-    color: #fff;
-    font-size: 20px;
-}
-
-/* 360° 表示 */
+/* 360° */
 .rotate-hint {
     margin-top: 16px;
     display: flex;
@@ -199,7 +187,7 @@ body {
     height: 28px;
 }
 
-/* カスタム内容保存ボタン */
+/* 保存ボタン */
 .save-area {
     width: 82%;
     max-width: 1200px;
@@ -224,7 +212,7 @@ body {
 }
 
 /* ================================
-ボディカラー用（使うなら）
+ライト設定エリア
 ================================ */
 .color-palette-area {
     width: 82%;
@@ -239,36 +227,25 @@ body {
     gap: 20px;
 }
 
-.color-dot {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 2px solid #333;
-    cursor: pointer;
-    transition: 0.15s;
+.palette-label {
+    font-size: 16px;
+    color: #333;
 }
 
-.color-dot.is-selected {
+/* ライト専用チップ */
+.light-option-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #555;
+    cursor: pointer;
+}
+
+.light-option-dot:hover {
+    transform: scale(1.05);
+}
+
+.light-option-dot.is-selected {
     outline: 3px solid #1e52ff;
     outline-offset: 2px;
-}
-
-/* ================================
-ホイール枠（中身は後で）
-================================ */
-.wheel-list-area {
-    width: 82%;
-    max-width: 1200px;
-    margin-top: 32px;
-    padding: 40px 0;
-    border: 2px dashed #ccc;
-    border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.wheel-placeholder {
-    font-size: 20px;
-    color: #888;
 }

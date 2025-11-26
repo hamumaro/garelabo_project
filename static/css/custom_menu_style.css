@@ -1,4 +1,3 @@
-
 * {
     box-sizing: border-box;
 }
@@ -13,20 +12,16 @@ body {
 /* ===== ヘッダー ===== */
 .header {
     background: #ffffff;
-    color: #ffffff;
     height: 80px;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     padding: 0 24px;
 }
 
 .header-left .logo {
     height: 60px;
     width: auto;
-    display: block;
 }
 
 /* 中央ナビボタン */
@@ -51,7 +46,7 @@ body {
     transform: translateY(-1px);
 }
 
-/* 右上ユーザー表示 */
+/* 右上ユーザー */
 .header-user {
     display: flex;
     align-items: center;
@@ -59,7 +54,6 @@ body {
 }
 
 .user-name {
-    color: #000000;
     font-weight: 600;
 }
 
@@ -69,7 +63,6 @@ body {
     border-radius: 50%;
     overflow: hidden;
     background: #fff;
-    display: block;
 }
 
 .user-icon img {
@@ -85,7 +78,7 @@ body {
     padding: 20px 24px 40px;
 }
 
-/* ===== 左サイドメニュー ===== */
+/* ===== 左メニュー ===== */
 .side-menu {
     width: 180px;
     display: flex;
@@ -93,34 +86,22 @@ body {
     gap: 20px;
 }
 
-/* 昼夜切替ボタンコンテナ */
 .day-night-switch {
     display: flex;
     justify-content: center;
 }
 
-/* 昼夜切替ボタン本体 */
 .day-night-toggle {
     width: 120px;
     height: 60px;
-
     background: #333;
     border: none;
     border-radius: 16px;
-
     display: flex;
     align-items: center;
     justify-content: space-around;
-
     cursor: pointer;
-
     box-shadow: 0 4px 10px rgba(0,0,0,0.35);
-    transition: background 0.2s ease, transform 0.1s ease;
-}
-
-.day-night-toggle:hover {
-    background: #444;
-    transform: translateY(-1px);
 }
 
 .day-night-toggle .icon {
@@ -128,67 +109,59 @@ body {
     color: #fff;
 }
 
-/* 左の各タブ（リンクボタン） */
 .side-btn-link {
     display: block;
     width: 100%;
     padding: 16px 0;
     text-align: center;
-
-    font-size: 16px;
-    color: #000;
-    text-decoration: none;
-
     border: 1px solid #333;
-    background: #fff;
     border-radius: 4px;
-
-    transition: 0.15s ease;
+    background: #fff;
+    text-decoration: none;
+    color: #111;
 }
 
 .side-btn-link:hover {
-    background: #f5f5f5;
+    background: #f2f2f2;
 }
 
-/* ===== 車表示エリア ===== */
+/* ===== 車表示エリア（ホイール画面と完全一致） ===== */
 .car-display-area {
-    flex: 1;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* 車画像の枠（中身はDBで差し込む） */
 .car-frame {
-    width: 100%;
-    max-width: 950px;
-    height: 520px;
-
-    background: #111;
-    border-radius: 6px;
+    width: 82%;
+    max-width: 1200px;
+    aspect-ratio: 16/9;
+    background: #000;
+    border-radius: 12px;
 
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
 
     overflow: hidden;
 }
 
-.car-placeholder {
-    color: #bbbbbb;
-    font-size: 20px;
+.car-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-/* 360° 表示 */
+/* 360° */
 .rotate-hint {
-    margin-top: 20px;
+    margin-top: 16px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
     font-size: 18px;
 }
 
 .rotate-hint img {
-    width: 40px;
-    height: auto;
+    width: 28px;
 }

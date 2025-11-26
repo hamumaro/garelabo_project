@@ -2,12 +2,13 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}">
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GARELABO+｜カスタムメニュー</title>
+    <title>GARELABO+｜ライト</title>
 
-    <link rel="stylesheet" href="{% static 'css/custom_menu_style.css' %}">
+    <!-- 共通CSS -->
+    <link rel="stylesheet" href="{% static 'css/custom_menu_light_style.css' %}">
 </head>
 <body>
 
@@ -25,17 +26,17 @@
         </nav>
 
         <div class="header-user">
-            <span class="username">{{ user.nickname }} さん</span>
+            <span class="user-name">{{ user.nickname }}さん</span>
             <a href="{% url 'account' %}" class="user-icon">
                 <img src="{% static 'assets/アカウントアイコン.png' %}" alt="">
             </a>
         </div>
     </header>
 
-    <!-- ▼ メインレイアウト -->
+    <!-- ▼ メインレイアウト（左メニュー + 右側コンテンツ） -->
     <main class="main-layout">
 
-        <!-- ▼ 左タブ -->
+        <!-- ▼ 左サイドメニュー -->
         <aside class="side-menu">
 
             <div class="day-night-switch">
@@ -45,25 +46,47 @@
                 </button>
             </div>
 
+            <!-- 今のページだけ is-active -->
             <a href="{% url 'custom_menu_bodycolor' %}" class="side-btn-link">ボディカラー</a>
             <a href="{% url 'custom_menu_wheel' %}" class="side-btn-link">ホイール</a>
             <a href="{% url 'custom_menu_bumper' %}" class="side-btn-link">バンパー</a>
-            <a href="{% url 'custom_menu_light' %}" class="side-btn-link">ライト</a>
+            <a href="{% url 'custom_menu_light' %}" class="side-btn-link is-active">ライト</a>
             <a href="{% url 'custom_menu_aeroparts' %}" class="side-btn-link">エアロパーツ</a>
 
         </aside>
 
-        <!-- ▼ 車の枠 -->
+        <!-- ▼ 右側：車 + 360° + 保存ボタン + ライト設定エリア -->
         <section class="car-display-area">
 
+            <!-- 車画像 -->
             <div class="car-frame">
-                <img src="{% static 'assets/R34_sample.png' %}" class="car-image" alt="R34">
+                <img src="{% static 'assets/r34_sample.png' %}"
+                    class="car-image"
+                    alt="カスタム車両">
             </div>
 
+            <!-- 360° 表示 -->
             <div class="rotate-hint">
-                <img src="{% static 'assets/rotate.png' %}">
+                <img src="{% static 'assets/rotate.png' %}" alt="">
                 <span>360°</span>
             </div>
+
+            <!-- カスタム内容保存ボタン -->
+            <div class="save-area">
+                <button class="save-custom-btn">カスタム内容保存</button>
+            </div>
+
+            <!-- ライト設定用エリア（枠だけ。中身は後で） -->
+            <section class="color-palette-area">
+                <div class="color-row">
+                    <span class="palette-label">ライト設定エリア（後で実装）</span>
+                    <!-- 例：あとでこういうのを追加する
+                    <div class="light-option-dot" style="background:#ffffff;"></div>
+                    <div class="light-option-dot" style="background:#ffcc00;"></div>
+                    <div class="light-option-dot" style="background:#00ccff;"></div>
+                    -->
+                </div>
+            </section>
 
         </section>
 

@@ -5,45 +5,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>アカウント</title>
-    <link rel="stylesheet" href="{% static 'css/account_style.css'%}">
+
+    <!-- Django 静的ファイル -->
+    <link rel="stylesheet" href="{% static 'css/account_style.css' %}">
 </head>
+
 <body>
 
-<header class="header">
-    <div class="header-logo">
-        <a href="{% url 'list_page' %}">
+    <header class="header">
+
+        <!-- 左ロゴ -->
+        <div class="header-logo">
             <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo-img">
-        </a>
-    </div>
-    <div class="header-user">
-        <span class="user-name">{{ nickname }} さん</span>
-        <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
-    </div>
-</header>
-
-<main class="container">
-    <form class="profile-form">
-        <div class="form-group">
-            <label for="nickname">ニックネーム</label>
-            <input type="text" id="nickname" value="{{ nickname }}" readonly>
         </div>
 
-        <div class="form-group">
-            <label for="email">メールアドレス</label>
-            <input type="text" id="email" value="{{ email }}" readonly>
+        <!-- 右上ユーザー情報 -->
+        <div class="header-user">
+            <span class="user-name">{{ user.nickname }}さん</span>
+            <div class="user-icon">
+                <img src="{% static 'assets/アカウントアイコン.png' %}" alt="">
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="password">パスワード</label>
-            <input type="text" id="password" value="{{ password }}" readonly>
-        </div>
+    </header>
 
-        <div class="form-actions">
-            <a href="{% url 'account_update' %}" class="btn btn-change">変更</a>
-            <a href="{% url 'logout' %}" class="btn btn-logout">サインアウト</a>
-        </div>
-    </form>
-</main>
+    <main class="container">
+        <form class="profile-form" method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="nickname">ニックネーム</label>
+                <input type="text" id="nickname" value="{{ user.nickname }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="email">メールアドレス</label>
+                <input type="text" id="email" value="{{ user.email }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="password">パスワード</label>
+                <input type="password" id="password" value="{{ user.password }}" readonly>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'account_update' %}" class="btn btn-change">変更</a>
+                <a href="#" class="btn btn-logout">サインアウト</a>
+            </div>
+        </form>
+    </main>
 
 </body>
 </html>

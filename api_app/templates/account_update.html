@@ -16,7 +16,7 @@
                 </a>
             </div>
             <div class="header-user">
-                <span class="user-name">{{ nickname }}さん</span>
+                <span class="user-name">{{user.nickname }}さん</span>
                 <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
             </div>
         </header>
@@ -30,7 +30,12 @@
         {% endif %}
 
         <main class="container">
+<<<<<<< HEAD
+            　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　<!--アカウントセーブがない-->
+            <form class="profile-form" id="registerForm" method="post" action="">
+=======
             <form class="profile-form" id="registerForm" method="post" action="{% url 'account_save' %}" novalidate>
+>>>>>>> origin/main
                 {% csrf_token %}
 
                 <div class="form-group">
