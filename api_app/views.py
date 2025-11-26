@@ -61,11 +61,7 @@ def favorite_page_view(request):
             user=request.user,
             is_favorite=True
         ).order_by('-saved_at')
-<<<<<<< HEAD
     # 未ログインならログイン画面へ
-=======
-    # 未ログイン
->>>>>>> e1507d37c12b739b1c6241effee4f97bafca15dd
     else:
         custom_items = []
 
@@ -121,7 +117,6 @@ def custom_menu(request, custom_id= None):
 def custom_menu_bodycolor(request):
     return render(request, "custom_menu_bodycolor.html")
 
-<<<<<<< HEAD
 def custom_menu_wheel(request):
     return render(request, "custom_menu_wheel.html")
 
@@ -147,8 +142,6 @@ def account(request):
     return render(request, "account.html")
 
 
-=======
->>>>>>> e1507d37c12b739b1c6241effee4f97bafca15dd
 def car_view(request):
     images = [
         'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_S42_x2.jpg',

@@ -2,7 +2,7 @@
 
 
 from django.urls import path
-from .views import login_view, logout_view #, register_view, dashboard_view
+from .views import login_view #logout_view #, register_view, dashboard_view
 from . import views
 from django.contrib import admin
 from .models import Vehicle
