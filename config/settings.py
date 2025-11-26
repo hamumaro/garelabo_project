@@ -35,25 +35,22 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    # "django.contrib.admin", # 重複していたので整理
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-<<<<<<< Updated upstream
-    'django.contrib.admin',  # 管理画面用（マイグレーションエラー回避のため必須）
-=======
-    'django.contrib.admin', 
->>>>>>> Stashed changes
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    
+    # humanize はここだけでOK
+    'django.contrib.humanize',
 
-    # appsをアプリとして設定
+    # 自分のアプリ
     'api_app.apps.ApiAppConfig',
-
-    # サードパーティ製アプリ
+    
+    # サードパーティ
     'rest_framework',
     'corsheaders',
-    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
