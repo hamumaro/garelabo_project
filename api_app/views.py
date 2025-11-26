@@ -245,14 +245,13 @@ def delete_item(request, item_id):
     return redirect('list_page')
 
 # カスタムメニュー
-def custom_menu(request, custom_id= None):
-    if  custom_id:
-        # IDがある場合（一覧から来た場合）：そのデータを取得して表示
-        custom_item = get_object_or_404(SavedCustom, pk=custom_id, user=request.user)
-    else:
-        # IDがない場合（新規作成）
-        pass
-    return render(request, "custom_menu.html")
+# def custom_menu(request, custom_id= None):
+#     vehicle = Vehicle.objects.get(pk=custom_id)
+#     print("DEBUG:", vehicle.base_image_path.url)
+#     return render(request, "custom_menu.html", {"vehicle": vehicle})
+def custom_menu(request):
+    vehicles = Vehicle.objects.all().order_by('id')  # 全車両取得
+    return render(request, "custom_menu.html", {"vehicles": vehicles})
 
 
 # カラー
@@ -279,3 +278,5 @@ def car_select(request):
 #         "car_name": car.name,
 #     }
 #     return render(request, 'custom_menu.html', context)
+
+

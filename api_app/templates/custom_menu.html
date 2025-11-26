@@ -61,15 +61,29 @@
       <!-- ▼ 車の枠（DB画像をここに入れる） -->
       <section class="car-display-area">
         <div class="car-frame">
-          <!-- ▼ DBから画像を入れる位置 ▼ -->
-          <!-- 例: <img src="{{ car_image_url }}" class="car-image" alt="カスタム車両"> -->
-          <div class="car-placeholder">ここに車画像が入ります（DB）</div>
+          <img
+            id="car-image"
+            src="{{vehicles.0.base_image_path.url }}"
+            alt="{{ vehicles.0.name }}"
+          />
         </div>
 
         <div class="rotate-hint">
-          <img src="../static/assets/rotate.png" alt="" />
-          <span>360°</span>
+          <button id="prev-btn">←</button>
+          <button id="next-btn">→</button>
         </div>
+
+        <!-- JSON データを埋め込む -->
+        <script id="vehicles-data" type="application/json">
+          [
+              {% for v in vehicles%}
+              { "url": "{{ v.base_image_path.url }}", "name": "{{ v.name }}" }{% if not forloop.last %},{% endif %}
+              {% endfor %}
+          ]
+        </script>
+
+        <!-- 外部JS読み込み -->
+        <script src="{% static 'js/custom_slider.js' %}"></script>
       </section>
     </main>
   </body>
