@@ -13,6 +13,7 @@ urlpatterns = [
     
     # path('', login_view, name='login'),
 
+    # path('', login_view, name='login'),
     path('login/', login_view, name='login'),  # ログイン
 
     path('list/<int:custom_id>', views.list_page_view, name='list_page'), # 一覧
@@ -41,6 +42,7 @@ urlpatterns = [
     path("custom_menu/light/", views.custom_menu_light, name="custom_menu_light"),#ライト選択画面
     path("custom_menu/aeroparts/", views.custom_menu_aeroparts, name="custom_menu_aeroparts"),#エアロパーツ選択画面
     path('carselect/', views.car_select, name='car_select'),  # 車種選択ページ
+<<<<<<< Updated upstream
     path('custom_menu/auto_custom/', views.auto_custom, name='auto_custom'),  # 自動カスタムページ
     path('estimate/', views.estimate_view, name='estimate'),  # 見積りページ
     path('custom_cancel/', views.custom_cancel, name='custom_cancel'),  # カスタム中止ページ
@@ -60,4 +62,9 @@ urlpatterns = [
 
     path('logout/', logout_view, name='logout'), #ログアウト
 >>>>>>> origin/main
+=======
+
+
+    path('car/', views.car_view, name='car'),
+>>>>>>> Stashed changes
 ]

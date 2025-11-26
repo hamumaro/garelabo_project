@@ -4,11 +4,14 @@ from django.contrib.auth import login, logout, update_session_auth_hash, get_use
 from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, RegisterForm
 from .models import Vehicle
+<<<<<<< Updated upstream
 import random
 from django.core.mail import send_mail
 from .forms import LoginForm, RegisterForm, VerificationForm
 from .models import SavedCustom, Vehicle
 from django.db import transaction
+=======
+>>>>>>> Stashed changes
 
 
 # ユーザーモデルを取得
@@ -76,8 +79,11 @@ def favorite_page_view(request):
     })
 
 # 新規登録ページ表示
+<<<<<<< Updated upstream
 # views.py の register_view をこれに差し替え
 
+=======
+>>>>>>> Stashed changes
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -185,6 +191,7 @@ def verify_code_view(request):
     return render(request, 'verify_code.html', {'form': form, 'message': message})
 
 
+<<<<<<< Updated upstream
 
 # アカウント表示
 @login_required(login_url='/login/')
@@ -235,6 +242,8 @@ def logout_view(request):
     return redirect('list_page')
 
 >>>>>>> origin/main
+=======
+>>>>>>> Stashed changes
 # テスト用ページ
 def dashboard_view(request):
     """ログイン後のテスト用ページ"""
@@ -272,6 +281,7 @@ def custom_menu_light(request):
 
 def custom_menu_aeroparts(request):
     return render(request, "custom_menu_aeroparts.html")
+<<<<<<< Updated upstream
 
 def auto_custom(request):
     return render(request, "auto_custom.html")
@@ -293,6 +303,8 @@ def carselect(request):
     return render(request, 'carselect.html', {'vehicles': vehicles})
 
 
+=======
+>>>>>>> Stashed changes
 def car_view(request):
     images = [
         'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_S42_x2.jpg',
