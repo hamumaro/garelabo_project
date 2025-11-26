@@ -37,8 +37,8 @@ urlpatterns = [
     path('custom_menu/auto_custom/', views.auto_custom, name='auto_custom'),  # 自動カスタムページ
     path('estimate/', views.estimate_view, name='estimate'),  # 見積りページ
     path('custom_cancel/', views.custom_cancel, name='custom_cancel'),  # カスタム中止ページ
-    path('account/',views.account, name='account'),# アカウント情報ページ
-    path('account/update/', views.account_update, name='account_update'),  # アカウント情報更新ページ
+    # path('account/',views.account, name='account'),# アカウント情報ページ
+    # path('account/update/', views.account_update, name='account_update'),  # アカウント情報更新ページ
 
 
     path('car/', views.car_view, name='car'),
