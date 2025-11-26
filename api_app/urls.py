@@ -45,4 +45,7 @@ urlpatterns = [
     path('account_save/', views.account_save_view, name='account_save'),
 
     path('logout/', logout_view, name='logout'),
+
+    path('verify/', views.verify_code_view, name='verify'), # 認証
+
 ]
