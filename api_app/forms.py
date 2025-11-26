@@ -70,3 +70,17 @@ class RegisterForm(forms.Form):
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("このメールアドレスは既に登録されています。")
         return email
+    
+# 認証
+class VerificationForm(forms.Form):
+    # 定義書 No.3 に合わせて変数名・name属性を authCode に設定
+    authCode = forms.CharField(
+        required=True,
+        label='認証コード',
+        widget=forms.TextInput(attrs={
+            "placeholder": "認証コード",
+            "class": "verification-input",
+            "name": "authCode", 
+            "id": "authCode"
+        })
+    )

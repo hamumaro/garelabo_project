@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>認証コード入力</title>
+    <link rel="stylesheet" href="{% static 'css/verify_style.css' %}" />
+  </head>
+  <body>
+    <header>
+      <img
+        src="{% static 'assets/ガレラボ+.png' %}"
+        alt="GARERABO+"
+        class="logo"
+      />
+    </header>
+
+    <main>
+      <div class="register-box verify-box">
+        <div class="mail-icon-area">
+          <img
+            src="{% static 'assets/mail_icon.png' %}"
+            alt="メール"
+            class="mail-icon"
+          />
+        </div>
+
+        <p class="verify-text">認証コードを送信しました。</p>
+
+        {% if message %}
+        <div class="alert alert-success" style="color: green; font-weight: bold;">
+            {{ message }}
+        </div>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="verify-input-group">
+            {{ form.authCode }}
+
+            <button type="submit" name="resendCodebtn" class="resend-btn">
+              再送信
+            </button>
+          </div>
+
+          {% if form.authCode.errors %}
+          <div
+            class="error-message"
+            style="display: block; color: red; margin-bottom: 10px"
+          >
+            {% for error in form.authCode.errors %} {{ error }} {% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="form-button verify-buttons">
+            <button type="submit" name="confirmbtn" class="confirm-btn">
+              確認
+            </button>
+
+            <button type="submit" name="cancelAuthbtn" class="cancel">
+              キャンセル
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>
