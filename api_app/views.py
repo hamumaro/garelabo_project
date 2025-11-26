@@ -88,7 +88,7 @@ def account_view(request):
     return render(request, "account.html", {
         "nickname": user.nickname,
         "email": user.email,
-        "password": "********"  # パスワードは実際には直接取得不可
+        "password": user.password  # パスワードは実際には直接取得不可
     })
 
 # テスト用ページ
@@ -140,6 +140,9 @@ def custom_cancel(request):
 
 def account(request):
     return render(request, "account.html")
+
+def account_update(request):
+    return render(request, "account_update.html")
 
 
 def car_view(request):

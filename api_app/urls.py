@@ -13,7 +13,6 @@ urlpatterns = [
     
     # path('', login_view, name='login'),
 
-    # path('', login_view, name='login'),
     path('login/', login_view, name='login'),  # ログイン
 
     path('list/<int:custom_id>', views.list_page_view, name='list_page'), # 一覧
@@ -42,6 +41,7 @@ urlpatterns = [
     path('estimate/', views.estimate_view, name='estimate'),  # 見積りページ
     path('custom_cancel/', views.custom_cancel, name='custom_cancel'),  # カスタム中止ページ
     path('account/',views.account, name='account'),# アカウント情報ページ
+    path('account/update/', views.account_update, name='account_update'),  # アカウント情報更新ページ
 
 
     path('car/', views.car_view, name='car'),
