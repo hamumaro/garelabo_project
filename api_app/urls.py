@@ -2,12 +2,9 @@
 
 
 from django.urls import path
-from .views import login_view #logout_view #, register_view, dashboard_view
+from .views import login_view,logout_view #logout_view #, register_view, dashboard_view
 from . import views
-from django.contrib import admin
-from .models import Vehicle
 
-admin.site.register(Vehicle)
 urlpatterns = [
     path('test/', views.test_view),  # 動作確認用
     
@@ -20,11 +17,7 @@ urlpatterns = [
 
     path('delete/<int:item_id>/',views.delete_item, name='delete_item'), #削除
 
-<<<<<<< HEAD
     path('favorite/', views.favorite_page_view, name='favorite_page'),# お気に入り
-=======
-    path('favorite/', views.favorite_page_view, name='favorite_page'), #お気に入り
->>>>>>> origin/main
 
     path('', views.list_page_view, name='list_page'),  # 追加
 
@@ -34,7 +27,7 @@ urlpatterns = [
     
     path("custom_menu/", views.custom_menu, name="custom_menu"),#カスタムメニュー画面 (新規作成)
     
-    path("custom_menu/<int:custom_id>/", views.custom_menu, name="custom_menu"),#カスタムメニュー画面 (既存編集)
+    # path("custom_menu/<int:custom_id>/", views.custom_menu, name="custom_menu"),#カスタムメニュー画面 (既存編集)
     
     path("custom_menu/bodycolor/", views.custom_menu_bodycolor, name="custom_menu_bodycolor"),#ボディーカラー選択画面
     path("custom_menu/wheel/", views.custom_menu_wheel, name="custom_menu_wheel"),#ホイール選択画面
@@ -42,17 +35,15 @@ urlpatterns = [
     path("custom_menu/light/", views.custom_menu_light, name="custom_menu_light"),#ライト選択画面
     path("custom_menu/aeroparts/", views.custom_menu_aeroparts, name="custom_menu_aeroparts"),#エアロパーツ選択画面
     path('carselect/', views.car_select, name='car_select'),  # 車種選択ページ
-<<<<<<< Updated upstream
+
     path('custom_menu/auto_custom/', views.auto_custom, name='auto_custom'),  # 自動カスタムページ
     path('estimate/', views.estimate_view, name='estimate'),  # 見積りページ
     path('custom_cancel/', views.custom_cancel, name='custom_cancel'),  # カスタム中止ページ
-    path('account/',views.account, name='account'),# アカウント情報ページ
-    path('account/update/', views.account_update, name='account_update'),  # アカウント情報更新ページ
+    # path('account/',views.account, name='account'),# アカウント情報ページ
+    # path('account/update/', views.account_update, name='account_update'),  # アカウント情報更新ページ
 
 
     path('car/', views.car_view, name='car'),
-<<<<<<< HEAD
-=======
 
     path('account/', views.account_view, name='account'), #アカウント
 
@@ -61,10 +52,8 @@ urlpatterns = [
     path('account_save/', views.account_save_view, name='account_save'), #アカウント保存
 
     path('logout/', logout_view, name='logout'), #ログアウト
->>>>>>> origin/main
-=======
 
 
     path('car/', views.car_view, name='car'),
->>>>>>> Stashed changes
+
 ]
