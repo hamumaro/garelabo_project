@@ -69,8 +69,6 @@ def favorite_page_view(request):
         'custom_items': custom_items
     })
 
-    # return render(request, "login.html", {'form': form})
-
 # 新規登録ページ表示
 def register_view(request):
     if request.method == 'POST':
@@ -83,6 +81,7 @@ def register_view(request):
     return render(request, "register.html", {'form': form})
 
 # アカウント表示
+@login_required(login_url='/login/')
 def account_view(request):
     user = request.user  # ログイン中のユーザー
     return render(request, "account.html", {
@@ -97,7 +96,7 @@ def account_update_view(request):
     return render(request, "account_update.html", {
         "nickname": user.nickname,
         "email": user.email,
-        "password": "********"  # パスワードは実際には直接取得不可
+        "password": ""  # パスワードは実際には直接取得不可
     })
 
 # アカウント情報保存処理
@@ -111,8 +110,8 @@ def account_save_view(request):
         # ユーザー情報の更新
         user.nickname = nickname
         user.email = email
-        password != "********"
-        user.set_password(password)
+        if password != "":
+            user.set_password(password)
         
         update_session_auth_hash(request, user)
         

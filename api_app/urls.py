@@ -20,7 +20,7 @@ urlpatterns = [
 
     path('delete/<int:item_id>/',views.delete_item, name='delete_item'), #削除
 
-    path('favorite/', views.favorite_page_view, name='favorite_page'),
+    path('favorite/', views.favorite_page_view, name='favorite_page'), #お気に入り
 
     path('', views.list_page_view, name='list_page'),  # 追加
 
@@ -38,11 +38,11 @@ urlpatterns = [
 
     path('car/', views.car_view, name='car'),
 
-    path('account/', views.account_view, name='account'),
+    path('account/', views.account_view, name='account'), #アカウント
 
-    path('account_update/', views.account_update_view, name='account_update'),
+    path('account_update/', views.account_update_view, name='account_update'), #アカウント編集
 
-    path('account_save/', views.account_save_view, name='account_save'),
+    path('account_save/', views.account_save_view, name='account_save'), #アカウント保存
 
-    path('logout/', logout_view, name='logout'),
+    path('logout/', logout_view, name='logout'), #ログアウト
 ]
