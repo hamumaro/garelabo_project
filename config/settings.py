@@ -41,11 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-<<<<<<< Updated upstream
     'django.contrib.admin',  # 管理画面用（マイグレーションエラー回避のため必須）
-=======
-    'django.contrib.admin', 
->>>>>>> Stashed changes
 
     # appsをアプリとして設定
     'api_app.apps.ApiAppConfig',

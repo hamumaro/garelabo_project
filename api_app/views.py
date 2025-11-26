@@ -2,16 +2,11 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, update_session_auth_hash, get_user_model
 from django.contrib.auth.decorators import login_required
-from .forms import LoginForm, RegisterForm
-from .models import Vehicle
-<<<<<<< Updated upstream
+from .forms import LoginForm, RegisterForm, VerificationForm
+from .models import Vehicle,SavedCustom
 import random
 from django.core.mail import send_mail
-from .forms import LoginForm, RegisterForm, VerificationForm
-from .models import SavedCustom, Vehicle
 from django.db import transaction
-=======
->>>>>>> Stashed changes
 
 
 # ユーザーモデルを取得
@@ -79,11 +74,8 @@ def favorite_page_view(request):
     })
 
 # 新規登録ページ表示
-<<<<<<< Updated upstream
 # views.py の register_view をこれに差し替え
 
-=======
->>>>>>> Stashed changes
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -191,7 +183,6 @@ def verify_code_view(request):
     return render(request, 'verify_code.html', {'form': form, 'message': message})
 
 
-<<<<<<< Updated upstream
 
 # アカウント表示
 @login_required(login_url='/login/')
@@ -203,8 +194,6 @@ def account_view(request):
         "password": user.password  # パスワードは実際には直接取得不可
     })
 
-<<<<<<< HEAD
-=======
 # アカウント情報更新表示
 def account_update_view(request):
     user = request.user  # ログイン中のユーザー
@@ -241,9 +230,6 @@ def logout_view(request):
     logout(request)
     return redirect('list_page')
 
->>>>>>> origin/main
-=======
->>>>>>> Stashed changes
 # テスト用ページ
 def dashboard_view(request):
     """ログイン後のテスト用ページ"""
@@ -281,7 +267,6 @@ def custom_menu_light(request):
 
 def custom_menu_aeroparts(request):
     return render(request, "custom_menu_aeroparts.html")
-<<<<<<< Updated upstream
 
 def auto_custom(request):
     return render(request, "auto_custom.html")
@@ -298,13 +283,11 @@ def account(request):
 def account_update(request):
     return render(request, "account_update.html")
 
-def carselect(request):
+def car_select(request):
     vehicles = Vehicle.objects.all().order_by('id')
-    return render(request, 'carselect.html', {'vehicles': vehicles})
+    return render(request, 'car_select.html', {'vehicles': vehicles})
 
 
-=======
->>>>>>> Stashed changes
 def car_view(request):
     images = [
         'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_S42_x2.jpg',
@@ -312,10 +295,6 @@ def car_view(request):
         'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_XH32TC_x1.jpg'
     ]
     return render(request, 'car.html', {'images': images})
-
-def car_select(request):
-    vehicles = Vehicle.objects.all().order_by('id')
-    return render(request, 'carselect.html', {'vehicles': vehicles})
 
 # def custom_menu_view(request, car_id):
 #     car = get_object_or_404(Vehicle, id=car_id)

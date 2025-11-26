@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>アカウント</title>
+    <title>GARELABO+｜アカウント</title>
 
     <!-- Django 静的ファイル -->
+     <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}">
     <link rel="stylesheet" href="{% static 'css/account_style.css' %}">
 </head>
 
@@ -23,7 +24,7 @@
         <div class="header-user">
             <span class="user-name">{{ user.nickname }}さん</span>
             <div class="user-icon">
-                <img src="{% static 'assets/アカウントアイコン.png' %}" alt="">
+                <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン">
             </div>
         </div>
 
