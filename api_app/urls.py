@@ -2,12 +2,9 @@
 
 
 from django.urls import path
-from .views import login_view #logout_view #, register_view, dashboard_view
+from .views import login_view,logout_view #logout_view #, register_view, dashboard_view
 from . import views
-from django.contrib import admin
-from .models import Vehicle
 
-admin.site.register(Vehicle)
 urlpatterns = [
     path('test/', views.test_view),  # 動作確認用
     
@@ -19,11 +16,7 @@ urlpatterns = [
 
     path('delete/<int:item_id>/',views.delete_item, name='delete_item'), #削除
 
-<<<<<<< HEAD
     path('favorite/', views.favorite_page_view, name='favorite_page'),# お気に入り
-=======
-    path('favorite/', views.favorite_page_view, name='favorite_page'), #お気に入り
->>>>>>> origin/main
 
     path('', views.list_page_view, name='list_page'),  # 追加
 
@@ -44,13 +37,11 @@ urlpatterns = [
     path('custom_menu/auto_custom/', views.auto_custom, name='auto_custom'),  # 自動カスタムページ
     path('estimate/', views.estimate_view, name='estimate'),  # 見積りページ
     path('custom_cancel/', views.custom_cancel, name='custom_cancel'),  # カスタム中止ページ
-    path('account/',views.account, name='account'),# アカウント情報ページ
-    path('account/update/', views.account_update, name='account_update'),  # アカウント情報更新ページ
+    # path('account/',views.account, name='account'),# アカウント情報ページ
+    # path('account/update/', views.account_update, name='account_update'),  # アカウント情報更新ページ
 
 
     path('car/', views.car_view, name='car'),
-<<<<<<< HEAD
-=======
 
     path('account/', views.account_view, name='account'), #アカウント
 
@@ -59,5 +50,4 @@ urlpatterns = [
     path('account_save/', views.account_save_view, name='account_save'), #アカウント保存
 
     path('logout/', logout_view, name='logout'), #ログアウト
->>>>>>> origin/main
 ]
