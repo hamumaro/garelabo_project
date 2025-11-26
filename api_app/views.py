@@ -67,15 +67,13 @@ def favorite_page_view(request):
             user=request.user,
             is_favorite=True
         ).order_by('-saved_at')
-    # 未ログイン
+    # 未ログインならログイン画面へ
     else:
         custom_items = []
 
     return render(request, 'Favorite_List.html', {
         'custom_items': custom_items
     })
-
-    # return render(request, "login.html", {'form': form})
 
 # 新規登録ページ表示
 # views.py の register_view をこれに差し替え
@@ -189,21 +187,24 @@ def verify_code_view(request):
 
 
 # アカウント表示
+@login_required(login_url='/login/')
 def account_view(request):
     user = request.user  # ログイン中のユーザー
     return render(request, "account.html", {
         "nickname": user.nickname,
         "email": user.email,
-        "password": "********"  # パスワードは実際には直接取得不可
+        "password": user.password  # パスワードは実際には直接取得不可
     })
 
+<<<<<<< HEAD
+=======
 # アカウント情報更新表示
 def account_update_view(request):
     user = request.user  # ログイン中のユーザー
     return render(request, "account_update.html", {
         "nickname": user.nickname,
         "email": user.email,
-        "password": "********"  # パスワードは実際には直接取得不可
+        "password": ""  # パスワードは実際には直接取得不可
     })
 
 # アカウント情報保存処理
@@ -217,8 +218,8 @@ def account_save_view(request):
         # ユーザー情報の更新
         user.nickname = nickname
         user.email = email
-        password != "********"
-        user.set_password(password)
+        if password != "":
+            user.set_password(password)
         
         update_session_auth_hash(request, user)
         
@@ -233,6 +234,7 @@ def logout_view(request):
     logout(request)
     return redirect('list_page')
 
+>>>>>>> origin/main
 # テスト用ページ
 def dashboard_view(request):
     """ログイン後のテスト用ページ"""
@@ -258,6 +260,38 @@ def custom_menu(request, custom_id= None):
 # カラー
 def custom_menu_bodycolor(request):
     return render(request, "custom_menu_bodycolor.html")
+
+def custom_menu_wheel(request):
+    return render(request, "custom_menu_wheel.html")
+
+def custom_menu_bumper(request):
+    return render(request, "custom_menu_bumper.html")
+
+def custom_menu_light(request):
+    return render(request, "custom_menu_light.html")
+
+def custom_menu_aeroparts(request):
+    return render(request, "custom_menu_aeroparts.html")
+
+def auto_custom(request):
+    return render(request, "auto_custom.html")
+
+def estimate_view(request):
+    return render(request, "estimate.html")
+
+def custom_cancel(request):
+    return render(request, "custom_canceled.html")
+
+def account(request):
+    return render(request, "account.html")
+
+def account_update(request):
+    return render(request, "account_update.html")
+
+def carselect(request):
+    vehicles = Vehicle.objects.all().order_by('id')
+    return render(request, 'carselect.html', {'vehicles': vehicles})
+
 
 def car_view(request):
     images = [

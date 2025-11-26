@@ -2,7 +2,7 @@
 
 
 from django.urls import path
-from .views import login_view, logout_view #, register_view, dashboard_view
+from .views import login_view #logout_view #, register_view, dashboard_view
 from . import views
 from django.contrib import admin
 from .models import Vehicle
@@ -13,14 +13,17 @@ urlpatterns = [
     
     # path('', login_view, name='login'),
 
-    # path('', login_view, name='login'),
     path('login/', login_view, name='login'),  # ログイン
 
     path('list/<int:custom_id>', views.list_page_view, name='list_page'), # 一覧
 
     path('delete/<int:item_id>/',views.delete_item, name='delete_item'), #削除
 
-    path('favorite/', views.favorite_page_view, name='favorite_page'),
+<<<<<<< HEAD
+    path('favorite/', views.favorite_page_view, name='favorite_page'),# お気に入り
+=======
+    path('favorite/', views.favorite_page_view, name='favorite_page'), #お気に入り
+>>>>>>> origin/main
 
     path('', views.list_page_view, name='list_page'),  # 追加
 
@@ -33,19 +36,28 @@ urlpatterns = [
     path("custom_menu/<int:custom_id>/", views.custom_menu, name="custom_menu"),#カスタムメニュー画面 (既存編集)
     
     path("custom_menu/bodycolor/", views.custom_menu_bodycolor, name="custom_menu_bodycolor"),#ボディーカラー選択画面
+    path("custom_menu/wheel/", views.custom_menu_wheel, name="custom_menu_wheel"),#ホイール選択画面
+    path("custom_menu/bumper/", views.custom_menu_bumper, name="custom_menu_bumper"),#バンパー選択画面
+    path("custom_menu/light/", views.custom_menu_light, name="custom_menu_light"),#ライト選択画面
+    path("custom_menu/aeroparts/", views.custom_menu_aeroparts, name="custom_menu_aeroparts"),#エアロパーツ選択画面
     path('carselect/', views.car_select, name='car_select'),  # 車種選択ページ
+    path('custom_menu/auto_custom/', views.auto_custom, name='auto_custom'),  # 自動カスタムページ
+    path('estimate/', views.estimate_view, name='estimate'),  # 見積りページ
+    path('custom_cancel/', views.custom_cancel, name='custom_cancel'),  # カスタム中止ページ
+    path('account/',views.account, name='account'),# アカウント情報ページ
+    path('account/update/', views.account_update, name='account_update'),  # アカウント情報更新ページ
 
 
     path('car/', views.car_view, name='car'),
+<<<<<<< HEAD
+=======
 
-    path('account/', views.account_view, name='account'),
+    path('account/', views.account_view, name='account'), #アカウント
 
-    path('account_update/', views.account_update_view, name='account_update'),
+    path('account_update/', views.account_update_view, name='account_update'), #アカウント編集
 
-    path('account_save/', views.account_save_view, name='account_save'),
+    path('account_save/', views.account_save_view, name='account_save'), #アカウント保存
 
-    path('logout/', logout_view, name='logout'),
-
-    path('verify/', views.verify_code_view, name='verify'), # 認証
-
+    path('logout/', logout_view, name='logout'), #ログアウト
+>>>>>>> origin/main
 ]
