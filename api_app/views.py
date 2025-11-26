@@ -144,6 +144,10 @@ def account(request):
 def account_update(request):
     return render(request, "account_update.html")
 
+def carselect(request):
+    vehicles = Vehicle.objects.all().order_by('id')
+    return render(request, 'carselect.html', {'vehicles': vehicles})
+
 
 def car_view(request):
     images = [
