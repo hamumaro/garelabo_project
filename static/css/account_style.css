@@ -124,3 +124,26 @@ input {
     background: #dc3545;
     color: #fff;
 }
+<<<<<<< HEAD
+=======
+
+.btn-save {
+    color: #333;
+    border-color: #333;
+}
+
+.verification-input.error-input {
+    border: 1px solid red;
+  color: red; /* 入力文字も赤にする場合 */
+}
+.verification-input.error-input::placeholder {
+    color: red;
+}
+
+.form-group .error {
+    color: red;
+    font-size: 12px;
+    display: block;
+    margin-top: 5px;
+}
+>>>>>>> origin/main
