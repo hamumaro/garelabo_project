@@ -30,12 +30,7 @@
         {% endif %}
 
         <main class="container">
-<<<<<<< HEAD
-            　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　<!--アカウントセーブがない-->
-            <form class="profile-form" id="registerForm" method="post" action="">
-=======
             <form class="profile-form" id="registerForm" method="post" action="{% url 'account_save' %}" novalidate>
->>>>>>> origin/main
                 {% csrf_token %}
 
                 <div class="form-group">
