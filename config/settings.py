@@ -11,8 +11,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 
 # .env ファイルを読み込む
-# (ファイルがない場合でもエラーにならないよう、存在チェックを入れるか、
-#  もしくは開発環境ならエラーになっても良いのでそのまま読み込みます)
 env_file = os.path.join(BASE_DIR, '.env')
 environ.Env.read_env(env_file)
 # -----------------------------------------------------------------------------
@@ -23,7 +21,10 @@ environ.Env.read_env(env_file)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # .env から読み込み（なければデフォルト値を使用）
-SECRET_KEY = env('SECRET_KEY', default="django-insecure-@4*bvgd%$*ks2(7k3_bw@v(2%xj3_#$^(!2@xr_kag0t^q%ne#")
+SECRET_KEY = env(
+    'SECRET_KEY',
+    default="django-insecure-@4*bvgd%$*ks2(7k3_bw@v(2%xj3_#$^(!2@xr_kag0t^q%ne#"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # .env から読み込み（なければ True）
@@ -33,28 +34,21 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
 INSTALLED_APPS = [
-    # "django.contrib.admin", # 重複していたので整理
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    'django.contrib.admin',  # 管理画面用（マイグレーションエラー回避のため必須）
+    # Django標準アプリ（各1回だけ）
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # humanize はここだけでOK
+
+    # 便利系
     'django.contrib.humanize',
 
-    # 自分のアプリ
+    # 自作アプリ
     'api_app.apps.ApiAppConfig',
-    
+
     # サードパーティ
     'rest_framework',
     'corsheaders',
@@ -63,7 +57,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware", # CORSミドルウェア
+    "corsheaders.middleware.CorsMiddleware",  # CORSミドルウェア
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -154,15 +148,13 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-# 環境変数から読み込み（.envに記述すること）
-EMAIL_HOST_USER = 'test.games.12356@gmail.com'  # ここも.envにするのが理想ですが、一旦このままでOK
+EMAIL_HOST_USER = 'test.games.12356@gmail.com'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# ★最重要修正: env() を使って読み込む（os.getenvではない）
-# .env に EMAIL_HOST_PASSWORD=abcdefghijklmnop と書かれている前提
+# .env に EMAIL_HOST_PASSWORD=xxxxxx を入れておくこと
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
-# デバッグ用（本番では消してください）
+# デバッグ用（本番では消す）
 print("--------------------------------------------------")
 print("メールパスワード読み込み確認:", EMAIL_HOST_PASSWORD)
 print("--------------------------------------------------")

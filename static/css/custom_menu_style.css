@@ -22,6 +22,13 @@ body {
 .header-left .logo {
     height: 60px;
     width: auto;
+    display: block;
+}
+
+/* aタグ側はサイズを持たせない */
+.header-left .logo-link {
+    display: inline-block;
+    line-height: 0;      /* 余計なスキマ消し */
 }
 
 /* 中央ナビボタン */
