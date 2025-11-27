@@ -31,7 +31,12 @@
                         <span class="username">ゲスト さん</span>
                     {% endif %}
                 </div>
-                <a href="{% url 'custom_menu' %}" class="btn-back">カスタムに戻る</a>
+                <form action="{% url 'save_estimate' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-back" style="background:none; cursor:pointer;">
+                        カスタムに戻る
+                    </button>
+                </form>
             </div>
         </header>
 

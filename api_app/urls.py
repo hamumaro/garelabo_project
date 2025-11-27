@@ -15,6 +15,8 @@ urlpatterns = [
 
     path('list/<int:custom_id>', views.list_page_view, name='list_page'), # 一覧
 
+    path('custom/save/', views.custom_save, name='save_custom'), # カスタム保存
+    
     path('delete/<int:item_id>/',views.delete_item, name='delete_item'), #削除
 
     path('favorite/', views.favorite_page_view, name='favorite_page'),# お気に入り
@@ -37,10 +39,17 @@ urlpatterns = [
     path('carselect/', views.car_select, name='car_select'),  # 車種選択ページ
 
     path('custom_menu/auto_custom/', views.auto_custom, name='auto_custom'),  # 自動カスタムページ
+
     path('estimate/', views.estimate_view, name='estimate'),  # 見積りページ
+
+    path('estimate/save/', views.save_estimate_view, name='save_estimate'), # 見積りセーブ
+
     path('custom_cancel/', views.custom_cancel, name='custom_cancel'),  # カスタム中止ページ
     # path('account/',views.account, name='account'),# アカウント情報ページ
     # path('account/update/', views.account_update, name='account_update'),  # アカウント情報更新ページ
+
+
+    
 
 
     path('car/', views.car_view, name='car'),

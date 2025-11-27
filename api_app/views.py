@@ -240,8 +240,47 @@ def custom_menu(request, custom_id= None):
  
 # カラー
 def custom_menu_bodycolor(request):
-    return render(request, "custom_menu_bodycolor.html")
- 
+    # 1. セッションデータの準備
+    custom_data = request.session.get('custom_data', {})
+    
+    # 車両IDを取得（なければDBの最初の車両をデフォルトにする）
+    vehicle_id = custom_data.get('vehicle_id')
+    if not vehicle_id:
+        first_vehicle = Vehicle.objects.first()
+        if first_vehicle:
+            vehicle_id = first_vehicle.id
+            # セッションに保存しておく
+            custom_data['vehicle_id'] = vehicle_id
+            request.session['custom_data'] = custom_data
+        else:
+            # 車両データ自体がない場合（seed_data未実行など）
+            return render(request, "custom_menu_bodycolor.html", {'colors': []})
+
+    # この車種のカラー一覧を取得
+    colors = Color.objects.filter(vehicle_id=vehicle_id)
+
+    # 2. POST送信（ボタンクリック）された時の処理
+    if request.method == 'POST':
+        selected_id = request.POST.get('color_id')
+        
+        if selected_id:
+            # セッションに保存
+            custom_data['color_id'] = selected_id
+            request.session['custom_data'] = custom_data
+            
+            # 保存したらリダイレクト（二重送信防止のため）
+            return redirect('custom_menu_bodycolor')
+
+    # 3. 現在選択されているカラーID（画面表示用）
+    current_color_id = custom_data.get('color_id')
+
+    context = {
+        'colors': colors,
+        'current_color_id': int(current_color_id) if current_color_id else None
+    }
+    # インデント（左端）を def と同じ位置に合わせてください
+    return render(request, "custom_menu_bodycolor.html", context)
+
 def custom_menu_wheel(request):
     return render(request, "custom_menu_wheel.html")
  
@@ -256,9 +295,6 @@ def custom_menu_aeroparts(request):
  
 def auto_custom(request):
     return render(request, "auto_custom.html")
- 
-def estimate_view(request):
-    return render(request, "estimate.html")
  
 def custom_cancel(request):
     return render(request, "custom_canceled.html")
@@ -282,10 +318,10 @@ def car_view(request):
     ]
     return render(request, 'car.html', {'images': images})
 
-def car_select(request):
-    # carselectと重複しているため、どちらかに統一推奨ですが一旦残します
-    vehicles = Vehicle.objects.all().order_by('id')
-    return render(request, 'carselect.html', {'vehicles': vehicles})
+# def car_select(request):
+#     # carselectと重複しているため、どちらかに統一推奨ですが一旦残します
+#     vehicles = Vehicle.objects.all().order_by('id')
+#     return render(request, 'carselect.html', {'vehicles': vehicles})
 
 
 # --- ★重要: 見積もり計算機能 ---
@@ -330,10 +366,86 @@ def estimate_view(request):
     }
 
     return render(request, "estimate.html", context)
+
+# --- 見積もり保存機能 (新規追加) ---
+@login_required(login_url='/login/')
+def save_estimate_view(request):
+    if request.method == 'POST':
+        custom_data = request.session.get('custom_data', {})
+        if not custom_data:
+            return redirect('custom_menu')
+
+        # IDからオブジェクトを取得
+        vehicle = Vehicle.objects.filter(id=custom_data.get('vehicle_id')).first()
+        color = Color.objects.filter(id=custom_data.get('color_id')).first()
+        wheel = Wheel.objects.filter(id=custom_data.get('wheel_id')).first()
+        bumper = Bumper.objects.filter(id=custom_data.get('bumper_id')).first()
+        light = Light.objects.filter(id=custom_data.get('light_id')).first()
+        aero = Aero.objects.filter(id=custom_data.get('aero_id')).first()
+
+        # 合計金額計算
+        total = Decimal('0.00')
+        parts_list = [color, wheel, bumper, light, aero]
+        for part in parts_list:
+            if part and part.price:
+                total += part.price
+
+        
+        return redirect('custom_menu')
+
+    return redirect('estimate')
+
+
 #     context = {
 #         "car_image_url": "/media/" + car.base_image_path,
 #         "car_name": car.name,
 #     }
 #     return render(request, 'custom_menu.html', context)
 
+# カスタム保存
+@login_required(login_url='/login/')
+def custom_save(request):
+    # 1. POSTメソッドで来たか確認（安全のため）
+    if request.method == 'POST':
+        
+        # 2. セッションデータの取得
+        custom_data = request.session.get('custom_data', {})
+        if not custom_data:
+            return redirect('custom_menu')
 
+        # 3. IDからオブジェクトを取得
+        vehicle = Vehicle.objects.filter(id=custom_data.get('vehicle_id')).first()
+        color = Color.objects.filter(id=custom_data.get('color_id')).first()
+        wheel = Wheel.objects.filter(id=custom_data.get('wheel_id')).first()
+        bumper = Bumper.objects.filter(id=custom_data.get('bumper_id')).first()
+        light = Light.objects.filter(id=custom_data.get('light_id')).first()
+        aero = Aero.objects.filter(id=custom_data.get('aero_id')).first()
+
+        # 4. 合計金額計算
+        total = Decimal('0.00')
+        parts_list = [color, wheel, bumper, light, aero]
+        for part in parts_list:
+            if part and part.price:
+                total += part.price
+
+        # 5. 保存
+        SavedCustom.objects.create(
+            user=request.user,
+            vehicle=vehicle,
+            color=color,
+            wheel=wheel,
+            bumper=bumper,
+            light=light,
+            aero=aero,
+            total_price=total,
+            # ※仮画像を設定（Canvas実装後に修正）
+            preview_image_url='uploads/previews/default.png',
+            display_mode=False,
+            is_favorite=False
+        )
+        
+        # 6. ★重要: 保存後は「一覧ページ」へ戻る
+        return redirect('list_page')
+
+    # POST以外（URL直接入力など）で来た場合はカスタム画面へ戻す
+    return redirect('custom_menu')
