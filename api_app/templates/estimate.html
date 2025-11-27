@@ -1,95 +1,106 @@
 {% load static %}
-<!DOCTYPE html>
+{% load humanize %} <!DOCTYPE html>
 <html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>カスタム見積もり</title>
+        <link rel="stylesheet" href="{% static 'css/estimate_style.css' %}">
+    </head>
+    <body>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GARELABO+｜カスタム見積もり</title>
-    <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}">
-    <!-- Djangoのstaticから読み込み -->
-    <link rel="stylesheet" href="{% static 'css/estimate_style.css' %}">
-</head>
-<body>
-
-<header class="header">
-    <!-- 左：ロゴ -->
-    <div class="header-logo">
-        <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo-img">
-    </div>
-
-    <!-- 中央：見積りタイトル -->
-    <div class="header-center">
-        <div class="custom-estimate-box">
-            <img src="{% static 'assets/カスタム見積り.png' %}" alt="カスタム見積り" class="estimate-title-img">
-        </div>
-    </div>
-
-    <!-- 右：ユーザー名＋アイコン＋戻るボタン -->
-    <div class="header-user">
-        <div class="user-info">
-            <span class="username">{{ user.nickname }} さん</span>
-            <a href="{% url 'account' %}" class="user-icon">
-                <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン">
-            </a>
-        </div>
-
-        <a href="{% url 'custom_menu' %}" class="btn-back">カスタムに戻る</a>
-    </div>
-</header>
-
-<main class="container">
-
-    <!-- ボディカラー -->
-    <section class="estimate-section">
-        <h2 class="section-title">ボディカラー</h2>
-        <div class="item-list">
-            <div class="item-row">
-                <span class="item-name" value="${BodyColorCode}"></span>
-                <span class="item-price" data-price="100000">JPY〜</span>
+        <header class="header">
+            <div class="header-logo">
+                <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo-img">
             </div>
-        </div>
-    </section>
-
-    <!-- 選択したオプション -->
-    <section class="estimate-section options-section">
-        <h2 class="section-title">選択したオプション</h2>
-        <div class="item-list">
-            <div class="item-row">
-                <span class="item-name" value="${wheel_ID}"></span>
-                <span class="item-price" data-price="50000">JPY</span>
+            
+            <div class="header-center">
+                <div class="custom-estimate-box">
+                    <img src="{% static 'assets/見積り.png' %}" alt="見積り" class="logo-img">
+                </div>
             </div>
-            <div class="item-row">
-                <span class="item-name" value="${bumper_ID}"></span>
-                <span class="item-price" data-price="80000">JPY</span>
+
+            <div class="header-user">
+                <div class="user-info">
+                    {% if user.is_authenticated %}
+                        <span class="username">{{ user.nickname }} さん</span>
+                        <a href="{% url 'account' %}">
+                            <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
+                        </a>
+                    {% else %}
+                        <span class="username">ゲスト さん</span>
+                    {% endif %}
+                </div>
+                <a href="{% url 'custom_menu' %}" class="btn-back">カスタムに戻る</a>
             </div>
-            <div class="item-row">
-                <span class="item-name" value="${LightColorCode}"></span>
-                <span class="item-price" data-price="30000">JPY</span>
+        </header>
+
+        <main class="container">
+            
+            <section class="estimate-section">
+                <h2 class="section-title">ボディカラー</h2>
+                <div class="item-list">
+                    {% if color %}
+                    <div class="item-row">
+                        <span class="item-name">{{ color.name }}</span>
+                        <span class="item-price">{{ color.price|intcomma }} JPY</span>
+                    </div>
+                    {% else %}
+                    <p>未選択</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="estimate-section options-section">
+                <h2 class="section-title">選択したオプション</h2>
+                <div class="item-list">
+                    
+                    {% if wheel %}
+                    <div class="item-row">
+                        <span class="item-name">{{ wheel.name }}</span>
+                        <span class="item-price">{{ wheel.price|intcomma }} JPY</span>
+                    </div>
+                    {% endif %}
+
+                    {% if bumper %}
+                    <div class="item-row">
+                        <span class="item-name">{{ bumper.name }}</span>
+                        <span class="item-price">{{ bumper.price|intcomma }} JPY</span>
+                    </div>
+                    {% endif %}
+
+                    {% if light %}
+                    <div class="item-row">
+                        <span class="item-name">{{ light.name }}</span>
+                        <span class="item-price">{{ light.price|intcomma }} JPY</span>
+                    </div>
+                    {% endif %}
+
+                    {% if aero %}
+                    <div class="item-row">
+                        <span class="item-name">{{ aero.name }}</span>
+                        <span class="item-price">{{ aero.price|intcomma }} JPY</span>
+                    </div>
+                    {% endif %}
+
+                    {% if not wheel and not bumper and not light and not aero %}
+                        <p>オプションは選択されていません</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <hr class="separator">
+
+            <div class="total-area">
+                <div class="total-label">
+                    <button class="btn-total">合計金額</button>
+                </div>
+                <div class="total-price">
+                    <span class="price-value" id="totalAmount">{{ total_price|intcomma }} JPY</span>
+                </div>
             </div>
-            <div class="item-row">
-                <span class="item-name" value="${areoparts_ID}"></span>
-                <span class="item-price" data-price="15000">JPY</span>
-            </div>
-        </div>
-    </section>
 
-    <hr class="separator">
-
-    <!-- 合計金額 -->
-    <div class="total-area">
-        <div class="total-label">
-            <button class="btn-total">合計金額</button>
-        </div>
-        <div class="total-price">
-            <!-- JSで合計を書き換える想定（idは元のまま totalAmont） -->
-            <span class="price-value" id="totalAmont">JPY〜</span>
-        </div>
-    </div>
-
-</main>
-
-<!-- JSもstaticから -->
-<script src="{% static 'js/estimate.js' %}"></script>
-</body>
+        </main>
+        
+        </body>
 </html>

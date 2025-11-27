@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     # サードパーティ製アプリ
     'rest_framework',
     'corsheaders',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
