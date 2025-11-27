@@ -4,14 +4,15 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>アカウント編集</title>
+        <title>GARELABO+｜アカウント編集</title>
+        <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}">
         <link rel="stylesheet" href="{% static 'css/account_style.css' %}">
     </head>
     <body>
 
         <header class="header">
             <div class="header-logo">
-                <a href="{% url 'account' %}">
+                <a href="{% url 'list_page' %}">
                     <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo-img">
                 </a>
             </div>
@@ -30,6 +31,7 @@
         {% endif %}
 
         <main class="container">
+            　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　<!--アカウントセーブがない-->
             <form class="profile-form" id="registerForm" method="post" action="{% url 'account_save' %}" novalidate>
                 {% csrf_token %}
 
@@ -52,11 +54,41 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-save">保存</button>
-                </div>
+    <!-- 戻るボタン -->
+    <button type="submit" class="btn btn-save">保存</button>
+    <button type="button" class="btn btn-back" id="account-update-back-btn">戻る
+    <!-- サインアウトボタン（） -->
+    <button type="button"
+            class="btn btn-logout"
+            onclick="location.href='{% url 'logout' %}'">
+        サインアウト
+    </button>
+</div>
             </form>
         </main>
 
         <script src="{% static 'js/account_error.js' %}"></script>
+        <script>
+    (function () {
+        const btn = document.getElementById('account-update-back-btn');
+        if (!btn) return;
+
+        btn.addEventListener('click', function () {
+            const ref = document.referrer;
+            const sameOrigin = ref && ref.startsWith(location.origin);
+
+            if (sameOrigin) {
+                // 元いた画面（たぶん /account/）に戻る
+                window.location.href = ref;
+            } else if (window.history.length > 1) {
+                // 異なるオリジンだけど履歴があるとき
+                window.history.back();
+            } else {
+                // 直アクセス対策で最終手段
+                window.location.href = "{% url 'list_page' %}";
+            }
+        });
+    })();
+</script>
     </body>
 </html>

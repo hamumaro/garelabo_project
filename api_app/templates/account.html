@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>アカウント</title>
+    <title>GARELABO+｜アカウント</title>
 
     <!-- Django 静的ファイル -->
+    <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}">
     <link rel="stylesheet" href="{% static 'css/account_style.css' %}">
 </head>
 
@@ -16,13 +17,17 @@
 
         <!-- 左ロゴ -->
         <div class="header-logo">
-            <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo-img">
+            <a href="{% url 'list_page' %}">
+                    <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo-img">
+                </a>
         </div>
 
         <!-- 右上ユーザー情報 -->
         <div class="header-user">
             <span class="user-name">{{ user.nickname }}さん</span>
-            <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
+            <div class="user-icon">
+                <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン">
+            </div>
         </div>
 
     </header>
@@ -46,12 +51,56 @@
                 <input type="password" id="password" value="{{ user.password }}" readonly>
             </div>
 
-            <div class="form-actions">
-                <a href="{% url 'account_update' %}" class="btn btn-change">変更</a>
-                <a href="{% url "logout" %}" class="btn btn-logout">サインアウト</a>
-            </div>
-        </form>
-    </main>
+    <div class="form-actions">
+
+    <!-- アカウント変更画面へ -->
+    <a href="{% url 'account_update' %}" class="btn btn-change">変更</a>
+
+    <!-- 戻るボタン（scriptで制御） -->
+    <button type="button" class="btn btn-back" id="account-back-btn">戻る</button>
+
+    <!-- サインアウト -->
+    <form method="post" action="{% url 'logout' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="button"
+                class="btn btn-logout"
+                onclick="location.href='{% url 'logout' %}'">
+            サインアウト
+        </button>
+    </form>
+</div>
+
+<script>
+(function () {
+    const btn = document.getElementById('account-back-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+        const ref = document.referrer;
+        const sameOrigin = ref && ref.startsWith(location.origin);
+
+        // --- ループ防止処理 ----------------------
+        // アカウント更新画面 → アカウント画面 → 戻る のループを止める
+        if (ref && ref.includes("/account_update")) {
+            // 1回は戻るが、次の戻るは list_page に逃がす
+            window.location.href = "{% url 'list_page' %}";
+            return;
+        }
+        // -----------------------------------------
+
+        if (sameOrigin) {
+            window.location.href = ref;
+        } else if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = "{% url 'list_page' %}";
+        }
+    });
+})();
+</script>
+</main>
+
 
 </body>
 </html>
+
