@@ -35,7 +35,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-<<<<<<< HEAD
     # "django.contrib.admin", # 重複していたので整理
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -43,7 +42,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'django.contrib.admin',  # 管理画面用（マイグレーションエラー回避のため必須）
-=======
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -53,7 +51,6 @@ INSTALLED_APPS = [
     
     # humanize はここだけでOK
     'django.contrib.humanize',
->>>>>>> 225cf4695582082889999389af3a2fb122bbac48
 
     # 自分のアプリ
     'api_app.apps.ApiAppConfig',
