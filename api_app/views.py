@@ -460,5 +460,3 @@ def custom_save(request):
 
     # POST以外（URL直接入力など）で来た場合はカスタム画面へ戻す
     return redirect('custom_menu')
-    vehicles = Vehicle.objects.all()
-    return render(request, 'carselect.html', {'vehicles': vehicles})

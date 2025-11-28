@@ -43,13 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    # "django.contrib.admin", # 重複していたので整理
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    'django.contrib.admin',  # 管理画面用（マイグレーションエラー回避のため必須）
+
 
     # 自作アプリ
     'api_app.apps.ApiAppConfig',
