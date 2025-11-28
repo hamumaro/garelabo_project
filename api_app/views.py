@@ -238,6 +238,16 @@ def custom_menu(request, custom_id= None):
         pass
     return render(request, "custom_menu.html")
 
+def menu_error_view(request):
+    return render(request, "menu_error.html", status=500)
+def surroundings_error_view(request):
+    return render(request, "surroundings_error.html", status=500)
+def save_custom_content_error_view(request):
+    return render(request, "save_custom_content_error.html", status=500)
+def list_management_delection_error_view(request):
+    return render(request, "list_management_delection_error.html", status=500)
+
+
 # カラー
 def custom_menu_bodycolor(request):
     return render(request, "custom_menu_bodycolor.html")

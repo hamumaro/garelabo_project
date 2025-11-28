@@ -55,5 +55,10 @@ urlpatterns = [
 
 
     path('car/', views.car_view, name='car'),
+    path('menu_error/', views.menu_error_view, name='menu_error'), #メニューエラー
+    path('surroundings_error/', views.surroundings_error_view, name='surroundings_error'), #環境エラー
+    path('save_custom_content_error/', views.save_custom_content_error_view, name='save_custom_content_error'), #カスタム内容保存エラー
+    path('list_management_delection_error/', views.list_management_delection_error_view, name='list_management_delection_error'), #リスト管理エラー
+
 
 ]
