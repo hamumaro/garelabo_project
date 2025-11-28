@@ -1,6 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.conf import settings
+from django.utils import timezone
+import os
+
+
+
+# 画像保存先を動的に決定する関数
+def user_preview_path(instance, filename):
+    now = timezone.now().strftime('%Y%m%d_%H%M%S')
+    base, ext = os.path.splitext(filename)
+    new_filename = f"{now}_{base}{ext}"
+    return f'uploads/previews/user_{instance.user.id}/{new_filename}'
+
 
 # --- 1. ユーザーモデル管理 ---
 # AbstractBaseUser 継承
@@ -108,6 +120,7 @@ class Color(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image_url = models.ImageField(upload_to='uploads/colors/')
+    rotation_image_folder = models.CharField(max_length=50, blank=True)
     
     def __str__(self):
         return f"{self.name} (for {self.vehicle.name})"
@@ -167,12 +180,12 @@ class SavedCustom(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     # パーツごとのテーブル
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.PROTECT)
-    color = models.ForeignKey(Color, on_delete=models.PROTECT)
-    wheel = models.ForeignKey(Wheel, on_delete=models.PROTECT)
-    bumper = models.ForeignKey(Bumper, on_delete=models.PROTECT)
-    light = models.ForeignKey(Light, on_delete=models.PROTECT)
-    aero = models.ForeignKey(Aero, on_delete=models.PROTECT)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.PROTECT,null=True,blank=True)
+    color = models.ForeignKey(Color, on_delete=models.PROTECT,null=True,blank=True)
+    wheel = models.ForeignKey(Wheel, on_delete=models.PROTECT,null=True,blank=True)
+    bumper = models.ForeignKey(Bumper, on_delete=models.PROTECT,null=True,blank=True)
+    light = models.ForeignKey(Light, on_delete=models.PROTECT,null=True,blank=True)
+    aero = models.ForeignKey(Aero, on_delete=models.PROTECT,null=True,blank=True)
 
     # total_price
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -181,7 +194,7 @@ class SavedCustom(models.Model):
     display_mode = models.BooleanField(default=False)
 
     # preview_image_url : VARCHAR (ImageField)
-    preview_image_url = models.ImageField(upload_to='uploads/previews/')
+    preview_image_url = models.ImageField(upload_to=user_preview_path)
 
     # saved_at : DATETIME
     saved_at = models.DateTimeField(auto_now_add=True)
