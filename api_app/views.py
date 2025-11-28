@@ -222,28 +222,62 @@ def delete_item(request, item_id):
     item.delete()
     return redirect('list_page')
 
-# カスタムメニュー
-# def custom_menu(request, custom_id= None):
-#     vehicle = Vehicle.objects.get(pk=custom_id)
-#     print("DEBUG:", vehicle.base_image_path.url)
-#     return render(request, "custom_menu.html", {"vehicle": vehicle})
-# カスタムメニュー
-def custom_menu(request, custom_id= None):
-    if  custom_id:
-        # IDがある場合（一覧から来た場合）：そのデータを取得して表示
-        custom_item = get_object_or_404(SavedCustom, pk=custom_id, user=request.user)
-    else:
-        # IDがない場合（新規作成）
-        pass
-    return render(request, "custom_menu.html")
- 
- 
-# カラー
-def custom_menu(request):
-    car_id = request.GET.get('car_id')
-    car = Vehicle.objects.get(id=car_id)
-    return render(request, "custom_menu.html", {"car": car})
 
+# カスタムメニュー
+def custom_menu(request, custom_id=None):
+    # --- パターンA: 編集モード（一覧画面から custom_id が渡された場合） ---
+    if custom_id:
+        # 1. 保存データを取得
+        saved_item = get_object_or_404(SavedCustom, pk=custom_id, user=request.user)
+        
+        # 2. データをセッションに展開（続きから編集できるようにする）
+        request.session['custom_data'] = {
+            'vehicle_id': saved_item.vehicle.id if saved_item.vehicle else None,
+            'color_id': saved_item.color.id if saved_item.color else None,
+            'wheel_id': saved_item.wheel.id if saved_item.wheel else None,
+            'bumper_id': saved_item.bumper.id if saved_item.bumper else None,
+            'light_id': saved_item.light.id if saved_item.light else None,
+            'aero_id': saved_item.aero.id if saved_item.aero else None,
+        }
+
+    # --- パターンB: 新規作成モード（車種選択画面から car_id が渡された場合） ---
+    elif request.GET.get('car_id'):
+        car_id = request.GET.get('car_id')
+        # 車両が存在するか確認
+        vehicle = get_object_or_404(Vehicle, id=car_id)
+        
+        # 3. 新しいセッションを開始（前のカスタム情報をリセットして、選んだ車だけセット）
+        request.session['custom_data'] = {
+            'vehicle_id': vehicle.id
+        }
+
+    # --- 共通処理: 画面表示 ---
+    
+    # 4. セッションから現在の車両情報を取得して表示
+    custom_data = request.session.get('custom_data', {})
+    vehicle_id = custom_data.get('vehicle_id')
+    
+    vehicle = None
+    if vehicle_id:
+        vehicle = Vehicle.objects.filter(id=vehicle_id).first()
+    
+    # 万が一車両データがない場合（セッション切れなど）は、DBの先頭の車をデフォルトにする
+    if not vehicle:
+        vehicle = Vehicle.objects.first()
+        if vehicle:
+            # セッションを修復
+            custom_data['vehicle_id'] = vehicle.id
+            request.session['custom_data'] = custom_data
+
+    # 5. テンプレートへ渡す
+    context = {
+        "vehicle": vehicle,
+    }
+    return render(request, "custom_menu.html", context)
+
+
+
+# カラー
 # --- 各パーツ選択画面 ---
 def custom_menu_bodycolor(request):
     # 1. セッションデータの準備
@@ -310,7 +344,8 @@ def account(request):
  
 def account_update(request):
     return render(request, "account_update.html")
- 
+
+# 車種選択ページ
 def car_select(request):
     vehicles = Vehicle.objects.all().order_by('id')
     return render(request, 'car_select.html', {'vehicles': vehicles})
@@ -324,15 +359,6 @@ def car_view(request):
     ]
     return render(request, 'car.html', {'images': images})
 
-# def car_select(request):
-#     # carselectと重複しているため、どちらかに統一推奨ですが一旦残します
-#     vehicles = Vehicle.objects.all().order_by('id')
-#     return render(request, 'carselect.html', {'vehicles': vehicles})
-# 車種選択ページ
-def car_select(request):
-    # carselectと重複しているため、どちらかに統一推奨ですが一旦残します
-    vehicles = Vehicle.objects.all().order_by('id')
-    return render(request, 'carselect.html', {'vehicles': vehicles})
 
 
 # --- ★重要: 見積もり計算機能 ---
@@ -406,12 +432,6 @@ def save_estimate_view(request):
 
     return redirect('estimate')
 
-
-#     context = {
-#         "car_image_url": "/media/" + car.base_image_path,
-#         "car_name": car.name,
-#     }
-#     return render(request, 'custom_menu.html', context)
 
 # カスタム保存
 @login_required(login_url='/login/')
