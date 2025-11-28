@@ -48,6 +48,8 @@ urlpatterns = [
     # path('account/',views.account, name='account'),# アカウント情報ページ
     # path('account/update/', views.account_update, name='account_update'),  # アカウント情報更新ページ
 
+    
+    path('car_select/', views.car_select, name='car_select'),  # 車種選択ページ
 
     
 

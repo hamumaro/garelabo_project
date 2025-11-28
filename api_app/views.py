@@ -239,6 +239,12 @@ def custom_menu(request, custom_id= None):
  
  
 # カラー
+def custom_menu(request):
+    car_id = request.GET.get('car_id')
+    car = Vehicle.objects.get(id=car_id)
+    return render(request, "custom_menu.html", {"car": car})
+
+# --- 各パーツ選択画面 ---
 def custom_menu_bodycolor(request):
     # 1. セッションデータの準備
     custom_data = request.session.get('custom_data', {})
@@ -322,6 +328,11 @@ def car_view(request):
 #     # carselectと重複しているため、どちらかに統一推奨ですが一旦残します
 #     vehicles = Vehicle.objects.all().order_by('id')
 #     return render(request, 'carselect.html', {'vehicles': vehicles})
+# 車種選択ページ
+def car_select(request):
+    # carselectと重複しているため、どちらかに統一推奨ですが一旦残します
+    vehicles = Vehicle.objects.all().order_by('id')
+    return render(request, 'carselect.html', {'vehicles': vehicles})
 
 
 # --- ★重要: 見積もり計算機能 ---
@@ -449,3 +460,5 @@ def custom_save(request):
 
     # POST以外（URL直接入力など）で来た場合はカスタム画面へ戻す
     return redirect('custom_menu')
+    vehicles = Vehicle.objects.all()
+    return render(request, 'carselect.html', {'vehicles': vehicles})

@@ -28,13 +28,16 @@
                 </div>
 
                 <nav class="ribbons" aria-label="メインメニュー">
-                    <a class="ribbon" href="#build">
-                        <img src="{% static 'assets/カスタム作成.png' %}" alt="">
+                    <a class="ribbon" href="{% url 'custom_menu' %}">
+                        <img src="{% static 'assets/カスタム作成.png' %}" alt="カスタム作成ボタン">
                         カスタム作成　
                     </a>
                     <a class="ribbon" href="Favorite_List.html">
                         <img src="{% static 'assets/お気に入り.png' %}" alt="">
                         お気に入り一覧へ　
+                    <a class="ribbon" href="{% url 'list_page' %}">
+                        <img src="{% static 'assets/一覧.png' %}" alt="一覧ボタン">
+                        　　一覧へ　　
                     </a>
                 </nav>
             </div>
@@ -45,7 +48,7 @@
         <main class="content">
 
             <!-- ▼ 車両選択枠 -->
-            <section class="car-select" aria-label="車両選択">
+            {% comment %} <section class="car-select" aria-label="車両選択">
                 <div class="car-display">
                     <button class="arrow-btn left" type="button" aria-label="前へ">&lt;</button>
 
@@ -53,6 +56,8 @@
                         <!-- DBから取得した画像URLをここに入れる -->
                         <img src="#">
                         <img src="" alt="" class="car-image">
+                        <!--<img src="{{ car.image.url }}" alt="{{ car.name }}" class="car-image">-->
+                        <img src="{% static 'assets/Rocky.png' %}" alt="車両" class="car-image">
                         <div class="car-skeleton">画像を読み込み中…</div>
                     </div>
 
@@ -60,7 +65,7 @@
                 </div>
 
                 <p class="car-name">
-                    {{ car.manufacturer }}・{{ car.model }}（型式：{{ car.code }}）
+                    <!-- {{ car.manufacturer }}・{{ car.model }}（型式：{{ car.code }}）-->
                     <span data-bind="car-name">車名（型式）</span>
                 </p>
             </section>
@@ -72,12 +77,39 @@
                 {
                     id: {{ v.id }},
                     name: "{{ v.name }}",
-                    image: "/media/{{ v.base_image_path.url }}"
+                    image: "{{ v.base_image_path.url }}"
                 }{% if not forloop.last %},{% endif %}
                 {% endfor %}
             ];
+        </script> {% endcomment %}
+        {% comment %} <script src="{% static 'js/carselect.js' %}"></script> {% endcomment %}
+
+
+        <section class="car-display-area">
+        <div class="car-frame">
+          <img
+            id="car-image"
+            src="{{vehicles.1.base_image_path.url }}"
+            alt="{{ vehicles.1.name }}"
+          />
+        </div>
+
+        <div class="rotate-hint">
+          <button id="prev-btn">←</button>
+          <button id="next-btn">→</button>
+        </div>
+
+        <!-- JSON データを埋め込む -->
+        <script id="vehicles-data" type="application/json">
+          [
+              {% for v in vehicles%}
+              { "url": "{{ v.base_image_path.url }}", "name": "{{ v.name }}" }{% if not forloop.last %},{% endif %}
+              {% endfor %}
+          ]
         </script>
 
+        <!-- 外部JS読み込み -->
         <script src="{% static 'js/carselect.js' %}"></script>
+      </section>
     </body>
 </html>
