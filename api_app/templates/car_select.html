@@ -21,25 +21,34 @@
                     <div class="panel">
                         <img src="{% static 'assets/R32.png' %}" alt="R32">
                     </div>
-                    <div class="panel brand-area">
+                <div class="brand-area">
+
+                    {% if user.is_authenticated %}
+                        <div class="user-info">
+                            <span class="username">{{ user.nickname }} さん</span>
+                            <a href="{% url 'account' %}">
+                            <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
+                            </a>
+                        </div>
+                    {% else %}
                         <a href="{% url 'login' %}" class="login-btn">ログイン</a>
-                        <img class="garelabo-logo" src="{% static 'assets/garelabo_title.png' %}" alt="GARELABO+">
-                    </div>
+                    {% endif %}
+
+                    <img class="garelabo-logo" src="{% static 'assets/garelabo_title.png' %}" alt="GARELABO+"> 
                 </div>
+            </div>
 
                 <nav class="ribbons" aria-label="メインメニュー">
                     <a class="ribbon" href="{% url 'custom_menu' %}">
                         <img src="{% static 'assets/カスタム作成.png' %}" alt="カスタム作成ボタン">
                         カスタム作成　
                     </a>
-                    <a class="ribbon" href="Favorite_List.html">
-                        <img src="{% static 'assets/お気に入り.png' %}" alt="">
-                        お気に入り一覧へ　
                     <a class="ribbon" href="{% url 'list_page' %}">
                         <img src="{% static 'assets/一覧.png' %}" alt="一覧ボタン">
                         　　一覧へ　　
                     </a>
                 </nav>
+                
             </div>
         </header>
 

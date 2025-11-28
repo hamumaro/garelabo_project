@@ -44,8 +44,7 @@
             <nav class="ribbons" aria-label="メインメニュー">
 
                 {% if user.is_authenticated %}
-                    <a class="ribbon" href="{% url 'custom_menu' %}">
-                    <a class="ribbon" href="{% url "car_select" %}">
+                    <a class="ribbon" href="{% url 'car_select' %}">
                         <img src="{% static 'assets/カスタム作成.png' %}" alt="カスタム作成ボタン" width="35" height="35">
                         カスタム作成
                     </a>
