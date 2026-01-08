@@ -49,11 +49,6 @@ urlpatterns = [
     
     path('car_select/', views.car_select, name='car_select'),  # 車種選択ページ
 
-    
-
-
-    path('car/', views.car_view, name='car'),
-
     path('account/', views.account_view, name='account'), #アカウント
 
     path('account_update/', views.account_update_view, name='account_update'), #アカウント編集
@@ -61,8 +56,5 @@ urlpatterns = [
     path('account_save/', views.account_save_view, name='account_save'), #アカウント保存
 
     path('logout/', logout_view, name='logout'), #ログアウト
-
-
-    path('car/', views.car_view, name='car'),
 
 ]

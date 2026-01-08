@@ -322,6 +322,8 @@ def custom_menu_bodycolor(request):
     }
     # インデント（左端）を def と同じ位置に合わせてください
     return render(request, "custom_menu_bodycolor.html", context)
+    vehicles = Vehicle.objects.all().order_by('id')
+    return render(request, "custom_menu_bodycolor.html", {"vehicles": vehicles})
 
 def custom_menu_wheel(request):
     return render(request, "custom_menu_wheel.html")
@@ -410,14 +412,6 @@ def car_select(request):
     vehicles = Vehicle.objects.all().order_by('id')
     return render(request, 'car_select.html', {'vehicles': vehicles})
 
-def car_view(request):
-    # 画像リストは必要に応じてDBから取得するか、固定にする
-    images = [
-        'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_S42_x2.jpg',
-        'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_S42_x3.jpg',
-        'https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_XH32TC_x1.jpg'
-    ]
-    return render(request, 'car.html', {'images': images})
 
 
 
