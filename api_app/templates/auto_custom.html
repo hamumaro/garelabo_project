@@ -1,17 +1,20 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>GARELABO+｜自動カスタム</title>
-    <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}">
-    <link rel="stylesheet" href="{% static 'css/auto_custom_style.css' %}">
-</head>
+    <head>
+    <link
+        rel="icon"
+        type="image/png"
+        href="{% static 'assets/Garelabo_Logo.png' %}"
+    />
+        <meta charset="UTF-8">
+        <title>自動カスタム</title>
+        <link rel="stylesheet" href="{% static 'css/auto_custom_style.css' %}">
+    </head>
+    <body>
 
-<body>
     <header>
         <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo">
-
         <div class="title-box">
             <img src="{% static 'assets/自動カスタム.png' %}" alt="custom-icon" class="icon">
             <div class="title-text">
@@ -22,50 +25,54 @@
     </header>
 
     <main>
+
         <!-- 車画像エリア -->
         <div class="car-area">
-            <img src="{% static 'assets/auto_custom_R35.jpg' %}"
-                alt="carImage"
-                class="car-img">
+            <img id="car-image" src="" alt="car" />
 
-            <div class="rotate">
-                <span>⟲ 360°</span>
+            <script id="vehicles-data" type="application/json">
+                {{ vehicles_json|safe }}
+            </script>
+
+            <div class="rotate-hint">
+                <button id="prev-btn">←</button>
+                <button id="next-btn">→</button>
             </div>
         </div>
-
         <!-- 右側エリア -->
         <div class="right-area">
 
-            <!-- ボタン行（onclick版） -->
+            <!-- ボタン行 -->
             <div class="btn-row">
-                <button type="button" onclick="loadCustomData()">
+                <button type="button" id="btn-random" onclick="loadCustomData()">
                     自動カスタム
                 </button>
 
-                <button type="button"
-                        onclick="location.href='{% url 'custom_menu' %}'">
+                <button type="button" onclick="location.href='{% url 'custom_menu' %}'">
                     メニューに戻る
                 </button>
             </div>
 
-            <!-- カスタム内容 -->
+            <!-- カスタム内容表示 -->
             <div class="custom-box">
                 <h2 class="custom-title">カスタム内容表示▼</h2>
-
                 <div id="custom-content" class="custom-content">
-                    <!-- JSで結果が入る -->
+                    <!-- JSで動的に追加される -->
                 </div>
-
-                <p class="note">※AIによって自動カスタムされています</p>
             </div>
 
+            <p class="note">※AIによって自動カスタムされています</p>
+
             <!-- 保存ボタン -->
-            <button class="save-btn" type="button" onclick="saveCustom()">
+            <a href="{% url 'save_custom' %}" class="save-btn">
                 カスタム内容保存
-            </button>
+            </a>
+
         </div>
+
     </main>
 
     <script src="{% static 'js/auto_custom.js' %}"></script>
-</body>
+    <script src="{% static 'js/custom_slider.js' %}"></script>
+    </body>
 </html>

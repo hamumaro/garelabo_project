@@ -1,5 +1,5 @@
 from decimal import Decimal  # ★追加: 計算用
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, update_session_auth_hash, get_user_model
 from django.contrib.auth.decorators import login_required
@@ -9,6 +9,8 @@ import random
 from django.core.mail import send_mail
 from django.db import transaction
 import random
+import json
+from django.templatetags.static import static
 
 
 # モデルとフォームのインポート
@@ -333,8 +335,66 @@ def custom_menu_light(request):
 def custom_menu_aeroparts(request):
     return render(request, "custom_menu_aeroparts.html")
  
-def auto_custom(request):
-    return render(request, "auto_custom.html")
+def auto_custom(request, vehicle_id):
+    vehicle_id = request.GET.get("vehicle_id")
+    color_id   = request.GET.get("color_id")
+    wheel_id   = request.GET.get("wheel_id")
+    bumper_id = request.GET.get("bumper_id")
+    light_id = request.GET.get("light_id")
+    aero_id = request.GET.get("aero_id")
+
+    selected = {}
+
+    if vehicle_id:
+        selected["vehicle"] = Vehicle.objects.get(id=vehicle_id)
+    if color_id:
+        selected["color"] = Color.objects.get(id=color_id)
+    if wheel_id:
+        selected["wheel"] = Wheel.objects.get(id=wheel_id)
+    if bumper_id:
+        selected["bumper"] = Bumper.objects.get(id=bumper_id)
+    if light_id:
+        selected["light"] = Light.objects.get(id=light_id)
+    if aero_id:
+        selected["aero"] = Aero.objects.get(id=aero_id)
+
+    return render(request, "auto_custom.html", {
+        vehicle_id: vehicle_id,
+        "selected": selected
+    })
+
+# 自動車カスタムページのAPI
+def auto_custom_api(request):
+
+    vehicles = list(Vehicle.objects.all())
+    colors   = list(Color.objects.all())
+    wheels   = list(Wheel.objects.all())
+    bumpers  = list(Bumper.objects.all())
+    lights   = list(Light.objects.all())
+    aeros    = list(Aero.objects.all())
+
+    if not all([vehicles, colors, wheels, bumpers, lights, aeros]):
+        return JsonResponse({"error": "データ不足"})
+
+    vehicle = random.choice(vehicles)
+    color   = random.choice(colors)
+    wheel   = random.choice(wheels)
+    bumper  = random.choice(bumpers)
+    light   = random.choice(lights)
+    aero    = random.choice(aeros)
+
+    return JsonResponse({
+        "vehicle": vehicle.name,
+        "color": color.name,
+        "wheel": wheel.name,
+        "bumper": bumper.name,
+        "light": light.name,
+        "aero": aero.name,
+    })
+
+
+def estimate_view(request):
+    return render(request, "estimate.html")
  
 def custom_cancel(request):
     return render(request, "custom_canceled.html")
