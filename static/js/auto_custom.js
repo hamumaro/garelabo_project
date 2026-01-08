@@ -1,54 +1,62 @@
-// --- カスタム内容の要素 ---
-const customContent = document.getElementById("custom-content");
+console.log("🚗 自動カスタムJS読み込み完了");
 
-// --- ページ読み込み時にAIカスタム自動生成 ---
-document.addEventListener("DOMContentLoaded", () => {
-    loadCustomData();
-});
+const vehiclesData = JSON.parse(
+    document.getElementById("vehicles-data").textContent
+);
 
-// --- AIによるカスタム内容取得（最終形を想定した構造）---
-async function loadCustomData() {
-
-    customContent.innerHTML = "AIがカスタム内容を生成しています...";
-
-    try {
-        // ▼ 後で本番APIに変更する ▼
-        // const response = await fetch("/api/auto_custom");
-        // const data = await response.json();
-
-        // ------ 仮AI結果 ------
-        const data = {
-            bodyColor: "ステルスグレー",
-            wheel: "RAYS鍛造 20インチ（ブラック）",
-            light: "LEDプロジェクター＋NISMO仕様",
-            bumper: "NISMO専用エアロ（フロント＆リア）",
-            aero: "カーボンウィング＋サイドスカート"
-        };
-        // ---------------------
-
-        customContent.innerHTML = formatCustomHTML(data);
-
-    } catch (err) {
-        console.error("AI読み込み失敗:", err);
-        window.location.href = "main_error.html?type=switchFail";
-    }
+function showVehicle(id) {
+    const vehicle = vehiclesData.find(v => v.id === id);
+    document.getElementById("vehicle-image").src = vehicle.image;
 }
 
-// --- カスタム内容のHTML生成 ---
-function formatCustomHTML(data) {
-    return `
-        <div class="item"><strong>🎨 ボディカラー：</strong><br>${data.bodyColor}</div>
-        <div class="item"><strong>⚙ ホイール：</strong><br>${data.wheel}</div>
-        <div class="item"><strong>💡 ライト：</strong><br>${data.light}</div>
-        <div class="item"><strong>🛠 バンパー：</strong><br>${data.bumper}</div>
-        <div class="item"><strong>🪽 エアロ：</strong><br>${data.aero}</div>
+function gotoAutoCustom() {
+    const id = document.getElementById("vehicle-select").value;
+    window.location.href = `/custom_menu/auto_custom/?vehicle_id=${id}`;
+}
+
+function loadInitialCustom() {
+
+    const container = document.getElementById("custom-content");
+    const selectedData = window.initialSelected;  // ← Django側で埋め込む
+
+    if (!selectedData) {
+        container.innerHTML = "<p>初期データなし</p>";
+        return;
+    }
+
+    container.innerHTML = `
+        <h3>選択中のカスタム</h3>
+
+        ${selectedData.vehicle ? `<p>車種：${selectedData.vehicle.name}</p>` : ""}
+        ${selectedData.color   ? `<p>カラー：${selectedData.color.name}</p>` : ""}
+        ${selectedData.wheel   ? `<p>ホイール：${selectedData.wheel.name}</p>` : ""}
+        ${selectedData.bumper  ? `<p>バンパー：${selectedData.bumper.name}</p>` : ""}
+        ${selectedData.light   ? `<p>ライト：${selectedData.light.name}</p>` : ""}
+        ${selectedData.aero    ? `<p>エアロ：${selectedData.aero.name}</p>` : ""}
     `;
 }
 
-// function saveCustom() {
-//     alert("カスタム内容を保存しました（仮）");
-// }
+function loadCustomData() {
+    fetch("/auto_custom/api/")
+        .then(res => res.json())
+        .then(data => {
 
-function goMenu() {
-    window.location.href = "";
+            if (data.error) {
+                document.getElementById("custom-content").innerHTML =
+                    `<p style="color:red">${data.error}</p>`;
+                return;
+            }
+
+            document.getElementById("custom-content").innerHTML = `
+                <p>カラー：${data.color}</p>
+                <p>ホイール：${data.wheel}</p>
+                <p>バンパー：${data.bumper}</p>
+                <p>ライト：${data.light}</p>
+                <p>エアロ：${data.aero}</p>
+            `;
+        })
+        .catch(err => console.error("❌ エラー:", err));
 }
+
+
+window.onload = loadInitialCustom;
