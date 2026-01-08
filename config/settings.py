@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
 
+
     # 自作アプリ
     'api_app.apps.ApiAppConfig',
 

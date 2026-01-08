@@ -8,9 +8,6 @@ from . import views
 urlpatterns = [
     path('test/', views.test_view),  # 動作確認用
     
-    # path('', login_view, name='login'),
-
-    # path('', login_view, name='login'),
     path('login/', login_view, name='login'),  # ログイン
 
     path('list/<int:custom_id>', views.list_page_view, name='list_page'), # 一覧
@@ -48,6 +45,8 @@ urlpatterns = [
     # path('account/',views.account, name='account'),# アカウント情報ページ
     # path('account/update/', views.account_update, name='account_update'),  # アカウント情報更新ページ
 
+    
+    path('car_select/', views.car_select, name='car_select'),  # 車種選択ページ
 
     
 

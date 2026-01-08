@@ -74,11 +74,14 @@
             </div>
         </div>
 
-            <div class="save-area">
-        <a href="{% url 'list_page' %}" class="save-custom-btn">
-            カスタム内容保存
-        </a>
-    </div>
+        <div class="save-area">
+            <form action="{% url 'save_custom' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="save-custom-btn">
+                カスタム内容保存
+                </button>
+            </form>
+        </div>
 
 
     </section>

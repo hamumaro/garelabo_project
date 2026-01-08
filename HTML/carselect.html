@@ -53,6 +53,14 @@
                         <!-- DBから取得した画像URLをここに入れる -->
                         <!-- <img src="{{ car.image.url }}" alt="{{ car.name }}" class="car-image">-->
                         <img src="" alt="" class="car-image">
+    <!-- ▼ 車両選択枠 -->
+    <section class="car-select" aria-label="車両選択">
+        <div class="car-display">
+            <button class="arrow-btn left" type="button" aria-label="前へ">&lt;</button>
+                    <div class="car-frame" aria-live="polite">
+                        <!-- DBから取得した画像URLをここに入れる -->
+                        <img src="{{ car.image.url }}" alt="{{ car.name }}" class="car-image">
+                        <img src="" alt="" class="car-image" hidden>
                         <div class="car-skeleton">画像を読み込み中…</div>
                     </div>
 
@@ -79,5 +87,12 @@
         </script>
 
         <script src="{% static 'js/carselect.js' %}"></script>
+</body>
+                <p class="car-name">
+                    {{ car.manufacturer }}・{{ car.model }}（型式：{{ car.code }}）
+                    <span data-bind="car-name">車名（型式）</span>
+                </p>
+            </section>
+        </main>
     </body>
 </html>
