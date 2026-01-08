@@ -321,6 +321,7 @@ def custom_menu_bodycolor(request):
     # インデント（左端）を def と同じ位置に合わせてください
     return render(request, "custom_menu_bodycolor.html", context)
 
+
 def custom_menu_wheel(request):
     return render(request, "custom_menu_wheel.html")
  
