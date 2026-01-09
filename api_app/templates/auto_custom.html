@@ -28,16 +28,19 @@
 
         <!-- 車画像エリア -->
         <div class="car-area">
-            <img id="car-image" src="" alt="car" />
+    <h2 id="display-vehicle-name" class="vehicle-name-label"></h2> <section class="car-display-area">
+                <div class="car-frame">
+                    <!-- JSが画像を差し込む -->
+                    <img id="car-image" alt="car preview" />
+                </div>
 
-            <script id="vehicles-data" type="application/json">
-                {{ vehicles_json|safe }}
-            </script>
+                <!-- 回転 -->
+                <div class="rotate-hint">
+                    <button id="prev-btn">←</button>
+                    <button id="next-btn">→</button>
+                </div>
+            </section>
 
-            <div class="rotate-hint">
-                <button id="prev-btn">←</button>
-                <button id="next-btn">→</button>
-            </div>
         </div>
         <!-- 右側エリア -->
         <div class="right-area">
@@ -71,8 +74,29 @@
         </div>
 
     </main>
+    
+    <script id="vehicles-data" type="application/json">[]</script>
+    <script>
+        window.API_URLS = { auto_custom: "{% url 'auto_custom_api' %}" };
+    
+    // --- ここを追加：AIが選択した結果をJSに渡す ---
+    window.autoCustomResult = {
+        carFolder: "{{ vehicle.name_en }}", // 例: "Rocky" (フォルダ名)
+        carName: "{{ vehicle.name }}",      // 例: "ロッキー" (表示名)
+        color: "{{ color_en }}"            // 例: "white" (AIが選んだ色の英名)
+    };
 
-    <script src="{% static 'js/auto_custom.js' %}"></script>
-    <script src="{% static 'js/custom_slider.js' %}"></script>
-    </body>
+    // 既存のリスト表示用データ
+    window.initialSelected = {
+        vehicle: { name: "{{ vehicle.name }}" },
+        color: { name: "{{ color_name }}" },
+        wheel: { name: "{{ wheel_name }}" },
+        bumper: { name: "{{ bumper_name }}" },
+        light: { name: "{{ light_name }}" },
+        aero: { name: "{{ aero_name }}" }
+    };
+</script>
+    <script src="{% static 'js/auto_custom.js' %}" defer></script>
+    {% comment %} <script src="{% static 'js/custom_slider.js' %}" defer></script>     {% endcomment %}
+</body>
 </html>
