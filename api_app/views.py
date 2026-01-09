@@ -362,64 +362,69 @@ def custom_menu_aeroparts(request):
     return render(request, "custom_menu_aeroparts.html")
  
 def auto_custom(request):
-    """ページを最初に表示する時の処理"""
     custom_data = request.session.get('custom_data', {})
-    
-    # 車両IDの取得（セッションになければ最初の1台）
     vehicle_id = custom_data.get('vehicle_id')
     vehicle = Vehicle.objects.filter(id=vehicle_id).first() or Vehicle.objects.first()
 
-    if not vehicle:
-        return render(request, "error.html", {"message": "車両データがありません"})
-
-    # この車種の最初のカラーをデフォルトにする
-    color = Color.objects.filter(vehicle=vehicle).first()
+    # セッションから選択済みのカラーを取得
+    color_id = custom_data.get('color_id')
+    color = Color.objects.filter(id=color_id, vehicle=vehicle).first()
+    
+    if not color:
+        # 【修正】ここも rotation_image_folder に！
+        color = Color.objects.filter(vehicle=vehicle, rotation_image_folder='black').first() \
+                or Color.objects.filter(vehicle=vehicle).first()
 
     context = {
         'vehicle': vehicle,
-        'color_en': color.name_en if color else "white", # "white"
-        'color_name': color.name if color else "ホワイト",
+        # 【修正】ここも rotation_image_folder に！
+        'color_en': color.rotation_image_folder if color else "black",
+        'color_name': color.name if color else "ブラック",
         'vehicles': Vehicle.objects.all().order_by('id'),
     }
     return render(request, "auto_custom.html", context)
 
+
+
 def auto_custom_api(request):
-    """「自動カスタム」ボタンが押された時にデータを返すAPI"""
     try:
-        # ランダムに1台選び、その車種のカラーを1色選ぶ
-        vehicle = Vehicle.objects.order_by('?').first()
+        # 現在画面に出ている車種名を取得
+        current_name = request.GET.get('carName', '').strip()
+
+        # 現在の車種「以外」からランダムに1台選ぶ
+        vehicle = Vehicle.objects.exclude(name=current_name).order_by('?').first()
+
+        # もし1台しか登録がない場合はそれを選択
+        if not vehicle:
+            vehicle = Vehicle.objects.first()
+
+        # その車種のカラーをランダムに取得
         color = Color.objects.filter(vehicle=vehicle).order_by('?').first()
 
-        if not vehicle or not color:
-            return JsonResponse({"error": "データ不足"}, status=404)
-
-        return JsonResponse({
-            "carFolder": vehicle.name_en, # 例: "Rocky"
-            "carName": vehicle.name,     # 例: "ロッキー"
-            "color": color.name_en,      # 例: "white"
-            "color_name": color.name,
-        })
+        response_data = {
+            "carFolder": vehicle.name_en,
+            "carName": vehicle.name,
+            "color": color.rotation_image_folder if color else "black",
+            "color_name": color.name if color else "ブラック",
+            "wheel_name": "標準ホイール",
+            "bumper_name": "標準バンパー",
+        }
+        return JsonResponse(response_data)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-def estimate_view(request):
-    return render(request, "estimate.html")
- 
-def custom_cancel(request):
-    return render(request, "custom_canceled.html")
- 
-def account(request):
-    return render(request, "account.html")
- 
-def account_update(request):
-    return render(request, "account_update.html")
 
-# 車種選択ページ
 def car_select(request):
-    vehicles = Vehicle.objects.all().order_by('id')
-    return render(request, 'car_select.html', {'vehicles': vehicles})
+    """車種選択画面を表示する"""
+    from .models import Vehicle
+    vehicles = Vehicle.objects.all()
+    return render(request, 'api_app/car_select.html', {'vehicles': vehicles})
 
-
+def custom_cancel(request):
+    """カスタムを中止してリダイレクトする"""
+    from django.shortcuts import redirect
+    # 中止した後の遷移先（例: トップページや車種選択）を指定
+    return redirect('car_select')
 
 
 # --- ★重要: 見積もり計算機能 ---

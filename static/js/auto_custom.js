@@ -1,67 +1,61 @@
 /**
- * GARELABO+ 自動カスタム制御スクリプト 完全版
+ * GARELABO+ 自動カスタム制御スクリプト
  */
 console.log("🚗 自動カスタムJS読み込み開始");
 
+// 角度の定義を共通化
+const ANGLES = ["front", "front_right", "side_right", "rear_left", "rear", "rear_right","side_left", "front_left"];
+let angleIndex = 0;
+
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM読み込み完了");
+    
+    // 1. 初回表示
+    renderVehicle();
 
-    // 初回表示の実行
-    if (window.autoCustomResult) {
-        updateCarDisplay();
+    // 2. 回転ボタンのイベント登録（ここで行うことで重複を防ぐ）
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+
+    if (prevBtn && nextBtn) {
+        prevBtn.onclick = () => {
+            angleIndex = (angleIndex - 1 + ANGLES.length) % ANGLES.length;
+            renderVehicle();
+        };
+        nextBtn.onclick = () => {
+            angleIndex = (angleIndex + 1) % ANGLES.length;
+            renderVehicle();
+        };
     }
+
     loadInitialCustom();
 });
 
 /**
- * 車両画像と名前を表示・更新するメイン関数
+ * 画像のみを再描画する関数
  */
-function updateCarDisplay() {
+function renderVehicle() {
     const img = document.getElementById("car-image");
-    const nameLabel = document.getElementById("display-vehicle-name");
-    const prevBtn = document.getElementById("prev-btn");
-    const nextBtn = document.getElementById("next-btn");
-
-    if (!img) return;
+    if (!img || !window.autoCustomResult) return;
 
     const config = window.autoCustomResult;
-    const angles = ["front", "side", "rear"];
-    let angleIndex = 0;
+    const path = `/media/uploads/vehicles/${config.carFolder}/${config.color}/${ANGLES[angleIndex]}.png`;
+    
+    console.log("🎬 表示更新:", path);
+    img.src = path;
 
-    const render = () => {
-    // パスの組み立て
-        const path = `/media/uploads/vehicles/${config.carFolder}/${config.color}/${angles[angleIndex]}.png`;
-        
-        // 【重要】これを追加してコンソール（F12）で確認してください
-        console.log("🎬 ブラウザがアクセスしようとしているURL:", path);
-
-        img.src = path;
-
-        // 画像が読み込めなかった時のエラーログ
-        img.onerror = () => {
-            console.error("❌ 画像が見つかりません。パスを確認してください:", path);
-            console.log("実際のフォルダが Rocky なら、config.carFolder が Rocky になっている必要があります。");
-        };
-    };
-
-    render();
-
-    // ボタンにイベントを登録
-    prevBtn.onclick = () => {
-        angleIndex = (angleIndex - 1 + angles.length) % angles.length;
-        render();
-    };
-    nextBtn.onclick = () => {
-        angleIndex = (angleIndex + 1) % angles.length;
-        render();
+    img.onerror = () => {
+        console.error("❌ 画像が見つかりません:", path);
     };
 }
 
 /**
- * 「自動カスタム」ボタンが押された時のAPI連携
+ * APIからランダムデータを取得
  */
 function loadCustomData() {
-    const url = window.API_URLS.auto_custom;
+    const carName = window.autoCustomResult.carName;
+    const url = `${window.API_URLS.auto_custom}?carName=${encodeURIComponent(carName)}`;
+
     console.log("📡 APIリクエスト送信中...");
 
     fetch(url)
@@ -70,31 +64,29 @@ function loadCustomData() {
             return response.json();
         })
         .then(data => {
-            console.log("✅ API受信成功:", data);
+            console.log("✅ API受信:", data);
 
-            // 1. 画面上のデータ(windowオブジェクト)を更新
-            window.autoCustomResult = {
-                carFolder: data.carFolder,
-                carName: data.carName,
-                color: data.color
-            };
+            // 車種フォルダ名とカラーを両方更新！
+            window.autoCustomResult.carFolder = data.carFolder; 
+            window.autoCustomResult.color = data.color;
+            window.autoCustomResult.carName = data.carName;
 
-            // 2. テキストリスト用のデータを更新
+            // リストのテキストも更新
             window.initialSelected.vehicle.name = data.carName;
             window.initialSelected.color.name = data.color_name;
+            window.initialSelected.wheel.name = data.wheel_name;
+            window.initialSelected.bumper.name = data.bumper_name;
 
-            // 3. 表示をリフレッシュ
-            updateCarDisplay();
+
+            // 描画実行
+            renderVehicle(); 
             loadInitialCustom();
         })
-        .catch(error => {
-            console.error("❌ APIエラー:", error);
-            alert("自動カスタムデータの取得に失敗しました。URL設定を確認してください。");
-        });
+        .catch(error => console.error("❌ APIエラー:", error));
 }
 
 /**
- * 右側のパーツリストを表示
+ * パーツリスト表示
  */
 function loadInitialCustom() {
     const container = document.getElementById("custom-content");
@@ -104,10 +96,10 @@ function loadInitialCustom() {
     container.innerHTML = `
         <h3>選択中のカスタム</h3>
         <ul class="custom-list">
-            ${selectedData.vehicle?.name ? `<li>車種：${selectedData.vehicle.name}</li>` : ""}
-            ${selectedData.color?.name ? `<li>カラー：${selectedData.color.name}</li>` : ""}
-            <li>ホイール：ノーマル</li>
-            <li>バンパー：ノーマル</li>
+            <li>車種：${selectedData.vehicle.name}</li>
+            <li>カラー：${selectedData.color.name}</li>
+            <li>ホイール：${selectedData.wheel.name}</li>
+            <li>バンパー：${selectedData.bumper.name}</li>
         </ul>
     `;
 }
