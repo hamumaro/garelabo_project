@@ -234,7 +234,7 @@ def custom_menu(request, custom_id=None):
         
         # 2. データをセッションに展開（続きから編集できるようにする）
         request.session['custom_data'] = {
-            'vehicle_id': saved_item.vehicle.id if saved_item.vehicle else None,
+            'vehicles_id': saved_item.vehicle.id if saved_item.vehicle else None,
             'color_id': saved_item.color.id if saved_item.color else None,
             'wheel_id': saved_item.wheel.id if saved_item.wheel else None,
             'bumper_id': saved_item.bumper.id if saved_item.bumper else None,
@@ -279,51 +279,75 @@ def custom_menu(request, custom_id=None):
 
 
 
+ 
 # カラー
 # --- 各パーツ選択画面 ---
+# def custom_menu_bodycolor(request):
+#     # 1. セッションデータの準備
+#     custom_data = request.session.get('custom_data', {})
+
+#     # 車両IDを取得（なければDBの最初の車両をデフォルトにする）
+#     vehicle_id = custom_data.get('vehicle_id')
+#     if not vehicle_id:
+#         first_vehicle = Vehicle.objects.first()
+#         if first_vehicle:
+#             vehicle_id = first_vehicle.id
+#             # セッションに保存しておく
+#             custom_data['vehicle_id'] = vehicle_id
+#             request.session['custom_data'] = custom_data
+#         else:
+#             # 車両データ自体がない場合（seed_data未実行など）
+#             return render(request, "custom_menu_bodycolor.html", {'colors': []})
+ 
+#     # この車種のカラー一覧を取得
+#     colors = Color.objects.filter(vehicle_id=vehicle_id)
+ 
+#     # 2. POST送信（ボタンクリック）された時の処理
+#     if request.method == 'POST':
+#         selected_id = request.POST.get('color_id')
+       
+#         if selected_id:
+#             # セッションに保存
+#             custom_data['color_id'] = selected_id
+#             request.session['custom_data'] = custom_data
+           
+#             # 保存したらリダイレクト（二重送信防止のため）
+#             return redirect('custom_menu_bodycolor')
+ 
+#     # 3. 現在選択されているカラーID（画面表示用）
+#     current_color_id = custom_data.get('color_id')
+ 
+#     context = {
+#         'colors': colors,
+#         'current_color_id': int(current_color_id) if current_color_id else None,
+#         'vehicles': vehicles
+#     }
+#     # インデント（左端）を def と同じ位置に合わせてください
+#     return render(request, "custom_menu_bodycolor.html", context)
+ 
+
 def custom_menu_bodycolor(request):
-    # 1. セッションデータの準備
     custom_data = request.session.get('custom_data', {})
-    
-    # 車両IDを取得（なければDBの最初の車両をデフォルトにする）
     vehicle_id = custom_data.get('vehicle_id')
-    if not vehicle_id:
-        first_vehicle = Vehicle.objects.first()
-        if first_vehicle:
-            vehicle_id = first_vehicle.id
-            # セッションに保存しておく
-            custom_data['vehicle_id'] = vehicle_id
-            request.session['custom_data'] = custom_data
-        else:
-            # 車両データ自体がない場合（seed_data未実行など）
-            return render(request, "custom_menu_bodycolor.html", {'colors': []})
 
-    # この車種のカラー一覧を取得
+    # 車両リストを必ず取得（これがないとJSがエラーになります）
+    vehicles = Vehicle.objects.all().order_by('id')
+    
+    if not vehicle_id and vehicles.exists():
+        vehicle_id = vehicles.first().id
+        custom_data['vehicle_id'] = vehicle_id
+        request.session['custom_data'] = custom_data
+
     colors = Color.objects.filter(vehicle_id=vehicle_id)
-
-    # 2. POST送信（ボタンクリック）された時の処理
-    if request.method == 'POST':
-        selected_id = request.POST.get('color_id')
-        
-        if selected_id:
-            # セッションに保存
-            custom_data['color_id'] = selected_id
-            request.session['custom_data'] = custom_data
-            
-            # 保存したらリダイレクト（二重送信防止のため）
-            return redirect('custom_menu_bodycolor')
-
-    # 3. 現在選択されているカラーID（画面表示用）
     current_color_id = custom_data.get('color_id')
 
     context = {
         'colors': colors,
-        'current_color_id': int(current_color_id) if current_color_id else None
+        'current_color_id': int(current_color_id) if current_color_id else None,
+        'vehicle_id': vehicle_id,
+        'vehicles': vehicles, # ← ここが重要
     }
-    # インデント（左端）を def と同じ位置に合わせてください
     return render(request, "custom_menu_bodycolor.html", context)
-    vehicles = Vehicle.objects.all().order_by('id')
-    return render(request, "custom_menu_bodycolor.html", {"vehicles": vehicles})
 
 def custom_menu_wheel(request):
     return render(request, "custom_menu_wheel.html")
@@ -337,63 +361,46 @@ def custom_menu_light(request):
 def custom_menu_aeroparts(request):
     return render(request, "custom_menu_aeroparts.html")
  
-def auto_custom(request, vehicle_id):
-    vehicle_id = request.GET.get("vehicle_id")
-    color_id   = request.GET.get("color_id")
-    wheel_id   = request.GET.get("wheel_id")
-    bumper_id = request.GET.get("bumper_id")
-    light_id = request.GET.get("light_id")
-    aero_id = request.GET.get("aero_id")
+def auto_custom(request):
+    """ページを最初に表示する時の処理"""
+    custom_data = request.session.get('custom_data', {})
+    
+    # 車両IDの取得（セッションになければ最初の1台）
+    vehicle_id = custom_data.get('vehicle_id')
+    vehicle = Vehicle.objects.filter(id=vehicle_id).first() or Vehicle.objects.first()
 
-    selected = {}
+    if not vehicle:
+        return render(request, "error.html", {"message": "車両データがありません"})
 
-    if vehicle_id:
-        selected["vehicle"] = Vehicle.objects.get(id=vehicle_id)
-    if color_id:
-        selected["color"] = Color.objects.get(id=color_id)
-    if wheel_id:
-        selected["wheel"] = Wheel.objects.get(id=wheel_id)
-    if bumper_id:
-        selected["bumper"] = Bumper.objects.get(id=bumper_id)
-    if light_id:
-        selected["light"] = Light.objects.get(id=light_id)
-    if aero_id:
-        selected["aero"] = Aero.objects.get(id=aero_id)
+    # この車種の最初のカラーをデフォルトにする
+    color = Color.objects.filter(vehicle=vehicle).first()
 
-    return render(request, "auto_custom.html", {
-        vehicle_id: vehicle_id,
-        "selected": selected
-    })
+    context = {
+        'vehicle': vehicle,
+        'color_en': color.name_en if color else "white", # "white"
+        'color_name': color.name if color else "ホワイト",
+        'vehicles': Vehicle.objects.all().order_by('id'),
+    }
+    return render(request, "auto_custom.html", context)
 
-# 自動車カスタムページのAPI
 def auto_custom_api(request):
+    """「自動カスタム」ボタンが押された時にデータを返すAPI"""
+    try:
+        # ランダムに1台選び、その車種のカラーを1色選ぶ
+        vehicle = Vehicle.objects.order_by('?').first()
+        color = Color.objects.filter(vehicle=vehicle).order_by('?').first()
 
-    vehicles = list(Vehicle.objects.all())
-    colors   = list(Color.objects.all())
-    wheels   = list(Wheel.objects.all())
-    bumpers  = list(Bumper.objects.all())
-    lights   = list(Light.objects.all())
-    aeros    = list(Aero.objects.all())
+        if not vehicle or not color:
+            return JsonResponse({"error": "データ不足"}, status=404)
 
-    if not all([vehicles, colors, wheels, bumpers, lights, aeros]):
-        return JsonResponse({"error": "データ不足"})
-
-    vehicle = random.choice(vehicles)
-    color   = random.choice(colors)
-    wheel   = random.choice(wheels)
-    bumper  = random.choice(bumpers)
-    light   = random.choice(lights)
-    aero    = random.choice(aeros)
-
-    return JsonResponse({
-        "vehicle": vehicle.name,
-        "color": color.name,
-        "wheel": wheel.name,
-        "bumper": bumper.name,
-        "light": light.name,
-        "aero": aero.name,
-    })
-
+        return JsonResponse({
+            "carFolder": vehicle.name_en, # 例: "Rocky"
+            "carName": vehicle.name,     # 例: "ロッキー"
+            "color": color.name_en,      # 例: "white"
+            "color_name": color.name,
+        })
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 def estimate_view(request):
     return render(request, "estimate.html")
