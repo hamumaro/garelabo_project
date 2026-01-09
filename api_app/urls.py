@@ -37,10 +37,11 @@ urlpatterns = [
 
 
     # 自動カスタム
-    path('auto_custom/', views.auto_custom, name='auto_custom'), # 自動カスタムページ 
-    path('auto_custom/<int:vehicle_id>/', views.auto_custom, name='auto_custom'), # 自動カスタムページ
     path('auto_custom/api/', views.auto_custom_api, name='auto_custom_api'),  # 自動カスタムAPI
 
+    path('auto_custom/', views.auto_custom, name='auto_custom'), # 自動カスタムページ 
+    path('auto_custom/<int:vehicle_id>/', views.auto_custom, name='auto_custom'), # 自動カスタムページ
+    
 
     path('estimate/', views.estimate_view, name='estimate'),  # 見積りページ
 
