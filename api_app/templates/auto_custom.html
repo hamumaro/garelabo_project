@@ -67,9 +67,12 @@
             <p class="note">※AIによって自動カスタムされています</p>
 
             <!-- 保存ボタン -->
-            <a href="{% url 'save_custom' %}" class="save-btn">
-                カスタム内容保存
-            </a>
+            <form method="post" action="{% url 'save_custom' %}">
+                {% csrf_token %}
+                <button type="submit" class="save-btn">
+                    カスタム内容保存
+                </button>
+            </form>
 
         </div>
 
