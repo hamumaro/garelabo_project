@@ -15,7 +15,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const carFolder = "Rocky";
   const angles = ["front", "side", "rear"];
 
-  let currentColor = "white";
+  let currentColor = sessionStorage.getItem("currentColor");
+  if (!currentColor) {
+    currentColor = "white";
+    sessionStorage.setItem("currentColor", currentColor);
+  }
   let angleIndex = 0;
 
   // ===== 表示更新 =====
@@ -38,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       currentColor = color;
       angleIndex = 0; // 色変えたら正面に戻す
+      sessionStorage.setItem("currentColor", currentColor);
       updateImage();
     });
   });
