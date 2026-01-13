@@ -35,7 +35,13 @@ urlpatterns = [
     path("custom_menu/aeroparts/", views.custom_menu_aeroparts, name="custom_menu_aeroparts"),#エアロパーツ選択画面
     path('carselect/', views.car_select, name='car_select'),  # 車種選択ページ
 
-    path('custom_menu/auto_custom/', views.auto_custom, name='auto_custom'),  # 自動カスタムページ
+
+    # 自動カスタム
+    path('auto_custom/api/', views.auto_custom_api, name='auto_custom_api'),  # 自動カスタムAPI
+
+    path('auto_custom/', views.auto_custom, name='auto_custom'), # 自動カスタムページ 
+    path('auto_custom/<int:vehicle_id>/', views.auto_custom, name='auto_custom'), # 自動カスタムページ
+    
 
     path('estimate/', views.estimate_view, name='estimate'),  # 見積りページ
 
