@@ -349,6 +349,7 @@ def custom_menu_bodycolor(request):
     }
     return render(request, "custom_menu_bodycolor.html", context)
 
+
 def custom_menu_wheel(request):
     return render(request, "custom_menu_wheel.html")
  
