@@ -389,31 +389,41 @@ def auto_custom(request):
 
 def auto_custom_api(request):
     try:
-        # 現在画面に出ている車種名を取得
-        current_name = request.GET.get('carName', '').strip()
+        # セッション取得（なければ新規）
+        custom_data = request.session.get('custom_data', {})
 
-        # 現在の車種「以外」からランダムに1台選ぶ
-        vehicle = Vehicle.objects.exclude(name=current_name).order_by('?').first()
+        # 車両選択
+        vehicle = Vehicle.objects.order_by('?').first()
 
-        # もし1台しか登録がない場合はそれを選択
-        if not vehicle:
-            vehicle = Vehicle.objects.first()
+        # 各パーツを必ず vehicle 条件付きで取得
+        color  = Color.objects.filter(vehicle=vehicle).order_by('?').first()
+        wheel  = Wheel.objects.filter(vehicle=vehicle).order_by('?').first()
+        bumper = Bumper.objects.filter(vehicle=vehicle).order_by('?').first()
+        light  = Light.objects.filter(vehicle=vehicle).order_by('?').first()
+        aero   = Aero.objects.filter(vehicle=vehicle).order_by('?').first()
 
-        # その車種のカラーをランダムに取得
-        color = Color.objects.filter(vehicle=vehicle).order_by('?').first()
+        custom_data.update({
+            'vehicle_id': vehicle.id,
+            'color_id': color.id if color else None,
+            'wheel_id': wheel.id if wheel else None,
+            'bumper_id': bumper.id if bumper else None,
+            'light_id': light.id if light else None,
+            'aero_id': aero.id if aero else None,
+        })
+        request.session['custom_data'] = custom_data
+        request.session.modified = True  # ← 念のため
 
-        response_data = {
-            "carFolder": vehicle.name_en,
-            "carName": vehicle.name,
-            "color": color.rotation_image_folder if color else "black",
-            "color_name": color.name if color else "ブラック",
-            "wheel_name": "標準ホイール",
-            "bumper_name": "標準バンパー",
-        }
-        return JsonResponse(response_data)
+        return JsonResponse({
+            'carFolder': vehicle.name_en,
+            'carName': vehicle.name,
+            'color': color.rotation_image_folder if color else 'black',
+            'color_name': color.name if color else 'ブラック',
+            'wheel_name': wheel.name if wheel else 'ホイール',
+            'bumper_name': bumper.name if bumper else 'バンパー',
+        })
+
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
-
+        return JsonResponse({'error': str(e)}, status=500)
 
 def car_select(request):
     """車種選択画面を表示する"""
