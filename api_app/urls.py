@@ -21,6 +21,7 @@ urlpatterns = [
     path('', views.list_page_view, name='list_page'),  # 追加
 
     path('register/',  views.register_view, name='register'),  # 新規登録
+    path('verify/', views.verify_code_view, name='verify'), # 認証
 
     path('dashboard/',  views.dashboard_view, name='dashboard'),  # ログイン後ページ
     
