@@ -70,7 +70,8 @@ def favorite_page_view(request):
     })
 
 # 新規登録ページ表示
-# views.py の register_view をこれに差し替え
+# api_app/views.py
+
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -79,33 +80,47 @@ def register_view(request):
                 with transaction.atomic():
                     # 1. ユーザーを仮保存
                     user = form.save(commit=False)
-                    user.is_active = False  # まだ無効
+                    user.is_active = False
                     user.save()
 
                     # 2. 認証コード(6桁)生成
                     code = str(random.randint(100000, 999999))
 
+                    # ★★★ 開発用ログ出力 ★★★
+                    print("--------------------------------------------------")
+                    print(f"【開発用】認証コード: {code}")
+                    print("--------------------------------------------------")
+
                     # 3. セッションに保存
                     request.session['verification_code'] = code
                     request.session['verification_user_id'] = user.id
 
-                    # 4. メール送信
+                    # 4. メール送信（失敗しても無視して進むように変更！）
                     subject = "【GARELABO+】認証コードのお知らせ"
                     message = f"以下の認証コードを入力して登録を完了してください。\n\n認証コード: {code}"
                     from_email = "no-reply@garelabo.com"
                     recipient_list = [user.email]
                     
-                    send_mail(subject, message, from_email, recipient_list, fail_silently=False)
+                    try:
+                        #
+                        send_mail(subject, message, from_email, recipient_list, fail_silently=False)
+                    except Exception as e:
+                        # メール失敗時はコンソールに表示して、処理は続行する
+                        print(f"★メール送信失敗（開発用ログでコードを確認してください）: {e}")
 
+                # メールが失敗しても、ここに来るので次の画面へ行ける
                 return redirect('verify')
 
             except Exception as e:
-                print(f"メール送信エラー: {e}")
-                form.add_error(None, "メール送信に失敗しました。")
+                # データベース保存など、致命的なエラーだけここでキャッチ
+                print(f"システムエラー: {e}")
+                form.add_error(None, "登録処理に失敗しました。")
     else:
         form = RegisterForm()
     
     return render(request, 'register.html', {'form': form})
+
+
 
 # 認証コード入力画面
 def verify_code_view(request):
@@ -117,27 +132,38 @@ def verify_code_view(request):
     message = None
 
     if request.method == 'POST':
-        # キャンセルボタン
+        # キャンセルボタン（修正不要だが、HTML側の formnovalidate で動くようになる）
         if 'cancelAuthbtn' in request.POST:
             request.session.pop('verification_code', None)
             request.session.pop('verification_user_id', None)
+            # 登録途中のユーザーを削除する場合（任意）
+            # User.objects.filter(id=user_id, is_active=False).delete()
             return redirect('register')
 
         # 再送信ボタン
         if 'resendCodebtn' in request.POST:
             code = str(random.randint(100000, 999999))
             request.session['verification_code'] = code
+            
+            # ★追加: 再送信時も開発用ログにコードを出す（メール失敗時用）
+            print("--------------------------------------------------")
+            print(f"【開発用(再送信)】認証コード: {code}")
+            print("--------------------------------------------------")
+
             user = User.objects.get(id=user_id)
             try:
                 send_mail(
                     "【GARELABO+】認証コードのお知らせ（再送信）",
                     f"認証コード: {code}",
                     "no-reply@garelabo.com",
-                    [user.email]
+                    [user.email],
+                    fail_silently=False # エラーが見えるようにFalse推奨
                 )
             except Exception as e:
                 print(f"メール送信エラー: {e}")
+            
             message = 'コードを再送信しました。'
+            # フォームを空で再表示
             return render(request, 'verify_code.html', {'form': form, 'message': message})
 
         # 確認ボタン
@@ -146,11 +172,16 @@ def verify_code_view(request):
             input_code = form.cleaned_data['authCode']
             session_code = request.session.get('verification_code')
 
+            # デバッグ用
+            print(f"入力コード: {input_code}, 正解コード: {session_code}")
+
             if input_code == session_code:
                 user = User.objects.get(id=user_id)
                 user.is_active = True
                 user.save()
                 
+                # ★修正: 手動ログインの場合、バックエンドを指定する必要がある
+                user.backend = 'django.contrib.auth.backends.ModelBackend'
                 login(request, user)
                 
                 request.session.pop('verification_code', None)
