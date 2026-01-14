@@ -12,7 +12,7 @@ import random
 import json
 from django.templatetags.static import static
 from django.conf import settings
-
+from django.shortcuts import redirect
 
 # モデルとフォームのインポート
 from .forms import LoginForm, RegisterForm, VerificationForm
@@ -469,9 +469,9 @@ def car_select(request):
 
 def custom_cancel(request):
     """カスタムを中止してリダイレクトする"""
-    from django.shortcuts import redirect
+    
     # 中止した後の遷移先（例: トップページや車種選択）を指定
-    return redirect('car_select')
+    return render(request,'custom_canceled.html')
 
 
 # --- ★重要: 見積もり計算機能 ---
