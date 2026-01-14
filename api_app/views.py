@@ -465,7 +465,7 @@ def car_select(request):
     """車種選択画面を表示する"""
     from .models import Vehicle
     vehicles = Vehicle.objects.all()
-    return render(request, 'api_app/car_select.html', {'vehicles': vehicles})
+    return render(request, 'car_select.html', {'vehicles': vehicles})
 
 def custom_cancel(request):
     """カスタムを中止してリダイレクトする"""

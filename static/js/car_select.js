@@ -1,59 +1,63 @@
 console.log("car_select.js loaded!");
 
 document.addEventListener("DOMContentLoaded", () => {
-  const img = document.getElementById("carImage"); // HTMLのIDと一致させる
+  const img = document.getElementById("carImage");
   const nameDisplay = document.getElementById("carName");
-  const hiddenInput = document.getElementById("selectedCarId"); // ★追加: 隠しフォーム
+
+  // name_en を保持する hidden input
+  const hiddenNameEn = document.getElementById("selectedCarNameEn");
+
   const prevBtn = document.getElementById("prev-btn");
   const nextBtn = document.getElementById("next-btn");
 
-  // JSONデータの取得
+  // JSONデータ取得
   const dataElement = document.getElementById("vehicles-data");
   if (!dataElement) {
     console.error("車両データが見つかりません");
     return;
   }
-  const vehicles = JSON.parse(dataElement.textContent);
 
+  const vehicles = JSON.parse(dataElement.textContent);
   if (vehicles.length === 0) return;
 
-  // 初期インデックス
+  // 現在の選択インデックス
   let index = 0;
 
-  // 表示＆データを更新する関数
+  // 表示更新
   function updateDisplay() {
-    // 1. 画像と名前の更新
-    img.src = vehicles[index].url;
-    img.alt = vehicles[index].name;
+    const vehicle = vehicles[index];
+
+    img.src = vehicle.url;
+    img.alt = vehicle.name;
 
     if (nameDisplay) {
-      nameDisplay.textContent = vehicles[index].name;
+      nameDisplay.textContent = vehicle.name;
     }
 
-    // 2. ★重要: フォームの隠しIDを更新する
-    if (hiddenInput) {
-      hiddenInput.value = vehicles[index].id;
+    if (hiddenNameEn) {
+      hiddenNameEn.value = vehicle.name_en;
     }
 
     console.log(
       "現在の選択:",
       index,
-      vehicles[index].name,
-      "ID:",
-      vehicles[index].id
+      vehicle.name,
+      "name_en:",
+      vehicle.name_en
     );
   }
 
-  // 前へボタン
+  // 初期表示
+  updateDisplay();
+
+  // 前へ
   prevBtn.addEventListener("click", () => {
-    // 1つ戻る（0より小さくなったら最後にループ）
     index = (index - 1 + vehicles.length) % vehicles.length;
     updateDisplay();
   });
 
-  // 次へボタン
+  // 次へ
   nextBtn.addEventListener("click", () => {
-    // 1つ進む（要素数を超えたら最初にループ）
     index = (index + 1) % vehicles.length;
     updateDisplay();
   });
