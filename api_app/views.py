@@ -11,6 +11,7 @@ from django.db import transaction
 import random
 import json
 from django.templatetags.static import static
+from django.conf import settings
 
 
 # モデルとフォームのインポート
@@ -78,6 +79,9 @@ def register_view(request):
         if form.is_valid():
             try:
                 with transaction.atomic():
+                    # 同じメールアドレスの「仮登録データ」が残っていたら削除して上書き
+                    email = form.cleaned_data['email']
+                    User.objects.filter(email=email, is_active=False).delete()
                     # 1. ユーザーを仮保存
                     user = form.save(commit=False)
                     user.is_active = False
@@ -98,7 +102,7 @@ def register_view(request):
                     # 4. メール送信（失敗しても無視して進むように変更！）
                     subject = "【GARELABO+】認証コードのお知らせ"
                     message = f"以下の認証コードを入力して登録を完了してください。\n\n認証コード: {code}"
-                    from_email = "no-reply@garelabo.com"
+                    from_email = settings.EMAIL_HOST_USER
                     recipient_list = [user.email]
                     
                     try:
@@ -134,6 +138,7 @@ def verify_code_view(request):
     if request.method == 'POST':
         # キャンセルボタン（修正不要だが、HTML側の formnovalidate で動くようになる）
         if 'cancelAuthbtn' in request.POST:
+            User.objects.filter(id=user_id, is_active=False).delete()
             request.session.pop('verification_code', None)
             request.session.pop('verification_user_id', None)
             # 登録途中のユーザーを削除する場合（任意）
@@ -155,7 +160,7 @@ def verify_code_view(request):
                 send_mail(
                     "【GARELABO+】認証コードのお知らせ（再送信）",
                     f"認証コード: {code}",
-                    "no-reply@garelabo.com",
+                    settings.EMAIL_HOST_USER,
                     [user.email],
                     fail_silently=False # エラーが見えるようにFalse推奨
                 )
