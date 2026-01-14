@@ -40,7 +40,7 @@
           <div class="verify-input-group">
             {{ form.authCode }}
 
-            <button type="submit" name="resendCodebtn" class="resend-btn">
+            <button type="submit" name="resendCodebtn" class="resend-btn" formnovalidate>
               再送信
             </button>
           </div>
@@ -59,7 +59,7 @@
               確認
             </button>
 
-            <button type="submit" name="cancelAuthbtn" class="cancel">
+            <button type="submit" name="cancelAuthbtn" class="cancel" formnovalidate>
               キャンセル
             </button>
           </div>

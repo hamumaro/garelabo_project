@@ -69,6 +69,9 @@ class RegisterForm(forms.Form):
         email = self.cleaned_data['email']
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("このメールアドレスは既に登録されています。")
+        else:
+                # 仮登録（is_active=False）の場合は、再登録を許容するためエラーにしない
+                pass
         return email
     
 # 認証
