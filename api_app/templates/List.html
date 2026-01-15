@@ -76,9 +76,12 @@
 
                 {% for item in custom_items %}
                     <div class="custom-card">
-                        <a href="{% url 'custom_menu' item.id %}">
-                            <!--仮の画像を使用中。カスタムが出来次第、カスタムした画像に変える-->
-                            <img src="{% static 'assets/一覧車両.png' %}" class="preview-img">
+                        {% if item.vehicle and item.vehicle.base_image_path %}
+                            <a href="{% url 'custom_menu_bodycolor' item.id %}">
+                                <img src="{{ item.vehicle.base_image_path.url }}" class="preview-img">
+                            {% else %}
+                                <img src="{% static 'assets/一覧車両.png' %}" class="preview-img">
+                            {% endif %}
                         </a>
                         <p class="saved-date">最終保存：{{ item.updated_at|date:"Y/m/d" }}</p>
 
