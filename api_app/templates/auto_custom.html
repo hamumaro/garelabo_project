@@ -1,17 +1,20 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>GARELABO+｜自動カスタム</title>
-    <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}">
-    <link rel="stylesheet" href="{% static 'css/auto_custom_style.css' %}">
-</head>
+    <head>
+    <link
+        rel="icon"
+        type="image/png"
+        href="{% static 'assets/Garelabo_Logo.png' %}"
+    />
+        <meta charset="UTF-8">
+        <title>自動カスタム</title>
+        <link rel="stylesheet" href="{% static 'css/auto_custom_style.css' %}">
+    </head>
+    <body>
 
-<body>
     <header>
         <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo">
-
         <div class="title-box">
             <img src="{% static 'assets/自動カスタム.png' %}" alt="custom-icon" class="icon">
             <div class="title-text">
@@ -22,50 +25,81 @@
     </header>
 
     <main>
+
         <!-- 車画像エリア -->
         <div class="car-area">
-            <img src="{% static 'assets/auto_custom_R35.jpg' %}"
-                alt="carImage"
-                class="car-img">
+    <h2 id="display-vehicle-name" class="vehicle-name-label"></h2> <section class="car-display-area">
+                <div class="car-frame">
+                    <!-- JSが画像を差し込む -->
+                    <img id="car-image" alt="car preview" />
+                </div>
 
-            <div class="rotate">
-                <span>⟲ 360°</span>
-            </div>
+                <!-- 回転 -->
+                <div class="rotate-hint">
+                    <button id="prev-btn">←</button>
+                    <button id="next-btn">→</button>
+                </div>
+            </section>
+
         </div>
-
         <!-- 右側エリア -->
         <div class="right-area">
 
-            <!-- ボタン行（onclick版） -->
+            <!-- ボタン行 -->
             <div class="btn-row">
-                <button type="button" onclick="loadCustomData()">
+                <button type="button" id="btn-random" onclick="loadCustomData()">
                     自動カスタム
                 </button>
 
-                <button type="button"
-                        onclick="location.href='{% url 'custom_menu' %}'">
+                <button type="button" onclick="location.href='{% if editing_id %}{% url 'custom_menu_bodycolor' editing_id %}{% else %}{% url 'custom_menu_bodycolor' %}{% endif %}'">
                     メニューに戻る
                 </button>
             </div>
 
-            <!-- カスタム内容 -->
+            <!-- カスタム内容表示 -->
             <div class="custom-box">
                 <h2 class="custom-title">カスタム内容表示▼</h2>
-
                 <div id="custom-content" class="custom-content">
-                    <!-- JSで結果が入る -->
+                    <!-- JSで動的に追加される -->
                 </div>
-
-                <p class="note">※AIによって自動カスタムされています</p>
             </div>
 
-            <!-- 保存ボタン -->
-            <button class="save-btn" type="button" onclick="saveCustom()">
-                カスタム内容保存
-            </button>
-        </div>
-    </main>
+            <p class="note">※AIによって自動カスタムされています</p>
 
-    <script src="{% static 'js/auto_custom.js' %}"></script>
+            <!-- 保存ボタン -->
+            <form method="post" action="{% url 'save_custom' %}">
+                {% csrf_token %}
+                <button type="submit" class="save-btn">
+                    カスタム内容保存
+                </button>
+            </form>
+
+        </div>
+
+    </main>
+    
+    <script id="vehicles-data" type="application/json">[]</script>
+    <script>
+        window.API_URLS = { auto_custom: "{% url 'auto_custom_api' %}" };
+    
+    // --- ここを追加：AIが選択した結果をJSに渡す ---
+    window.autoCustomResult = {
+        carFolder: "{{ vehicle.name_en }}",
+        carName: "{{ vehicle.name }}",
+        color: "{{ color.rotation_image_folder }}"
+    };
+
+    // 既存のリスト表示用データ
+    window.initialSelected = {
+        vehicle: { name: "{{ vehicle.name }}" },
+        color: { name: "{{ color_name }}" },
+        wheel: { name: "{{ wheel_name }}" },
+        bumper: { name: "{{ bumper_name }}" },
+        light: { name: "{{ light_name }}" },
+        aero: { name: "{{ aero_name }}" }
+    };
+</script>
+    <script src="{% static 'js/auto_custom.js' %}" defer></script>
+    {% comment %} <script src="{% static 'js/custom_slider.js' %}" defer></script>     {% endcomment %}
 </body>
 </html>

@@ -1,28 +1,39 @@
+// custom_slider.js
 console.log("custom_slider.js 読み込まれたよ！");
+
 document.addEventListener("DOMContentLoaded", () => {
-  const img = document.getElementById("car-image");
-  const prevBtn = document.getElementById("prev-btn");
-  const nextBtn = document.getElementById("next-btn");
+    const img = document.getElementById("car-image");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const dataElement = document.getElementById("vehicles-data");
 
-  // vehicles 配列はHTML側で JSON にして渡す
-  const vehicles = JSON.parse(
-    document.getElementById("vehicles-data").textContent
-  );
-  const startIndex = 0; //初期値設定
-  const numToShow = 3; //表示する枚数
-  const vehiclesToLoop = vehicles.slice(startIndex, startIndex + numToShow);
-  let index = 3;
-  prevBtn.addEventListener("click", () => {
-    index = (index - 1 + vehiclesToLoop.length) % vehiclesToLoop.length;
-    console.log("prev clicked, index =", index);
-    img.src = vehiclesToLoop[index].url;
-    img.alt = vehiclesToLoop[index].name;
-  });
+    if (!dataElement) {
+        console.error("❌ slider: vehicles-data が見つかりません。");
+        return;
+    }
 
-  nextBtn.addEventListener("click", () => {
-    index = (index + 1) % vehiclesToLoop.length;
-    console.log("prev clicked, index =", index);
-    img.src = vehiclesToLoop[index].url;
-    img.alt = vehiclesToLoop[index].name;
-  });
+    const vData = JSON.parse(dataElement.textContent);
+    const numToShow = 3;
+    const vehiclesToLoop = vData.slice(0, numToShow);
+    
+    let index = 0; 
+
+    if (img && vehiclesToLoop.length > 0) {
+        img.src = vehiclesToLoop[index].url;
+        img.alt = vehiclesToLoop[index].name;
+    }
+
+    if (prevBtn && nextBtn) {
+        prevBtn.addEventListener("click", () => {
+            index = (index - 1 + vehiclesToLoop.length) % vehiclesToLoop.length;
+            img.src = vehiclesToLoop[index].url;
+            img.alt = vehiclesToLoop[index].name;
+        });
+
+        nextBtn.addEventListener("click", () => {
+            index = (index + 1) % vehiclesToLoop.length;
+            img.src = vehiclesToLoop[index].url;
+            img.alt = vehiclesToLoop[index].name;
+        });
+    }
 });

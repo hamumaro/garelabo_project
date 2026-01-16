@@ -47,20 +47,40 @@ main {
     padding: 40px;
 }
 
-/* 車画像 */
+/* 車画像エリア全体 */
 .car-area {
     width: 55%;
     text-align: center;
 }
 
-.car-img {
+#car-image {
     width: 100%;
-    border-radius: 6px;
+    height: 100%;
+    object-fit: cover; /* 枠いっぱいに広げ、入り切らない分はカットする */
 }
 
-.rotate {
-    margin-top: 10px;
-    font-size: 25px;
+.car-frame {
+    width: 100%;
+    aspect-ratio: 16 / 9; /* 枠の形を固定 */
+    overflow: hidden;
+}
+
+/* 回転ボタンのエリア */
+.rotate-hint {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.rotate-hint button {
+    padding: 10px 25px;
+    font-size: 20px;
+    cursor: pointer;
+    background: #111;
+    color: white;
+    border: none;
+    border-radius: 4px;
 }
 
 /* 右側エリア */
@@ -135,6 +155,7 @@ main {
     border: none;
     cursor: pointer;
     border-radius: 5px;
+    text-align: center;
 }
 
 .save-btn:hover {

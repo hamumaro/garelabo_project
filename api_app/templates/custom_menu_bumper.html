@@ -1,39 +1,50 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GARELABO+｜ホイール</title>
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="{% static 'assets/Garelabo_Logo.png' %}"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GARELABO+｜バンパー</title>
+    <link
+      rel="stylesheet"
+      href="{% static 'css/custom_menu_bumper_style.css' %}"
+    />
+  </head>
 
-    <!-- 共通CSS読み込み -->
-    <link rel="stylesheet" href="{% static 'css/custom_menu_bumper_style.css' %}">
-</head>
-<body>
-
-    <!-- ▼ ヘッダー -->
+  <body>
+    <!-- ================= ヘッダー ================= -->
     <header class="header">
-        <div class="header-left">
-            <img src="{% static 'assets/ガレラボ+.png' %}" class="logo" alt="GARELABO+">
-        </div>
+      <div class="header-left">
+        <img
+          src="{% static 'assets/ガレラボ+.png' %}"
+          class="logo"
+          alt="GARELABO+"
+        />
+      </div>
 
-        <nav class="header-nav">
-            <a href="{% url 'auto_custom' %}" class="nav-btn">自動カスタム</a>
-            <a href="{% url 'favorite_page' %}" class="nav-btn">お気に入り</a>
-            <a href="{% url 'estimate' %}" class="nav-btn">カスタム見積り</a>
-            <a href="{% url 'custom_cancel' %}" class="nav-btn">カスタム中止</a>
-        </nav>
+      <nav class="header-nav">
+        <a href="{% url 'auto_custom' %}" class="nav-btn">自動カスタム</a>
+        <a href="{% url 'favorite_page' %}" class="nav-btn">お気に入り</a>
+        <a href="{% url 'estimate' %}" class="nav-btn">カスタム見積り</a>
+        <a href="{% url 'custom_cancel' %}" class="nav-btn">カスタム中止</a>
+      </nav>
 
-        <div class="header-user">
-            <span class="user-name">{{ user.nickname }}さん</span>
-            <a href="{% url 'account' %}" class="user-icon">
-                <img src="{% static 'assets/アカウントアイコン.png' %}" alt="">
-            </a>
-        </div>
+      <div class="header-user">
+        <span class="user-name">{{ user.nickname }}さん</span>
+        <a href="{% url 'account' %}" class="user-icon">
+          <img
+            src="{% static 'assets/アカウントアイコン.png' %}"
+            alt="アイコン"
+          />
+        </a>
+      </div>
     </header>
 
-    <!-- ▼ メインレイアウト -->
     <main class="main-layout">
 
         <!-- 左サイドメニュー -->
@@ -72,14 +83,69 @@
                 <div class="save-area">
         <a href="{% url 'list_page' %}" class="save-custom-btn">
             カスタム内容保存
+      <!-- ================= サイドメニュー ================= -->
+      <aside class="side-menu">
+        <a href="{% url 'custom_menu_bodycolor' %}" class="side-btn-link">
+          ボディカラー
         </a>
-    </div>
+        <a href="{% url 'custom_menu_wheel' %}" class="side-btn-link">
+          ホイール
+        </a>
+        <a
+          href="{% url 'custom_menu_bumper' %}"
+          class="side-btn-link"
+          style="background: #111; color: #fff"
+        >
+          バンパー
+        </a>
+        {% comment %}
+        <a href="{% url 'custom_menu_light' %}" class="side-btn-link">
+          ライト
+        </a>
+        <a href="{% url 'custom_menu_aeroparts' %}" class="side-btn-link">
+          エアロパーツ
+        </a>
+        {% endcomment %}
+      </aside>
+
 
             
+=======
+      <!-- ================= メイン ================= -->
+      <section class="car-display-area">
+        <div class="car-frame">
+          <img id="car-image" alt="bumper preview" />
+        </div>
 
-        </section>
+        <!-- 回転 -->
+        <div class="rotate-hint">
+          <button id="prev-btn">←</button>
+          <button id="next-btn">→</button>
+        </div>
 
+        <!-- バンパー選択 -->
+        <div class="bumper-palette-area">
+          <div class="bumper-row">
+            <button class="bumper-btn" data-bumper="bumper1">なし</button>
+            <button class="bumper-btn" data-bumper="bumper2">bumper1</button>
+            <!-- 追加例 -->
+            <!-- <button class="bumper-btn" data-bumper="bumper3">bumper3</button> -->
+          </div>
+        </div>
+
+        <!-- 保存 -->
+        <div class="save-area">
+          <form action="{% url 'save_custom' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="save-custom-btn">
+              カスタム内容保存
+            </button>
+          </form>
+        </div>
+
+        <!-- JS -->
+        <script src="{% static 'js/bumper.js' %}"></script>
+      </section>
     </main>
-
-</body>
+  </body>
 </html>

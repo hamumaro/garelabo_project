@@ -1,54 +1,105 @@
-// --- カスタム内容の要素 ---
-const customContent = document.getElementById("custom-content");
+/**
+ * GARELABO+ 自動カスタム制御スクリプト
+ */
+console.log("🚗 自動カスタムJS読み込み開始");
 
-// --- ページ読み込み時にAIカスタム自動生成 ---
+// 角度の定義を共通化
+const ANGLES = ["front", "front_right", "side_right", "rear_left", "rear", "rear_right","side_left", "front_left"];
+let angleIndex = 0;
+
 document.addEventListener("DOMContentLoaded", () => {
-    loadCustomData();
+    console.log("DOM読み込み完了");
+    
+    // 1. 初回表示
+    renderVehicle();
+
+    // 2. 回転ボタンのイベント登録（ここで行うことで重複を防ぐ）
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+
+    if (prevBtn && nextBtn) {
+        prevBtn.onclick = () => {
+            angleIndex = (angleIndex - 1 + ANGLES.length) % ANGLES.length;
+            renderVehicle();
+        };
+        nextBtn.onclick = () => {
+            angleIndex = (angleIndex + 1) % ANGLES.length;
+            renderVehicle();
+        };
+    }
+
+    loadInitialCustom();
 });
 
-// --- AIによるカスタム内容取得（最終形を想定した構造）---
-async function loadCustomData() {
+/**
+ * 画像のみを再描画する関数
+ */
+function renderVehicle() {
+    const img = document.getElementById("car-image");
+    if (!img || !window.autoCustomResult) return;
 
-    customContent.innerHTML = "AIがカスタム内容を生成しています...";
+    const config = window.autoCustomResult;
+    const path = `/media/uploads/vehicles/${config.carFolder}/${config.color}/${ANGLES[angleIndex]}.png`;
+    
+    console.log("🎬 表示更新:", path);
+    img.src = path;
 
-    try {
-        // ▼ 後で本番APIに変更する ▼
-        // const response = await fetch("/api/auto_custom");
-        // const data = await response.json();
-
-        // ------ 仮AI結果 ------
-        const data = {
-            bodyColor: "ステルスグレー",
-            wheel: "RAYS鍛造 20インチ（ブラック）",
-            light: "LEDプロジェクター＋NISMO仕様",
-            bumper: "NISMO専用エアロ（フロント＆リア）",
-            aero: "カーボンウィング＋サイドスカート"
-        };
-        // ---------------------
-
-        customContent.innerHTML = formatCustomHTML(data);
-
-    } catch (err) {
-        console.error("AI読み込み失敗:", err);
-        window.location.href = "main_error.html?type=switchFail";
-    }
+    img.onerror = () => {
+        console.error("❌ 画像が見つかりません:", path);
+    };
 }
 
-// --- カスタム内容のHTML生成 ---
-function formatCustomHTML(data) {
-    return `
-        <div class="item"><strong>🎨 ボディカラー：</strong><br>${data.bodyColor}</div>
-        <div class="item"><strong>⚙ ホイール：</strong><br>${data.wheel}</div>
-        <div class="item"><strong>💡 ライト：</strong><br>${data.light}</div>
-        <div class="item"><strong>🛠 バンパー：</strong><br>${data.bumper}</div>
-        <div class="item"><strong>🪽 エアロ：</strong><br>${data.aero}</div>
+/**
+ * APIからランダムデータを取得
+ */
+function loadCustomData() {
+    const carName = window.autoCustomResult.carName;
+    const url = `${window.API_URLS.auto_custom}?carName=${encodeURIComponent(carName)}`;
+
+    console.log("📡 APIリクエスト送信中...");
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP Error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            console.log("✅ API受信:", data);
+
+            // 車種フォルダ名とカラーを両方更新！
+            window.autoCustomResult.carFolder = data.carFolder; 
+            window.autoCustomResult.color = data.color;
+            window.autoCustomResult.carName = data.carName;
+
+            // リストのテキストも更新
+            window.initialSelected.vehicle.name = data.carName;
+            window.initialSelected.color.name = data.color_name;
+            window.initialSelected.wheel.name = data.wheel_name;
+            window.initialSelected.bumper.name = data.bumper_name;
+
+
+            // 描画実行
+            renderVehicle(); 
+            loadInitialCustom();
+        })
+        .catch(error => console.error("❌ APIエラー:", error));
+}
+
+/**
+ * パーツリスト表示
+ */
+function loadInitialCustom() {
+    const container = document.getElementById("custom-content");
+    const selectedData = window.initialSelected;
+    if (!selectedData || !container) return;
+
+    container.innerHTML = `
+        <h3>選択中のカスタム</h3>
+        <ul class="custom-list">
+            <li>車種：${selectedData.vehicle.name}</li>
+            <li>カラー：${selectedData.color.name}</li>
+            <li>ホイール：${selectedData.wheel.name}</li>
+            <li>バンパー：${selectedData.bumper.name}</li>
+        </ul>
     `;
-}
-
-// function saveCustom() {
-//     alert("カスタム内容を保存しました（仮）");
-// }
-
-function goMenu() {
-    window.location.href = "";
 }

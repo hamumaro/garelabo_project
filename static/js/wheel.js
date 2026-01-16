@@ -1,10 +1,10 @@
-console.log("NEW bodycolor.js LOADED");
+console.log("NEW wheel.js LOADED");
 
 document.addEventListener("DOMContentLoaded", () => {
   const img = document.getElementById("car-image");
   const prevBtn = document.getElementById("prev-btn");
   const nextBtn = document.getElementById("next-btn");
-  const dots = document.querySelectorAll(".color-dot");
+  const wheelBtns = document.querySelectorAll(".wheel-btn");
 
   if (!img) {
     console.error("car-image が見つかりません");
@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   let carFolder = params.get("car");
 
-  // URL に無ければ sessionStorage から復元
   if (!carFolder) {
     carFolder = sessionStorage.getItem("selectedCar");
   }
@@ -25,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // 正常取得できたら保存
   sessionStorage.setItem("selectedCar", carFolder);
   console.log("選択された車:", carFolder);
 
@@ -43,12 +41,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!currentWheel) {
     currentWheel = "wheel1";
     sessionStorage.setItem("currentWheel", currentWheel);
-    console.log("初期ホイールを設定:", currentWheel);
   }
 
   let currentBumper = sessionStorage.getItem("currentBumper");
   if (!currentBumper) {
-    currentBumper = "bumper1"; // ← フォルダ名に合わせる
+    currentBumper = "bumper1";
     sessionStorage.setItem("currentBumper", currentBumper);
     console.log("初期バンパーを設定:", currentBumper);
   }
@@ -76,17 +73,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // 初期表示
   updateImage();
 
-  // ===== カラー変更（ホイール保持） =====
-  dots.forEach((btn) => {
+  // ===== ホイール変更（バンパー保持） =====
+  wheelBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const color = btn.dataset.color;
-      if (!color) return;
+      const wheel = btn.dataset.wheel;
+      if (!wheel) return;
 
-      currentColor = color;
-      angleIndex = 0; // 正面へ戻す
-      sessionStorage.setItem("currentColor", currentColor);
+      currentWheel = wheel;
+      angleIndex = 0;
+      sessionStorage.setItem("currentWheel", currentWheel);
 
-      console.log("カラー変更:", currentColor);
+      console.log("ホイール変更:", currentWheel);
       updateImage();
     });
   });

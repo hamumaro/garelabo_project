@@ -21,6 +21,7 @@ urlpatterns = [
     path('', views.list_page_view, name='list_page'),  # 追加
 
     path('register/',  views.register_view, name='register'),  # 新規登録
+    path('verify/', views.verify_code_view, name='verify'), # 認証
 
     path('dashboard/',  views.dashboard_view, name='dashboard'),  # ログイン後ページ
     
@@ -29,13 +30,20 @@ urlpatterns = [
     path("custom_menu/<int:custom_id>/", views.custom_menu, name="custom_menu"),#カスタムメニュー画面 (既存編集)
     
     path("custom_menu/bodycolor/", views.custom_menu_bodycolor, name="custom_menu_bodycolor"),#ボディーカラー選択画面
+    path("custom_menu/bodycolor/<int:custom_id>/", views.custom_menu_bodycolor, name="custom_menu_bodycolor"),
     path("custom_menu/wheel/", views.custom_menu_wheel, name="custom_menu_wheel"),#ホイール選択画面
     path("custom_menu/bumper/", views.custom_menu_bumper, name="custom_menu_bumper"),#バンパー選択画面
     path("custom_menu/light/", views.custom_menu_light, name="custom_menu_light"),#ライト選択画面
     path("custom_menu/aeroparts/", views.custom_menu_aeroparts, name="custom_menu_aeroparts"),#エアロパーツ選択画面
-    path('carselect/', views.car_select, name='car_select'),  # 車種選択ページ
+    path('car_select/', views.car_select, name='car_select'),  # 車種選択ページ
 
-    path('custom_menu/auto_custom/', views.auto_custom, name='auto_custom'),  # 自動カスタムページ
+
+    # 自動カスタム
+    path('auto_custom/api/', views.auto_custom_api, name='auto_custom_api'),  # 自動カスタムAPI
+
+    path('auto_custom/', views.auto_custom, name='auto_custom'), # 自動カスタムページ 
+    path('auto_custom/<int:custom_id>/', views.auto_custom, name='auto_custom'), # 自動カスタムページ
+    
 
     path('estimate/', views.estimate_view, name='estimate'),  # 見積りページ
 
@@ -45,14 +53,6 @@ urlpatterns = [
     # path('account/',views.account, name='account'),# アカウント情報ページ
     # path('account/update/', views.account_update, name='account_update'),  # アカウント情報更新ページ
 
-    
-    path('car_select/', views.car_select, name='car_select'),  # 車種選択ページ
-
-    
-
-
-    path('car/', views.car_view, name='car'),
-
     path('account/', views.account_view, name='account'), #アカウント
 
     path('account_update/', views.account_update_view, name='account_update'), #アカウント編集
@@ -61,6 +61,7 @@ urlpatterns = [
 
     path('logout/', logout_view, name='logout'), #ログアウト
 
+<<<<<<< HEAD
 
     path('car/', views.car_view, name='car'),
     path('menu_error/', views.menu_error_view, name='menu_error'), #メニューエラー
@@ -69,4 +70,6 @@ urlpatterns = [
     path('list_management_delection_error/', views.list_management_delection_error_view, name='list_management_delection_error'), #リスト管理エラー
 
 
+=======
+>>>>>>> db6ccede468f08f8a018fe4480e102f9e7dce9ce
 ]

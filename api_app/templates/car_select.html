@@ -1,113 +1,137 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>GARELABO+｜車両選択</title>
-    <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}">
-    <link rel="stylesheet" href="{% static 'css/List_style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/car_select_style.css' %}"> 
-</head>
-<body>
+
+    <link
+      rel="icon"
+      type="image/png"
+      href="{% static 'assets/Garelabo_Logo.png' %}"
+    />
+    <link rel="stylesheet" href="{% static 'css/List_style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/car_select_style.css' %}" />
+  </head>
+
+  <body>
     <header class="header">
-        <div class="header-inner">
-            <div class="header-grid">
-                <div class="panel">
-                    <img src="{% static 'assets/メーター.png' %}" alt="メーター">
-                </div>
-                <div class="panel">
-                    <img src="{% static 'assets/R32.png' %}" alt="R32">
-                </div>
-            <div class="brand-area">
-                {% if user.is_authenticated %}
-                    <div class="user-info">
-                        <span class="username">{{ user.nickname }} さん</span>
-                        <a href="{% url 'account' %}">
-                        <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
-                        </a>
-                    </div>
-                {% else %}
-                    <a href="{% url 'login' %}" class="login-btn">ログイン</a>
-                {% endif %}
-                <img class="garelabo-logo" src="{% static 'assets/garelabo_title.png' %}" alt="GARELABO+"> 
+      <div class="header-inner">
+        <div class="header-grid">
+          <div class="panel">
+            <img src="{% static 'assets/メーター.png' %}" />
+          </div>
+          <div class="panel">
+            <img src="{% static 'assets/R32.png' %}" />
+          </div>
+
+          <div class="brand-area">
+            {% if user.is_authenticated %}
+            <div class="user-info">
+              <span class="username">{{ user.nickname }} さん</span>
+              <a href="{% url 'account' %}">
+                <img
+                  src="{% static 'assets/アカウントアイコン.png' %}"
+                  class="user-icon"
+                />
+              </a>
             </div>
+            {% endif %}
+            <img
+              class="garelabo-logo"
+              src="{% static 'assets/garelabo_title.png' %}"
+            />
+          </div>
         </div>
-            
-            <nav class="ribbons" aria-label="メインメニュー">
-                <a class="ribbon" href="#" onclick="goToCustomMenu(event)">
-                    <img src="{% static 'assets/カスタム作成.png' %}" alt="カスタム作成ボタン">
-                    カスタム作成　
-                </a>
-                <a class="ribbon" href="{% url 'list_page' %}">
-                    <img src="{% static 'assets/一覧.png' %}" alt="一覧ボタン">
-                    　　一覧へ　　
-                </a>
-            </nav>
-        </div>
+
+        <nav class="ribbons">
+          <a class="ribbon" href="#" onclick="goToBodyColor(event)">
+            <img src="{% static 'assets/カスタム作成.png' %}" />
+            カスタム作成
+          </a>
+        </nav>
+      </div>
     </header>
 
     <div class="section-title">車両選択</div>
 
     <main class="content">
-        <section class="car-display-area">
-
+      <section class="car-display-area">
+        {% if vehicles %}
         <div class="car-display">
-            <button class="arrow-btn" id="prev-btn" aria-label="前の車へ">＜</button>
+          <button class="arrow-btn" id="prev-btn">＜</button>
 
-            <div class="car-frame">
-                {% if vehicles %}
-                    <img id="carImage" 
-                         src="{{ vehicles.0.base_image_path.url }}" 
-                         alt="{{ vehicles.0.name }}" 
-                         class="car-image">
-                {% else %}
-                    <p class="car-skeleton">車両データがありません</p>
-                {% endif %}
-            </div>
+          <div class="car-frame">
+            {% if vehicles.0.base_image_path %}
+            <img
+              id="carImage"
+              src="{{ vehicles.0.base_image_path.url }}"
+              alt="{{ vehicles.0.name }}"
+              class="car-image"
+            />
+            {% else %}
+            <img
+              id="carImage"
+              src="{% static 'assets/no_image.png' %}"
+              alt="no image"
+              class="car-image"
+            />
+            {% endif %}
+          </div>
 
-            <button class="arrow-btn" id="next-btn" aria-label="次の車へ">＞</button>
+          <button class="arrow-btn" id="next-btn">＞</button>
         </div>
 
-        <h2 class="car-name" id="carName">
-            {% if vehicles %}{{ vehicles.0.name }}{% endif %}
-        </h2>
+        <h2 class="car-name" id="carName">{{ vehicles.0.name }}</h2>
 
-        <input type="hidden" id="selectedCarId" value="{% if vehicles %}{{ vehicles.0.id }}{% endif %}">
+        <!-- 選択中の name_en を保持 -->
+        <input
+          type="hidden"
+          id="selectedCarNameEn"
+          value="{{ vehicles.0.name_en }}"
+        />
 
+        <!-- JS 用データ -->
         <script id="vehicles-data" type="application/json">
-            [
-                {% for v in vehicles %}
-                { 
-                    "url": "{{ v.base_image_path.url }}", 
-                    "name": "{{ v.name }}",
-                    "id": {{ v.id }}
-                }{% if not forloop.last %},{% endif %}
-                {% endfor %}
-            ]
+          [
+            {% for v in vehicles %}
+            {
+              {% if v.base_image_path %}
+                "url": "{{ v.base_image_path.url }}",
+              {% else %}
+                "url": "{% static 'assets/no_image.png' %}",
+              {% endif %}
+              "name": "{{ v.name }}",
+              "name_en": "{{ v.name_en }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          ]
         </script>
 
         <script src="{% static 'js/car_select.js' %}"></script>
 
         <script>
-            function goToCustomMenu(e) {
-                e.preventDefault(); // リンクの通常の動きを止める
+          function goToBodyColor(e) {
+            e.preventDefault();
 
-                const carId = document.getElementById('selectedCarId').value;
-                
-                if (!carId) {
-                    alert("車両データがありません");
-                    return;
-                }
+            const nameEn = document.getElementById("selectedCarNameEn").value;
 
-                // IDをクエリパラメータとしてURLにくっつけて移動
-                // 結果: /custom_menu/?car_id=1
-                const baseUrl = "{% url 'custom_menu' %}";
-                window.location.href = baseUrl + "?car_id=" + carId;
+            if (!nameEn) {
+              console.error("name_en が空です");
+              return;
             }
+
+            window.location.href =
+              "{% url 'custom_menu_bodycolor' %}?car=" +
+              encodeURIComponent(nameEn);
+          }
         </script>
 
-        </section>
+        {% else %}
+        <p style="text-align: center">車両データが存在しません</p>
+        {% endif %}
+      </section>
     </main>
-</body>
+  </body>
 </html>

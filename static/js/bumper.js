@@ -1,10 +1,10 @@
-console.log("NEW bodycolor.js LOADED");
+console.log("NEW bumper.js LOADED");
 
 document.addEventListener("DOMContentLoaded", () => {
   const img = document.getElementById("car-image");
   const prevBtn = document.getElementById("prev-btn");
   const nextBtn = document.getElementById("next-btn");
-  const dots = document.querySelectorAll(".color-dot");
+  const bumperBtns = document.querySelectorAll(".bumper-btn");
 
   if (!img) {
     console.error("car-image が見つかりません");
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===== 固定設定 =====
   const angles = ["front", "side", "rear"];
 
-  // ===== 状態（並列） =====
+  // 他画面から引き継ぎ
   let currentColor = sessionStorage.getItem("currentColor");
   if (!currentColor) {
     currentColor = "white";
@@ -43,14 +43,12 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!currentWheel) {
     currentWheel = "wheel1";
     sessionStorage.setItem("currentWheel", currentWheel);
-    console.log("初期ホイールを設定:", currentWheel);
   }
 
   let currentBumper = sessionStorage.getItem("currentBumper");
   if (!currentBumper) {
-    currentBumper = "bumper1"; // ← フォルダ名に合わせる
+    currentBumper = "bumper1";
     sessionStorage.setItem("currentBumper", currentBumper);
-    console.log("初期バンパーを設定:", currentBumper);
   }
 
   let angleIndex = 0;
@@ -76,17 +74,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // 初期表示
   updateImage();
 
-  // ===== カラー変更（ホイール保持） =====
-  dots.forEach((btn) => {
+  // ===== バンパー変更 =====
+  bumperBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const color = btn.dataset.color;
-      if (!color) return;
+      const bumper = btn.dataset.bumper;
+      if (!bumper) return;
 
-      currentColor = color;
+      currentBumper = bumper;
       angleIndex = 0; // 正面へ戻す
-      sessionStorage.setItem("currentColor", currentColor);
+      sessionStorage.setItem("currentBumper", currentBumper);
 
-      console.log("カラー変更:", currentColor);
+      console.log("バンパー変更:", currentBumper);
       updateImage();
     });
   });
