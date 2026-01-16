@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, update_session_auth_hash, get_user_model
 from django.contrib.auth.decorators import login_required
@@ -39,8 +39,14 @@ def login_view(request):
     return render(request, "login.html", {"form": form})
 
 
+# ログアウト処理
+def logout_view(request):
+    logout(request)
+    return redirect("list_page")
+
+
 # 一覧ページ表示
-def list_page_view(request):
+def list_page_view(request, custom_id=None):
     if request.user.is_authenticated:
         custom_items = SavedCustom.objects.filter(user=request.user).order_by("-saved_at")
     else:
@@ -53,7 +59,6 @@ def list_page_view(request):
 
 
 # お気に入りページ表示
-
 def favorite_page_view(request):
     if request.user.is_authenticated:
         custom_items = SavedCustom.objects.filter(
@@ -68,7 +73,7 @@ def favorite_page_view(request):
     })
 
 
-# 新規登録ページ表示（メール認証コード送信）
+# 新規登録（メール認証コード送信）
 def register_view(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -90,9 +95,6 @@ def register_view(request):
 
                     send_mail(subject, message, from_email, recipient_list, fail_silently=False)
 
-                # NOTE:
-                # urls.py にこれを追加してないと NoReverseMatch になる
-                # path('verify/', views.verify_code_view, name='verify'),
                 return redirect("verify")
 
             except Exception as e:
@@ -104,7 +106,7 @@ def register_view(request):
     return render(request, "register.html", {"form": form})
 
 
-# 認証コード入力画面（register_view が redirect("verify") する先）
+# 認証コード入力画面
 def verify_code_view(request):
     user_id = request.session.get("verification_user_id")
     if not user_id:
@@ -157,13 +159,14 @@ def verify_code_view(request):
                 return redirect("list_page")
             else:
                 form.add_error("authCode", "認証コードが間違っています。")
-                form.fields["authCode"].widget.attrs.update({
-                    "class": "verification-input error-input",
-                    "placeholder": "再入力してください。",
-                    "value": ""
-                })
 
     return render(request, "verify_code.html", {"form": form, "message": message})
+
+
+# ダッシュボード（urls.py にあるので最低限用意）
+@login_required(login_url="/login/")
+def dashboard_view(request):
+    return render(request, "dashboard.html", {"user": request.user})
 
 
 # アカウント表示
@@ -171,7 +174,7 @@ def verify_code_view(request):
 def account_view(request):
     user = request.user
     return render(request, "account.html", {
-        "nickname": user.nickname,
+        "nickname": getattr(user, "nickname", ""),
         "email": user.email,
         "password": ""
     })
@@ -182,7 +185,7 @@ def account_view(request):
 def account_update_view(request):
     user = request.user
     return render(request, "account_update.html", {
-        "nickname": user.nickname,
+        "nickname": getattr(user, "nickname", ""),
         "email": user.email,
         "password": ""
     })
@@ -193,18 +196,15 @@ def account_update_view(request):
 def account_save_view(request):
     if request.method == "POST":
         user = request.user
-        nickname = request.POST.get("nickname")
-        email = request.POST.get("email")
-        password = request.POST.get("password")
+        user.nickname = request.POST.get("nickname")
+        user.email = request.POST.get("email")
 
-        user.nickname = nickname
-        user.email = email
+        password = request.POST.get("password")
         if password and password.strip() != "":
             user.set_password(password)
 
         user.save()
         update_session_auth_hash(request, user)
-
         return redirect("account")
 
     return redirect("account_update")
@@ -220,7 +220,6 @@ def delete_item(request, item_id):
 
 # カスタムメニュー（新規 / 既存編集）
 def custom_menu(request, custom_id=None):
-    # 編集モード
     if custom_id:
         saved_item = get_object_or_404(SavedCustom, pk=custom_id, user=request.user)
         request.session["custom_data"] = {
@@ -231,14 +230,10 @@ def custom_menu(request, custom_id=None):
             "light_id": saved_item.light.id if saved_item.light else None,
             "aero_id": saved_item.aero.id if saved_item.aero else None,
         }
-
-    # 新規作成（車種選択から来る想定：?car_id=）
     elif request.GET.get("car_id"):
         car_id = request.GET.get("car_id")
         vehicle = get_object_or_404(Vehicle, id=car_id)
-        request.session["custom_data"] = {
-            "vehicle_id": vehicle.id
-        }
+        request.session["custom_data"] = {"vehicle_id": vehicle.id}
 
     custom_data = request.session.get("custom_data", {})
     vehicle_id = custom_data.get("vehicle_id")
@@ -247,7 +242,6 @@ def custom_menu(request, custom_id=None):
     if vehicle_id:
         vehicle = Vehicle.objects.filter(id=vehicle_id).first()
 
-    # セッション切れ等の保険
     if not vehicle:
         vehicle = Vehicle.objects.first()
         if vehicle:
@@ -257,7 +251,7 @@ def custom_menu(request, custom_id=None):
     return render(request, "custom_menu.html", {"vehicle": vehicle})
 
 
-# カスタム中止（確認ページ → POSTで中止確定）
+# カスタム中止
 def custom_cancel(request):
     if request.method == "POST":
         request.session.pop("custom_data", None)
@@ -267,7 +261,7 @@ def custom_cancel(request):
 
 
 # カラー選択
-def custom_menu_bodycolor(request):
+def custom_menu_bodycolor(request, custom_id=None):
     custom_data = request.session.get("custom_data", {})
 
     vehicle_id = custom_data.get("vehicle_id")
@@ -313,10 +307,6 @@ def custom_menu_aeroparts(request):
     return render(request, "custom_menu_aeroparts.html")
 
 
-def auto_custom(request):
-    return render(request, "auto_custom.html")
-
-
 # 車種選択ページ
 def car_select(request):
     vehicles = Vehicle.objects.all().order_by("id")
@@ -330,6 +320,17 @@ def car_view(request):
         "https://3des.daihatsu.co.jp/images/car/rocky/rocky2021/rocky_603502_XH32TC_x1.jpg"
     ]
     return render(request, "car.html", {"images": images})
+
+
+# 自動カスタムページ
+def auto_custom(request, custom_id=None):
+    return render(request, "auto_custom.html")
+
+
+# 自動カスタムAPI（urls.py にあるので最低限用意）
+def auto_custom_api(request):
+    # ここは本来ロジックが必要だが、まず起動優先で最低限返す
+    return JsonResponse({"ok": True})
 
 
 # 見積もり
