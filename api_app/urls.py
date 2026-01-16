@@ -61,7 +61,6 @@ urlpatterns = [
 
     path('logout/', logout_view, name='logout'), #ログアウト
 
-<<<<<<< HEAD
 
     path('car/', views.car_view, name='car'),
     path('menu_error/', views.menu_error_view, name='menu_error'), #メニューエラー
@@ -70,6 +69,4 @@ urlpatterns = [
     path('list_management_delection_error/', views.list_management_delection_error_view, name='list_management_delection_error'), #リスト管理エラー
 
 
-=======
->>>>>>> db6ccede468f08f8a018fe4480e102f9e7dce9ce
 ]
