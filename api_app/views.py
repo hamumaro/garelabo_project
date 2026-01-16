@@ -482,11 +482,18 @@ def auto_custom(request, custom_id=None):
         'wheel': wheel,
         'bumper': bumper,
         'light': light,
+<<<<<<< HEAD
         'aero': aero,'color_name': color.name if color else "未設定",
         'wheel_name': wheel.name if wheel else "未設定",
         'bumper_name': bumper.name if bumper else "未設定",
         'light_name': light.name if light else "未設定", # 追加漏れも補完
         'aero_name': aero.name if aero else "未設定",   # 追加漏れも補完
+=======
+        'aero': aero,
+        'color_name': color.name,
+        'wheel_name': wheel.name,
+        'bumper_name':bumper.name,
+>>>>>>> 07342453734d2be7b19e441c4a9996b9cdc9a9ec
         'vehicles': Vehicle.objects.all().order_by('id'),
         'editing_id': editing_id,
         'current_custom_id': editing_id,

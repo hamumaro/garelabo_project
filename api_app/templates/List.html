@@ -76,17 +76,25 @@
 
                 {% for item in custom_items %}
                     <div class="custom-card">
+<<<<<<< HEAD
                         <div class="card-image-area">
+=======
+>>>>>>> 07342453734d2be7b19e441c4a9996b9cdc9a9ec
                         {% if item.vehicle and item.vehicle.base_image_path %}
                             <a href="{% url 'custom_menu_bodycolor' item.id %}">
                                 <img src="{{ item.vehicle.base_image_path.url }}" class="preview-img">
                             {% else %}
                                 <img src="{% static 'assets/一覧車両.png' %}" class="preview-img">
                             {% endif %}
+<<<<<<< HEAD
                         </div>
                         
                         <div class="card-footer">
                             <p class="saved-date">最終保存 : {{ item.updated_at|date:"Y/m/d" }}</p>
+=======
+                        </a>
+                        <p class="saved-date">最終保存：{{ item.updated_at|date:"Y/m/d" }}</p>
+>>>>>>> 07342453734d2be7b19e441c4a9996b9cdc9a9ec
 
                             <form action="{% url 'delete_item' item.id %}" method="post" class="delete-form">
                                 {% csrf_token %}
