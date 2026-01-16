@@ -51,7 +51,7 @@
                     自動カスタム
                 </button>
 
-                <button type="button" onclick="location.href='{% url 'custom_menu' %}'">
+                <button type="button" onclick="location.href='{% if editing_id %}{% url 'custom_menu_bodycolor' editing_id %}{% else %}{% url 'custom_menu_bodycolor' %}{% endif %}'">
                     メニューに戻る
                 </button>
             </div>
@@ -84,9 +84,9 @@
     
     // --- ここを追加：AIが選択した結果をJSに渡す ---
     window.autoCustomResult = {
-        carFolder: "{{ vehicle.name_en }}", // 例: "Rocky" (フォルダ名)
-        carName: "{{ vehicle.name }}",      // 例: "ロッキー" (表示名)
-        color: "{{ color_en }}"            // 例: "white" (AIが選んだ色の英名)
+        carFolder: "{{ vehicle.name_en }}",
+        carName: "{{ vehicle.name }}",
+        color: "{{ color.rotation_image_folder }}"
     };
 
     // 既存のリスト表示用データ

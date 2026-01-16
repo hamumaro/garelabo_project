@@ -28,7 +28,11 @@
       </div>
 
       <nav class="header-nav">
-        <a href="{% url 'auto_custom' %}" class="nav-btn">自動カスタム</a>
+        {% if current_custom_id %}
+          <a href="{% url 'auto_custom' current_custom_id %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
+        {% else %}
+          <a href="{% url 'auto_custom' %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
+        {% endif %}
         <a href="{% url 'favorite_page' %}" class="nav-btn">お気に入り</a>
         <a href="{% url 'estimate' %}" class="nav-btn">カスタム見積り</a>
         <a href="{% url 'custom_cancel' %}" class="nav-btn">カスタム中止</a>

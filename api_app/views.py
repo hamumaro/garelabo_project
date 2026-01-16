@@ -48,7 +48,9 @@ def list_page_view(request):
     if request.user.is_authenticated:
         custom_items = SavedCustom.objects.filter(
             user=request.user
-        ).order_by('-saved_at')
+            ).select_related(
+            "vehicle"
+            ).order_by('-updated_at')
     else:
         custom_items = []
     return render(request, 'List.html', {
@@ -268,9 +270,14 @@ def custom_menu(request, custom_id=None):
         # 1. 保存データを取得
         saved_item = get_object_or_404(SavedCustom, pk=custom_id, user=request.user)
         
+        request.session['editing_custom_id'] = saved_item.id
+
+        if saved_item.vehicle:
+            vehicle = saved_item.vehicle
+
         # 2. データをセッションに展開（続きから編集できるようにする）
         request.session['custom_data'] = {
-            'vehicles_id': saved_item.vehicle.id if saved_item.vehicle else None,
+            'vehicle_id': saved_item.vehicle.id if saved_item.vehicle else None,
             'color_id': saved_item.color.id if saved_item.color else None,
             'wheel_id': saved_item.wheel.id if saved_item.wheel else None,
             'bumper_id': saved_item.bumper.id if saved_item.bumper else None,
@@ -362,9 +369,36 @@ def custom_menu(request, custom_id=None):
 #     return render(request, "custom_menu_bodycolor.html", context)
  
 
-def custom_menu_bodycolor(request):
+def custom_menu_bodycolor(request, custom_id=None):
+    # ===== 初期化（custom_menu の代替）=====
+    if custom_id:
+        saved = get_object_or_404(
+            SavedCustom, id=custom_id, user=request.user
+        )
+
+        request.session["editing_custom_id"] = saved.id
+        
+        request.session["custom_data"] = {
+            "vehicle_id": saved.vehicle.id if saved.vehicle else None,
+            "color_id": saved.color.id if saved.color else None,
+            "wheel_id": saved.wheel.id if saved.wheel else None,
+            "bumper_id": saved.bumper.id if saved.bumper else None,
+            "light_id": saved.light.id if saved.light else None,
+            "aero_id": saved.aero.id if saved.aero else None,
+        }
+
     custom_data = request.session.get('custom_data', {})
     vehicle_id = custom_data.get('vehicle_id')
+
+    vehicle = Vehicle.objects.filter(id=vehicle_id).first() or Vehicle.objects.first()
+
+    color = Color.objects.filter(id=custom_data.get('color_id'), vehicle=vehicle).first()
+
+    if vehicle_id and not isinstance(vehicle_id, int):
+        if hasattr(vehicle_id, 'id'):
+            vehicle_id = vehicle_id.id
+    
+    vehicle = Vehicle.objects.filter(id=vehicle_id).first()
 
     # 車両リストを必ず取得（これがないとJSがエラーになります）
     vehicles = Vehicle.objects.all().order_by('id')
@@ -379,8 +413,10 @@ def custom_menu_bodycolor(request):
 
     context = {
         'colors': colors,
+        'color': color,
         'current_color_id': int(current_color_id) if current_color_id else None,
         'vehicle_id': vehicle_id,
+        'vehicle':vehicle,
         'vehicles': vehicles, # ← ここが重要
     }
     return render(request, "custom_menu_bodycolor.html", context)
@@ -398,30 +434,63 @@ def custom_menu_light(request):
 def custom_menu_aeroparts(request):
     return render(request, "custom_menu_aeroparts.html")
  
-def auto_custom(request):
+# 自動カスタムページ
+def auto_custom(request, custom_id=None):
+    # 1. セッションデータの準備
     custom_data = request.session.get('custom_data', {})
-    vehicle_id = custom_data.get('vehicle_id')
-    vehicle = Vehicle.objects.filter(id=vehicle_id).first() or Vehicle.objects.first()
 
-    # セッションから選択済みのカラーを取得
-    color_id = custom_data.get('color_id')
-    color = Color.objects.filter(id=color_id, vehicle=vehicle).first()
-    
+    # 2. custom_id が渡された場合、そのデータをセッションに展開する
+    if custom_id:
+        saved = get_object_or_404(SavedCustom, id=custom_id, user=request.user)
+        # セッションをこの保存データの内容で上書き
+        custom_data = {
+            'vehicle_id': saved.vehicle.id if saved.vehicle else None,
+            'color_id': saved.color.id if saved.color else None,
+            'wheel_id': saved.wheel.id if saved.wheel else None,
+            'bumper_id': saved.bumper.id if saved.bumper else None,
+            'light_id': saved.light.id if saved.light else None,
+            'aero_id': saved.aero.id if saved.aero else None,
+        }
+        request.session['custom_data'] = custom_data
+        request.session['editing_custom_id'] = saved.id # 編集モードも維持
+
+    editing_id = request.session.get('editing_custom_id')
+
+    # 3. 車両の特定
+    vehicle_id = custom_data.get('vehicle_id')
+    vehicle = Vehicle.objects.filter(id=vehicle_id).first()
+    if not vehicle:
+        vehicle = Vehicle.objects.first()
+
+    # 4. パーツの取得（セッションにあるIDに基づいて取得）
+    color = Color.objects.filter(id=custom_data.get('color_id'), vehicle=vehicle).first()
+    wheel = Wheel.objects.filter(id=custom_data.get('wheel_id'), vehicle=vehicle).first()
+    bumper = Bumper.objects.filter(id=custom_data.get('bumper_id'), vehicle=vehicle).first()
+    light = Light.objects.filter(id=custom_data.get('light_id'), vehicle=vehicle).first()
+    aero = Aero.objects.filter(id=custom_data.get('aero_id'), vehicle=vehicle).first()
+
+    # 5. カラーが取れない場合の補正（画像表示エラー防止）
     if not color:
-        # 【修正】ここも rotation_image_folder に！
-        color = Color.objects.filter(vehicle=vehicle, rotation_image_folder='black').first() \
-                or Color.objects.filter(vehicle=vehicle).first()
+        color = Color.objects.filter(vehicle=vehicle).first()
+        if color:
+            custom_data['color_id'] = color.id
+            request.session['custom_data'] = custom_data
 
     context = {
         'vehicle': vehicle,
-        # 【修正】ここも rotation_image_folder に！
-        'color_en': color.rotation_image_folder if color else "black",
-        'color_name': color.name if color else "ブラック",
+        'color': color,
+        'wheel': wheel,
+        'bumper': bumper,
+        'light': light,
+        'aero': aero,
+        'color_name': color.name,
+        'wheel_name': wheel.name,
+        'bumper_name':bumper.name,
         'vehicles': Vehicle.objects.all().order_by('id'),
+        'editing_id': editing_id,
+        'current_custom_id': editing_id,
     }
     return render(request, "auto_custom.html", context)
-
-
 
 def auto_custom_api(request):
     try:
@@ -549,30 +618,47 @@ def save_estimate_view(request):
 # カスタム保存
 @login_required(login_url='/login/')
 def custom_save(request):
-    # 1. POSTメソッドで来たか確認（安全のため）
-    if request.method == 'POST':
-        
-        # 2. セッションデータの取得
-        custom_data = request.session.get('custom_data', {})
-        if not custom_data:
-            return redirect('custom_menu')
+    if request.method != 'POST':
+        return redirect('custom_menu')
 
-        # 3. IDからオブジェクトを取得
-        vehicle = Vehicle.objects.filter(id=custom_data.get('vehicle_id')).first()
-        color = Color.objects.filter(id=custom_data.get('color_id')).first()
-        wheel = Wheel.objects.filter(id=custom_data.get('wheel_id')).first()
-        bumper = Bumper.objects.filter(id=custom_data.get('bumper_id')).first()
-        light = Light.objects.filter(id=custom_data.get('light_id')).first()
-        aero = Aero.objects.filter(id=custom_data.get('aero_id')).first()
+    custom_data = request.session.get('custom_data', {})
+    if not custom_data:
+        return redirect('custom_menu')
 
-        # 4. 合計金額計算
-        total = Decimal('0.00')
-        parts_list = [color, wheel, bumper, light, aero]
-        for part in parts_list:
-            if part and part.price:
-                total += part.price
+    # IDからオブジェクト取得
+    vehicle = Vehicle.objects.filter(id=custom_data.get('vehicle_id')).first()
+    color   = Color.objects.filter(id=custom_data.get('color_id')).first()
+    wheel   = Wheel.objects.filter(id=custom_data.get('wheel_id')).first()
+    bumper  = Bumper.objects.filter(id=custom_data.get('bumper_id')).first()
+    light   = Light.objects.filter(id=custom_data.get('light_id')).first()
+    aero    = Aero.objects.filter(id=custom_data.get('aero_id')).first()
 
-        # 5. 保存
+    # 合計計算
+    total = Decimal('0.00')
+    for part in [color, wheel, bumper, light, aero]:
+        if part and part.price:
+            total += part.price
+
+    # ★ 編集モードかどうか
+    editing_id = request.session.get('editing_custom_id')
+
+    if editing_id:
+        # ===== 更新 =====
+        saved = get_object_or_404(
+            SavedCustom, id=editing_id, user=request.user
+        )
+
+        saved.vehicle = vehicle
+        saved.color = color
+        saved.wheel = wheel
+        saved.bumper = bumper
+        saved.light = light
+        saved.aero = aero
+        saved.total_price = total
+        saved.save()
+
+    else:
+        # ===== 新規作成 =====
         SavedCustom.objects.create(
             user=request.user,
             vehicle=vehicle,
@@ -582,14 +668,10 @@ def custom_save(request):
             light=light,
             aero=aero,
             total_price=total,
-            # ※仮画像を設定（Canvas実装後に修正）
             preview_image_url='uploads/previews/default.png',
-            display_mode=False,
-            is_favorite=False
         )
-        
-        # 6. ★重要: 保存後は「一覧ページ」へ戻る
-        return redirect('list_page')
 
-    # POST以外（URL直接入力など）で来た場合はカスタム画面へ戻す
-    return redirect('custom_menu')
+    # ★ 保存後は編集状態解除
+    request.session.pop('editing_custom_id', None)
+
+    return redirect('list_page')
