@@ -1,6 +1,7 @@
 :root {
-    --blue: #2a6edc;
-    --blue-dk: #1b4fa2;
+    --blue: #4d94ff; /* 明るめの青 */
+    --blue-dk: #2a6edc;
+    --dark-ribbon: #1a237e; /* 濃い青/紺 */
 }
 
 * {
@@ -10,7 +11,7 @@
 html,
 body {
     margin: 0;
-    background: #efefef;
+    background: #f5f5f5; /* 背景色を薄いグレーに */
     font-family: Inter, "Noto Sans JP", system-ui, sans-serif;
 }
 
@@ -18,27 +19,29 @@ body {
 .header {
     background: #000;
     color: #fff;
+    border-bottom: 3px solid #fff; /* 画像の下の境界線 */
 }
 
 .header-inner {
-    width: min(1100px, 96vw);
+    width: 100%; /* 全幅に変更 */
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 10px 0 14px;
+    position: relative; /* 絶対配置の基準 */
+    height: 260px;
+    overflow: hidden; /* はみ出し防止 */
 }
 
-/* ===== 上段：3枚の画像 ===== */
+/* ===== 背景画像エリア（隙間なし） ===== */
 .header-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1.4fr; /* 右だけ少し広めにして見切れにくく */
-    height: 260px;
-    gap: 12px;
-    align-items: center;
+    grid-template-columns: 1fr 1fr 1.4fr;
+    height: 100%;
+    width: 100%;
+    gap: 0; /* 隙間をなくす */
 }
 
-/* 共通パネル */
 .panel {
     height: 100%;
-    overflow: hidden;
     background: #000;
 }
 
@@ -46,231 +49,241 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center top; /* 上側優先でトリミング */
+    object-position: center;
+    opacity: 0.9; /* 少し暗くして文字を見やすくする場合 */
 }
 
-/* 右パネル（ログイン＋ロゴ） */
-.brand-area {
-    position: relative;
+/* ===== オーバーレイ要素：ユーザー情報（右上固定） ===== */
+.user-info-overlay {
+    position: absolute;
+    top: 10px;           /* ★変更: 上の隙間を狭くしてより上へ */
+    right: 15px;         /* ★変更: 右端へ */
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    /* login-btnとuser-infoの間隔を確保するためにpaddingを調整 */
-    padding: 8px 8px 10px; 
-    gap: 10px; /* ユーザー情報/ログインボタンとロゴの間隔 */
+    align-items: center;
+    gap: 10px;
+    z-index: 100;        /* ★変更: 最前面に固定 */
 }
 
-/* ログインボタン */
-.login-btn {
-    align-self: flex-end;
+.login-btn-overlay {
+    position: absolute;
+    top: 10px;           /* ★変更: 上に合わせる */
+    right: 15px;
     background: #fff;
     color: #000;
     padding: 6px 12px;
     border-radius: 4px;
     text-decoration: none;
     font-size: 12px;
-    /* brand-areaにgapを設定したので、margin-bottomは削除または調整 */
-    /* margin-bottom: 8px; */ 
-}
-
-/* ログイン済みのユーザー情報エリア - 新規追加 */
-.user-info {
-    align-self: flex-end;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 10px;
-    background: rgba(255, 255, 255, 0.1); /* 背景を少し透過させて目立たせる */
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.user-icon {
-    width: 26px; /* アイコンのサイズ */
-    height: 26px;
-    border-radius: 50%; /* 丸いアイコン */
-    object-fit: cover;
-    background: #fff; /* アイコン画像がない場合の背景や、画像枠 */
+    font-weight: bold;
+    z-index: 100;
 }
 
 .username {
-    /* usernameは親要素user-infoから色を継承 */
-    color: #fff; 
-    white-space: nowrap; /* ユーザー名が長くなっても改行させない */
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8); /* 文字が見やすいように影追加 */
 }
 
-/* GARELABOロゴ画像 */
+.user-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ccc;
+    border: 2px solid #fff;
+}
+
+/* ===== オーバーレイ要素：ロゴ（右側・リボンの上） ===== */
+.logo-overlay {
+    position: absolute;
+    bottom: 60px;        /* ★変更: 位置を下げてユーザー情報との被りを回避 */
+    right: 30px;
+    z-index: 10;
+    text-align: right;
+    pointer-events: none; /* クリックを邪魔しない */
+}
+
 .garelabo-logo {
+    width: 250px;
     max-width: 100%;
     height: auto;
-    align-self: flex-end;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 
-/* ===== 下段：リボンボタン（右画像の真下寄せ） ===== */
-.ribbons {
-    margin-top: 14px;
+/* ===== オーバーレイ要素：ナビゲーションリボン（右下） ===== */
+.ribbons-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
     display: flex;
-    justify-content: flex-end; /* 右寄せ */
-    gap: 18px;
+    z-index: 20;
 }
 
 .ribbon {
-    --bg: var(--blue);
-    --bg2: var(--blue-dk);
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 24px 12px 20px;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 30px;
     color: #fff;
     text-decoration: none;
-    font-weight: 700;
-    font-size: 15px;
-    background: linear-gradient(135deg, var(--bg), var(--bg2));
-    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%);
+    font-weight: bold;
+    font-size: 14px;
+    height: 50px;
+    min-width: 160px;
+    /* 斜めの形状を作る */
+    transform: skewX(-20deg); 
+    transform-origin: bottom;
+    margin-right: -5px; /* 重なり調整 */
+    border-right: 1px solid rgba(255,255,255,0.2);
+}
+
+.ribbon > * {
+    transform: skewX(20deg); /* 中身の文字を元に戻す */
 }
 
 .ribbon img {
-    width: 26px;
-    height: 26px;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
 }
 
-/* ===== セクション見出し ===== */
-.section-title {
+.ribbon-blue {
+    background: var(--blue);
+}
+
+.ribbon-dark {
+    background: var(--dark-ribbon);
+    margin-right: 20px; /* 右端の微調整 */
+}
+
+.ribbon:hover {
+    filter: brightness(1.1);
+}
+
+/* ===== セクションタイトル（黒帯・線あり） ===== */
+.section-title-bar {
     background: #000;
+    padding: 5px 0;
+    text-align: center;
+    border-bottom: 1px solid #333;
+}
+
+.section-title-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: min(1100px, 96vw);
+    margin: 0 auto;
+}
+
+.section-title {
     color: #fff;
-    font-weight: 900;
-    letter-spacing: 0.2em;
-    text-align: center;      /* 真ん中寄せ */
-    padding: 10px 0 12px;
-    font-size: 26px;
+    font-weight: 500;
+    font-size: 20px;
+    letter-spacing: 0.1em;
+}
+
+.title-line {
+    display: block;
+    height: 1px;
+    width: 100px;
+    background: #fff;
 }
 
 /* ===== コンテンツ ===== */
 .content {
     min-height: 450px;
-    background: #fff;        /* 下の白い余白は維持 */
-    padding: 20px;
+    padding: 40px 20px;
+    background: #f5f5f5;
+    display: flex;
+    justify-content: center;
 }
 
 .custom-data-list {
     display: grid;
-    /* 最小300pxのカードを並べ、領域に合わせて自動で調整 */
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-    gap: 20px;
-    padding: 10px 0; /* contentのpaddingと合わせて調整 */
-    direction: ltr; /* 左から右へ */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 30px;
+    width: 100%;
+    max-width: 1200px;
 }
 
-/* 個々のカスタムデータアイテム（カード） */
-.custom-data-item {
+/* ===== カードデザイン ===== */
+.custom-card {
     background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: none;
+    border-radius: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     transition: transform 0.2s;
 }
 
-.custom-card {
-    position: relative;
-    width: 220px;
+.custom-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.card-image-area {
+    padding: 10px;
     background: #fff;
-    border-radius: 10px;
-    padding: 12px;
-    padding-bottom: 50px;
-    border: 1px solid #ddd;
-    text-align: center;
 }
 
 .preview-img {
     width: 100%;
     height: auto;
-    border-radius: 8px;
+    display: block;
+}
+
+/* カード下部のグレーエリア */
+.card-footer {
+    background: #e6e6e6;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #ddd;
 }
 
 .saved-date {
-    font-size: 14px;
-    margin: 8px 0;
+    font-size: 12px;
     color: #333;
+    margin: 0;
+    font-weight: 500;
 }
+
 .delete-form {
     margin: 0;
+    display: flex;
+    align-items: center;
 }
 
 .delete-btn {
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-
-    background: #fff;
-    color: #000;
-    border: 1px solid #ccc;
-    padding: 6px 10px;
-    border-radius: 6px;
+    background: transparent;
+    border: none;
     cursor: pointer;
-    font-size: 18px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: opacity 0.2s;
 }
 
 .delete-btn:hover {
-    background: #f3f3f3;
+    opacity: 1;
 }
 
-
-.custom-data-item:hover {
-    transform: translateY(-2px); /* ホバーで少し浮き上がるエフェクト */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.delete-btn img {
+    width: 16px;
+    height: 16px;
 }
 
-.custom-data-item h3 {
-    color: var(--blue-dk);
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 18px;
-}
-
-.custom-data-item p {
-    color: #555;
-    font-size: 14px;
-}
-
-/* データがない場合のメッセージ */
 .no-data-message {
-    grid-column: 1 / -1; /* グリッド全体を占有 */
+    grid-column: 1 / -1;
     text-align: center;
     color: #888;
     padding: 30px;
-}
-
-/* 未ログイン時のプロンプト */
-.login-prompt {
-    text-align: center;
-    padding: 60px 20px;
-    background: #f8f8f8;
-    border: 1px dashed #ccc;
-    border-radius: 8px;
-    margin: 20px auto;
-    max-width: 500px;
-}
-
-.login-prompt p {
-    font-size: 16px;
-    margin-bottom: 20px;
-}
-
-.call-to-action-btn {
-    display: inline-block;
-    padding: 10px 25px;
-    background: var(--blue);
-    color: #fff;
-    text-decoration: none;
-    border-radius: 4px;
-    font-weight: 700;
-    transition: background 0.2s;
-}
-
-.call-to-action-btn:hover {
-    background: var(--blue-dk);
 }
