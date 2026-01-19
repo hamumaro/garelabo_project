@@ -114,6 +114,14 @@ body {
 .register-link:hover {
     text-decoration: underline;
 }
+.error,
+.login-error {
+    color: #d32f2f;
+    font-size: 13px;
+    margin-top: -20px;
+    margin-bottom: 16px;
+}
+
 
 /* レスポンシブ */
 @media (max-width: 520px) {

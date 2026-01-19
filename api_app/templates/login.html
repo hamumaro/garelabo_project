@@ -7,12 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>GARELABO+｜ログイン</title>
     <link rel="stylesheet" href="{% static 'css/Login_style.css' %}">
-    
 </head>
 <body>
     <header class="site-header">
-        <a href="List.html"></a>
-        <img class="site-logo" src="{% static 'assets/ガレラボ+.png' %}"  alt="GARELABO+">
+        <a href="{% url 'list_page' %}" class="logo-link">
+            <img class="site-logo" src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+">
         </a>
     </header>
 
@@ -21,6 +20,15 @@
     <main class="card" role="main">
         <form action="{% url 'login' %}" method="post" novalidate>
             {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="login-error">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <div class="form-row">
                 {{ form.username.label_tag }}
                 {{ form.username }}
