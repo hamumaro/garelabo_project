@@ -83,6 +83,11 @@
                                     <img src="{% static 'assets/一覧車両.png' %}" class="preview-img">
                                 {% endif %}
                             </a>
+                                <img src="{{ item.vehicle.base_image_path.url }}" class="preview-img">
+                            </a>
+                            {% else %}
+                                <img src="{% static 'assets/一覧車両.png' %}" class="preview-img">
+                            {% endif %}
                         </div>
                         
                         <div class="card-footer">
