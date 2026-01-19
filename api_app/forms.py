@@ -25,6 +25,10 @@ class LoginForm(AuthenticationForm):
             "id" : "password",
         })
     )
+    error_messages = {
+        "invalid_login": "メールアドレス または パスワードが正しくありません。",
+        "inactive": "このアカウントは無効です。",
+    }
 
 # 新規登録
 class RegisterForm(forms.Form):

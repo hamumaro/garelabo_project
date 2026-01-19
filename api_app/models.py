@@ -4,12 +4,14 @@ from django.conf import settings
 from django.utils import timezone
 import os
 
+
 # 画像保存先を動的に決定する関数
 def user_preview_path(instance, filename):
     now = timezone.now().strftime('%Y%m%d_%H%M%S')
     base, ext = os.path.splitext(filename)
     new_filename = f"{now}_{base}{ext}"
     return f'uploads/previews/user_{instance.user.id}/{new_filename}'
+
 
 # --- 1. ユーザーモデル管理 ---
 class MyUserManager(BaseUserManager):
@@ -21,11 +23,12 @@ class MyUserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
-    
+
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, password, **extra_fields)
+
 
 # --- 2. User テーブル ---
 class User(AbstractBaseUser, PermissionsMixin):
@@ -34,12 +37,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+
     objects = MyUserManager()
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
     def __str__(self):
         return self.nickname if self.nickname else self.email
+
 
 # --- 3. Token テーブル ---
 class Token(models.Model):
@@ -49,15 +55,16 @@ class Token(models.Model):
     is_logged_in = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-# --- 4. Vehicle テーブル (子モデルより先に書く) ---
+
+# --- 4. Vehicle テーブル ---
 class Vehicle(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    # ここに name_en を追加して、1つにまとめます
     name_en = models.CharField(max_length=100, default="Rocky")
     base_image_path = models.ImageField(upload_to="uploads/vehicles/")
 
     def __str__(self):
         return self.name
+
 
 # --- 5. Color テーブル ---
 class Color(models.Model):
@@ -66,9 +73,10 @@ class Color(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image_url = models.ImageField(upload_to='uploads/colors/')
     rotation_image_folder = models.CharField(max_length=50, blank=True)
-    
+
     def __str__(self):
         return f"{self.name} (for {self.vehicle.name})"
+
 
 # --- 6. Wheel テーブル ---
 class Wheel(models.Model):
@@ -77,12 +85,20 @@ class Wheel(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image_url = models.ImageField(upload_to='uploads/wheels/')
 
+    def __str__(self):
+        return f"{self.name} (for {self.vehicle.name})"
+
+
 # --- 7. Bumper テーブル ---
 class Bumper(models.Model):
     name = models.CharField(max_length=255)
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image_url = models.ImageField(upload_to='uploads/bumpers/')
+
+    def __str__(self):
+        return f"{self.name} (for {self.vehicle.name})"
+
 
 # --- 8. Light テーブル ---
 class Light(models.Model):
@@ -91,12 +107,20 @@ class Light(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image_url = models.ImageField(upload_to='uploads/lights/')
 
+    def __str__(self):
+        return f"{self.name} (for {self.vehicle.name})"
+
+
 # --- 9. Aero テーブル ---
 class Aero(models.Model):
     name = models.CharField(max_length=255)
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image_url = models.ImageField(upload_to='uploads/aeros/')
+
+    def __str__(self):
+        return f"{self.name} (for {self.vehicle.name})"
+
 
 # --- 10. SavedCustom テーブル ---
 class SavedCustom(models.Model):
@@ -107,6 +131,7 @@ class SavedCustom(models.Model):
     bumper = models.ForeignKey(Bumper, on_delete=models.PROTECT, null=True, blank=True)
     light = models.ForeignKey(Light, on_delete=models.PROTECT, null=True, blank=True)
     aero = models.ForeignKey(Aero, on_delete=models.PROTECT, null=True, blank=True)
+
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     display_mode = models.BooleanField(default=False)
     preview_image_url = models.ImageField(upload_to=user_preview_path)

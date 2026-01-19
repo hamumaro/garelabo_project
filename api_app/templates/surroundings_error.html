@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GARELABO+｜エラー</title>
+
+    <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}">
+    <link rel="stylesheet" href="{% static 'css/error_style.css' %}">
+</head>
+<body>
+
+<header class="top-header">
+    <div class="top-header-inner">
+        <div class="header-logo">
+            <a href="{% url 'list_page' %}">
+                <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+">
+            </a>
+        </div>
+
+        <div class="header-user">
+            <span class="header-user-name">
+                {% if user.is_authenticated %}
+                    {{ user.nickname }}<span class="header-user-suffix">さん</span>
+                {% else %}
+                    ゲスト
+                {% endif %}
+            </span>
+            <a href="{% url 'account' %}" class="header-user-icon">
+                <img src="{% static 'assets/アカウントアイコン.png' %}" alt="">
+            </a>
+        </div>
+    </div>
+</header>
+
+<main class="error-main">
+    <p class="error-line1">切り換えに失敗しました</p>
+
+    <div class="error-buttons">
+        <!-- RELOAD：この画面を再読み込み -->
+        <button type="button" class="error-btn" id="reload-btn">RELOAD</button>
+
+        <!-- BACK：一つ前の画面に戻る（履歴なければ一覧へ） -->
+        <button type="button" class="error-btn" id="back-btn">BACK</button>
+    </div>
+</main>
+
+<script>
+    (function () {
+        const reloadBtn = document.getElementById('reload-btn');
+        const backBtn   = document.getElementById('back-btn');
+
+        if (reloadBtn) {
+            reloadBtn.addEventListener('click', function () {
+                location.reload();
+            });
+        }
+
+        if (backBtn) {
+            backBtn.addEventListener('click', function () {
+                const ref = document.referrer;
+                const sameOrigin = ref && ref.startsWith(location.origin);
+
+                if (sameOrigin) {
+                    window.location.href = ref;
+                } else if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    // どうしようもないときは一覧に逃がす
+                    window.location.href = "{% url 'list_page' %}";
+                }
+            });
+        }
+    })();
+</script>
+
+</body>
+</html>

@@ -56,6 +56,43 @@
     </header>
 
     <main class="main-layout">
+
+        <!-- 左サイドメニュー -->
+        <aside class="side-menu">
+
+
+            <a href="{% url 'custom_menu_bodycolor' %}" class="side-btn-link">ボディカラー</a>
+            <a href="{% url 'custom_menu_wheel' %}" class="side-btn-link ">ホイール</a>
+            <a href="{% url 'custom_menu_bumper' %}" class="side-btn-link"style="background:#111; color:#fff;">バンパー</a>
+            <a href="{% url 'custom_menu_light' %}" class="side-btn-link">ライト</a>
+            <a href="{% url 'custom_menu_aeroparts' %}" class="side-btn-link">エアロパーツ</a>
+
+        </aside>
+
+    
+        <!-- ▼ 車 + 下のバンパー枠 -->
+        <section class="car-display-area">
+
+            <div class="car-frame">
+                <!-- DB画像 -->
+                <img src="{% static 'assets/r34_sample.png' %}" class="car-image" alt="車">
+            </div>
+
+            <div class="rotate-hint">
+        <button id="prev-btn">←</button>
+        <button id="next-btn">→</button>
+        <span>360°</span>
+        </div>
+        <!-- ▼ バンパー枠だけ -->
+            <section class="bumper-list-area">
+                <div class="bumper-placeholder">
+                    バンパー選択エリア（後で実装）
+                </div>
+            </section>
+
+                <div class="save-area">
+        <a href="{% url 'list_page' %}" class="save-custom-btn">
+            カスタム内容保存
       <!-- ================= サイドメニュー ================= -->
       <aside class="side-menu">
         <a href="{% url 'custom_menu_bodycolor' %}" class="side-btn-link">
@@ -81,6 +118,9 @@
         {% endcomment %}
       </aside>
 
+
+            
+=======
       <!-- ================= メイン ================= -->
       <section class="car-display-area">
         <div class="car-frame">
