@@ -11,6 +11,49 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  
+  // ===== お気に入りトグル処理 =====
+    const favoriteToggle = document.getElementById("favorite-toggle");
+    const isFavoriteInput = document.getElementById("is-favorite");
+
+    if (favoriteToggle && isFavoriteInput) {
+      // 1. ボタンがクリックされた時のイベント
+      favoriteToggle.addEventListener("click", function(e) {
+        e.preventDefault(); // 画面遷移を防ぐ
+
+        // 2. 現在の状態を取得して反転させる
+        // inputの値が "true" なら次は false、そうでなければ true
+        const isCurrentlyFavorite = (isFavoriteInput.value === "true");
+        const newState = !isCurrentlyFavorite;
+
+        // 3. HTML上の値を更新 (保存ボタン用)
+        isFavoriteInput.value = newState ? "true" : "false";
+
+        // 4. ボタンの見た目を更新
+        this.innerText = newState ? "✔ お気に入り" : "お気に入り";
+
+        // ⭐ これを追加するだけ
+        this.classList.toggle("is-favorite", newState);
+
+        // (オプション) デバッグ用ログ
+        console.log("お気に入り状態を切り替えました:", newState);
+
+        // 5. サーバー側のセッションにも即座に反映（他のページへ移動しても維持するため）
+        fetch('/update_session_favorite/', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ is_favorite: newState })
+        })
+        .then(response => {
+          if (!response.ok) console.error("セッション更新失敗");
+        })
+        .catch(err => console.error("通信エラー:", err));
+      });
+    }
+
   // ===== URL から車(name_en)取得 =====
   const params = new URLSearchParams(window.location.search);
   let carFolder = params.get("car");

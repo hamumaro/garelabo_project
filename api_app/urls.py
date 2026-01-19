@@ -2,6 +2,31 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('test/', views.test_view),  # 動作確認用
+    
+    path('login/', login_view, name='login'),  # ログイン
+
+    path('list/<int:custom_id>', views.list_page_view, name='list_page'), # 一覧
+
+    path('custom/save/', views.custom_save, name='save_custom'), # カスタム保存
+    
+    path('delete/<int:item_id>/',views.delete_item, name='delete_item'), #削除
+
+    path('update_session_favorite/', views.update_session_favorite, name='update_session_favorite'), # セッションのお気に入り更新
+    path('favorite/', views.favorite_page_view, name='favorite_page'),# お気に入り
+
+    path('', views.list_page_view, name='list_page'),  # 追加
+
+    path('register/',  views.register_view, name='register'),  # 新規登録
+    path('verify/', views.verify_code_view, name='verify'), # 認証
+
+    path('dashboard/',  views.dashboard_view, name='dashboard'),  # ログイン後ページ
+    
+    path("custom_menu/", views.custom_menu, name="custom_menu"),#カスタムメニュー画面 (新規作成)
+    
+    path("custom_menu/<int:custom_id>/", views.custom_menu, name="custom_menu"),#カスタムメニュー画面 (既存編集)
+    
+    path("custom_menu/bodycolor/", views.custom_menu_bodycolor, name="custom_menu_bodycolor"),#ボディーカラー選択画面
     path("test/", views.test_view, name="test"),
 
     # auth
