@@ -51,7 +51,7 @@
                     自動カスタム
                 </button>
 
-                <button type="button" onclick="location.href='{% if editing_id %}{% url 'custom_menu_bodycolor' editing_id %}{% else %}{% url 'custom_menu_bodycolor' %}{% endif %}'">
+                <button type="button" onclick="location.href='{% url 'custom_menu_bodycolor' %}'">
                     メニューに戻る
                 </button>
             </div>
@@ -69,11 +69,18 @@
             <!-- 保存ボタン -->
             <form method="post" action="{% url 'save_custom' %}">
                 {% csrf_token %}
+                
+                <input
+                    type="hidden"
+                    name="is_favorite"
+                    id="is-favorite"
+                    value="{% if is_favorite %}true{% else %}false{% endif %}"
+                >
+
                 <button type="submit" class="save-btn">
                     カスタム内容保存
                 </button>
             </form>
-
         </div>
 
     </main>

@@ -13,6 +13,7 @@ import json
 from django.templatetags.static import static
 from django.conf import settings
 from django.shortcuts import redirect
+from django.views.decorators.http import require_POST
 
 # モデルとフォームのインポート
 from .forms import LoginForm, RegisterForm, VerificationForm
@@ -64,7 +65,7 @@ def favorite_page_view(request):
         custom_items = SavedCustom.objects.filter(
             user=request.user,
             is_favorite=True
-        ).order_by('-saved_at')
+        ).order_by('-updated_at')
     else:
         custom_items = []
 
@@ -73,8 +74,6 @@ def favorite_page_view(request):
     })
 
 # 新規登録ページ表示
-# api_app/views.py
-
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -385,10 +384,12 @@ def custom_menu_bodycolor(request, custom_id=None):
             "bumper_id": saved.bumper.id if saved.bumper else None,
             "light_id": saved.light.id if saved.light else None,
             "aero_id": saved.aero.id if saved.aero else None,
+            "is_favorite": saved.is_favorite,
         }
 
     custom_data = request.session.get('custom_data', {})
     vehicle_id = custom_data.get('vehicle_id')
+
 
     vehicle = Vehicle.objects.filter(id=vehicle_id).first() or Vehicle.objects.first()
 
@@ -418,15 +419,40 @@ def custom_menu_bodycolor(request, custom_id=None):
         'vehicle_id': vehicle_id,
         'vehicle':vehicle,
         'vehicles': vehicles, # ← ここが重要
+        'is_favorite': custom_data.get('is_favorite', False),
     }
     return render(request, "custom_menu_bodycolor.html", context)
 
 
 def custom_menu_wheel(request):
-    return render(request, "custom_menu_wheel.html")
+    # セッションから現在のカスタムデータを取得
+    custom_data = request.session.get('custom_data', {})
+    
+    # お気に入り状態を取得（なければFalse）
+    is_favorite = custom_data.get('is_favorite', False)
+
+    # ...既存の車両取得ロジックなど...
+
+    context = {
+        'is_favorite': is_favorite, # これをテンプレートに渡す
+        # ...他のデータ...
+    }
+    return render(request, "custom_menu_wheel.html", context)
  
 def custom_menu_bumper(request):
-    return render(request, "custom_menu_bumper.html")
+    # セッションから現在のカスタムデータを取得
+    custom_data = request.session.get('custom_data', {})
+    
+    # お気に入り状態を取得（なければFalse）
+    is_favorite = custom_data.get('is_favorite', False)
+
+    # ...既存の車両取得ロジックなど...
+
+    context = {
+        'is_favorite': is_favorite, # これをテンプレートに渡す
+        # ...他のデータ...
+    }
+    return render(request, "custom_menu_bumper.html", context)
  
 def custom_menu_light(request):
     return render(request, "custom_menu_light.html")
@@ -450,11 +476,14 @@ def auto_custom(request, custom_id=None):
             'bumper_id': saved.bumper.id if saved.bumper else None,
             'light_id': saved.light.id if saved.light else None,
             'aero_id': saved.aero.id if saved.aero else None,
+            'is_favorite': saved.is_favorite,
         }
         request.session['custom_data'] = custom_data
         request.session['editing_custom_id'] = saved.id # 編集モードも維持
 
     editing_id = request.session.get('editing_custom_id')
+
+    is_favorite = custom_data.get('is_favorite', False)
 
     # 3. 車両の特定
     vehicle_id = custom_data.get('vehicle_id')
@@ -482,21 +511,14 @@ def auto_custom(request, custom_id=None):
         'wheel': wheel,
         'bumper': bumper,
         'light': light,
-<<<<<<< HEAD
-        'aero': aero,'color_name': color.name if color else "未設定",
-        'wheel_name': wheel.name if wheel else "未設定",
-        'bumper_name': bumper.name if bumper else "未設定",
-        'light_name': light.name if light else "未設定", # 追加漏れも補完
-        'aero_name': aero.name if aero else "未設定",   # 追加漏れも補完
-=======
         'aero': aero,
-        'color_name': color.name,
-        'wheel_name': wheel.name,
-        'bumper_name':bumper.name,
->>>>>>> 07342453734d2be7b19e441c4a9996b9cdc9a9ec
+        'color_name': color.name if color else '未設定',
+        'wheel_name': wheel.name if wheel else '未設定',
+        'bumper_name': bumper.name if bumper else '未設定',
         'vehicles': Vehicle.objects.all().order_by('id'),
         'editing_id': editing_id,
-        'current_custom_id': editing_id,
+        'current_custom_id': request.session.get('editing_custom_id'),
+        'is_favorite': is_favorite,
     }
     return render(request, "auto_custom.html", context)
 
@@ -504,6 +526,8 @@ def auto_custom_api(request):
     try:
         # セッション取得（なければ新規）
         custom_data = request.session.get('custom_data', {})
+
+        current_is_favorite = custom_data.get('is_favorite', False)
 
         # 車両選択
         vehicle = Vehicle.objects.order_by('?').first()
@@ -522,6 +546,7 @@ def auto_custom_api(request):
             'bumper_id': bumper.id if bumper else None,
             'light_id': light.id if light else None,
             'aero_id': aero.id if aero else None,
+            'is_favorite': current_is_favorite,
         })
         request.session['custom_data'] = custom_data
         request.session.modified = True  # ← 念のため
@@ -533,6 +558,7 @@ def auto_custom_api(request):
             'color_name': color.name if color else 'ブラック',
             'wheel_name': wheel.name if wheel else 'ホイール',
             'bumper_name': bumper.name if bumper else 'バンパー',
+            'is_favorite': current_is_favorite,
         })
 
     except Exception as e:
@@ -550,6 +576,58 @@ def custom_cancel(request):
     # 中止した後の遷移先（例: トップページや車種選択）を指定
     return render(request,'custom_canceled.html')
 
+# お気に入り切替機能
+@login_required
+@require_POST
+def toggle_favorite(request, item_id):
+    """お気に入りの状態を切り替える(AJAX用)"""
+    item = get_object_or_404(SavedCustom, id=item_id, user=request.user)
+    
+    # 状態を反転
+    item.is_favorite = not item.is_favorite
+    item.save()
+    
+    return JsonResponse({
+        'status': 'success',
+        'is_favorite': item.is_favorite
+    })
+
+# セッション内のお気に入り状態更新機能
+@require_POST
+def update_session_favorite(request):
+    """ページ遷移しても状態を保持するためにセッションのみ更新する"""
+    try:
+        data = json.loads(request.body)
+        is_fav = data.get('is_favorite', False)
+        
+        custom_data = request.session.get('custom_data', {})
+        custom_data['is_favorite'] = is_fav
+        request.session['custom_data'] = custom_data
+        
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+@require_POST
+def update_session_favorite(request):
+    import json
+    try:
+        data = json.loads(request.body)
+        is_fav = data.get('is_favorite', False)
+        
+        # セッションから現在のカスタムデータを取得
+        custom_data = request.session.get('custom_data', {})
+        
+        # お気に入り状態を更新してセッションに戻す
+        custom_data['is_favorite'] = is_fav
+        request.session['custom_data'] = custom_data
+        
+        # 明示的にセッションの変更を保存
+        request.session.modified = True
+        
+        return JsonResponse({'status': 'success', 'is_favorite': is_fav})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
 # --- ★重要: 見積もり計算機能 ---
 def estimate_view(request):
@@ -633,6 +711,12 @@ def custom_save(request):
     if not custom_data:
         return redirect('custom_menu')
 
+    # ===== is_favorite を取得 =====
+    is_favorite_str = request.POST.get('is_favorite', 'false')
+    is_favorite = (is_favorite_str.lower() == 'true')
+        
+        # 確認用：ターミナルに表示されます（不要になったら消してOK）
+    print(f"--- DEBUG --- 届いた値: {is_favorite_str}, 判定結果: {is_favorite}")
     # IDからオブジェクト取得
     vehicle = Vehicle.objects.filter(id=custom_data.get('vehicle_id')).first()
     color   = Color.objects.filter(id=custom_data.get('color_id')).first()
@@ -647,7 +731,6 @@ def custom_save(request):
         if part and part.price:
             total += part.price
 
-    # ★ 編集モードかどうか
     editing_id = request.session.get('editing_custom_id')
 
     if editing_id:
@@ -663,6 +746,7 @@ def custom_save(request):
         saved.light = light
         saved.aero = aero
         saved.total_price = total
+        saved.is_favorite = is_favorite
         saved.save()
 
     else:
@@ -676,10 +760,9 @@ def custom_save(request):
             light=light,
             aero=aero,
             total_price=total,
+            is_favorite=is_favorite,
             preview_image_url='uploads/previews/default.png',
         )
 
-    # ★ 保存後は編集状態解除
     request.session.pop('editing_custom_id', None)
-
     return redirect('list_page')

@@ -272,3 +272,27 @@ body {
     font-size: 20px;
     color: #888;
 }
+
+/* お気に入りOFF（白） */
+.favorite-btn {
+    background: #fff;
+    color: #000;
+    border: 1px solid #333;
+}
+
+/* hover（白） */
+.favorite-btn:hover {
+    background: #f5f5f5;
+}
+
+/* お気に入りON（✔あり＝黒） */
+.favorite-btn.is-favorite {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+}
+
+/* hover（黒） */
+.favorite-btn.is-favorite:hover {
+    background: #000;
+}

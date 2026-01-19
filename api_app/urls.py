@@ -16,6 +16,7 @@ urlpatterns = [
     
     path('delete/<int:item_id>/',views.delete_item, name='delete_item'), #削除
 
+    path('update_session_favorite/', views.update_session_favorite, name='update_session_favorite'), # セッションのお気に入り更新
     path('favorite/', views.favorite_page_view, name='favorite_page'),# お気に入り
 
     path('', views.list_page_view, name='list_page'),  # 追加

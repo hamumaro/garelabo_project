@@ -27,7 +27,7 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     position: relative; /* 絶対配置の基準 */
-    height: 260px;
+    height: 320px;
     overflow: hidden; /* はみ出し防止 */
 }
 
@@ -201,29 +201,28 @@ body {
     justify-content: center;
 }
 
+/* の .content 以降に追加・修正 */
+
 .custom-data-list {
     display: grid;
+    /* 1行に最大4つ並ぶ設定。データが少なくても横に広がらないようにします */
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 30px;
     width: 100%;
     max-width: 1200px;
+    margin: 0 auto;
+    /* ★重要：中身の高さに合わせてカードが止まるようにする */
+    align-items: start; 
 }
 
-/* ===== カードデザイン ===== */
 .custom-card {
     background: #fff;
-    border: none;
-    border-radius: 0;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s;
-}
-
-.custom-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    overflow: hidden;
+    /* ★重要：高さが自動で広がるのを防ぐ */
+    height: fit-content; 
 }
 
 .card-image-area {
@@ -237,9 +236,8 @@ body {
     display: block;
 }
 
-/* カード下部のグレーエリア */
 .card-footer {
-    background: #e6e6e6;
+    background: #e6e6e6; /* のようなグレー背景 */
     padding: 8px 12px;
     display: flex;
     justify-content: space-between;
@@ -248,7 +246,7 @@ body {
 }
 
 .saved-date {
-    font-size: 12px;
+    font-size: 13px;
     color: #333;
     margin: 0;
     font-weight: 500;
@@ -256,20 +254,16 @@ body {
 
 .delete-form {
     margin: 0;
-    display: flex;
-    align-items: center;
 }
 
 .delete-btn {
-    background: transparent;
+    background: none;
     border: none;
     cursor: pointer;
     padding: 4px;
     display: flex;
     align-items: center;
-    justify-content: center;
     opacity: 0.6;
-    transition: opacity 0.2s;
 }
 
 .delete-btn:hover {
