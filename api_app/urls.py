@@ -70,7 +70,7 @@ urlpatterns = [
     path("account_save/", views.account_save_view, name="account_save"),
 
     # misc
-    path("car/", views.car_view, name="car"),
+    # path("car/", views.car_view, name="car"),
 
     # errors
     path("menu_error/", views.menu_error_view, name="menu_error"),
