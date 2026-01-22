@@ -1,10 +1,11 @@
 from django.urls import path
 from . import views
+from .views import login_view,logout_view #logout_view #, register_view, dashboard_view
 
 urlpatterns = [
     path('test/', views.test_view),  # 動作確認用
     
-    path('login/', views.login_view, name='login'),  # ログイン
+    path('login/', login_view, name='login'),  # ログイン
 
     path('list/<int:custom_id>', views.list_page_view, name='list_page'), # 一覧
 
@@ -69,7 +70,7 @@ urlpatterns = [
     path("account_save/", views.account_save_view, name="account_save"),
 
     # misc
-    # path("car/", views.car_view, name="car"),
+    path("car/", views.car_view, name="car"),
 
     # errors
     path("menu_error/", views.menu_error_view, name="menu_error"),
