@@ -77,7 +77,18 @@ function loadCustomData() {
             window.initialSelected.wheel.name = data.wheel_name;
             window.initialSelected.bumper.name = data.bumper_name;
 
-
+            // 隠しフィールドの値を更新（保存ボタンを押したときに反映されるようにする）
+            const favInput = document.getElementById('is-favorite');
+            if (favInput) {
+                favInput.value = data.is_favorite ? 'true' : 'false';
+            }
+            
+            // お気に入りボタンの表示も更新
+            const favToggle = document.getElementById('favorite-toggle');
+            if (favToggle) {
+                favToggle.innerText = data.is_favorite ? '✔ お気に入り' : 'お気に入り';
+            }
+            
             // 描画実行
             renderVehicle(); 
             loadInitialCustom();
@@ -102,4 +113,35 @@ function loadInitialCustom() {
             <li>バンパー：${selectedData.bumper.name}</li>
         </ul>
     `;
+}
+const favToggle = document.getElementById('favorite-toggle');
+if (favToggle) {
+    favToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        const isNowFav = this.innerText.includes('✔');
+        const nextState = !isNowFav;
+
+        fetch('/update_session_favorite/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ is_favorite: nextState })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // 見た目の更新
+                favToggle.innerText = data.is_favorite ? '✔ お気に入り' : 'お気に入り';
+                
+                // ★ここを追加：保存フォーム用の隠しフィールドも更新する
+                const hiddenInput = document.getElementById('is-favorite');
+                if (hiddenInput) {
+                    hiddenInput.value = data.is_favorite ? 'true' : 'false';
+                }
+            }
+        });
+    });
 }

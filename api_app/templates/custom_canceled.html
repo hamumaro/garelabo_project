@@ -38,11 +38,42 @@
         <h1 class="cancel-title">カスタムを中止しますか？</h1>
 
         <div class="cancel-buttons">
-            <!-- あとから遷移 -->
+            <!-- YES：一覧へ -->
             <a href="{% url 'list_page' %}" class="cancel-btn">YES</a>
-            <a href="{% url 'custom_menu' %}" class="cancel-btn">NO</a>
+
+            <!-- NO：1つ前の画面に戻る -->
+            <button
+                type="button"
+                id="cancel-no-btn"
+                class="cancel-btn cancel-btn-no"
+            >
+                NO
+            </button>
         </div>
     </main>
+
+    <script>
+        (function () {
+            const btn = document.getElementById('cancel-no-btn');
+            if (!btn) return;
+
+            btn.addEventListener('click', function () {
+                const ref = document.referrer;
+                const sameOrigin = ref && ref.startsWith(location.origin);
+
+                if (sameOrigin) {
+                    // 同じサイト内なら直前のページに戻る
+                    window.location.href = ref;
+                } else if (window.history.length > 1) {
+                    // それ以外は履歴戻し
+                    window.history.back();
+                } else {
+                    // 直でこの画面を開かれたときの保険
+                    window.location.href = "{% url 'list_page' %}";
+                }
+            });
+        })();
+    </script>
 
 </body>
 </html>
