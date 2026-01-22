@@ -1,3 +1,5 @@
+custom_canceled_style.css
+
 :root {
     --header-bg: #000000;
     --page-bg: #ffffff;
@@ -90,7 +92,7 @@ body {
     width: 100%;
     max-width: none;
     margin: 0;
-    padding: 120px 0 160px;
+    padding: 120px 0 160px;   
     background: #ffffff;
     text-align: center;
 }
@@ -98,7 +100,7 @@ body {
 /* 「カスタムを中止しますか？」 */
 .cancel-title {
     margin: 0 0 100px;
-    font-size: 52px;
+    font-size: 52px;         
     font-weight: 600;
     letter-spacing: 0.18em;
     color: #111;
@@ -107,38 +109,28 @@ body {
 /* YES / NO ボタン配置 */
 .cancel-buttons {
     display: inline-flex;
-    gap: 120px;
-}
+    gap: 120px;              
 
-/* YES / NO 共通ボタン */
+/* YES / NO ボタン */
 .cancel-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 180px;
-    height: 50px;
-
+    width: 180px;             
+    height: 50px;             
     border: 2px solid var(--btn-border);
     border-radius: 999px;
-    background: #ffffff;
 
+    text-decoration: none;
     color: var(--text-main);
-    font-size: 18px;
+    font-size: 18px;         
     font-weight: 600;
     letter-spacing: 0.1em;
 
-    text-decoration: none;
-    cursor: pointer;
+    background: #ffffff;
     transition: 0.15s ease;
-
-    /* ボタンのデフォルトを完全に潰す */
-    appearance: none;
-    -webkit-appearance: none;
-    border-radius: 999px;
-    padding: 0;
 }
 
-/* hover / active 共通 */
 .cancel-btn:hover {
     background: #f1f1f1;
     transform: translateY(-2px);
@@ -148,11 +140,6 @@ body {
     transform: translateY(1px);
 }
 
-/* 必要なら YES / NO で色変えたいとき用（今は同じ） */
-/*
-.cancel-btn-yes { }
-.cancel-btn-no  { }
-*/
 
 @media (max-width: 768px) {
     .top-header-inner {
@@ -178,4 +165,5 @@ body {
         height: 44px;
         font-size: 16px;
     }
+}
 }
