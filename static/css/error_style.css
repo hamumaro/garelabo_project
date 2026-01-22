@@ -1,0 +1,149 @@
+:root {
+    --header-bg: #000000;
+    --page-bg: #ffffff;
+    --text-main: #222222;
+}
+
+/* リセット */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    background: var(--page-bg);
+    color: var(--text-main);
+}
+
+/* ===== ヘッダー ===== */
+
+.top-header {
+    background: var(--header-bg);
+    color: #ffffff;
+    width: 100%;
+}
+
+.top-header-inner {
+    width: 100%;
+    height: 80px;
+    padding: 0 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* 左ロゴ */
+.header-logo img {
+    height: 60px;
+    width: auto;
+    display: block;
+}
+
+/* 右：ユーザー名＋アイコン */
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-user-name {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.header-user-suffix {
+    margin-left: 2px;
+    font-weight: 400;
+}
+
+.header-user-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ffffff;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-user-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ===== メインエリア ===== */
+
+.error-main {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 16px 80px;
+}
+
+.error-line1,
+.error-line2 {
+    margin: 0;
+    font-weight: 600;
+    color: #d32f2f;
+}
+
+.error-line1 {
+    font-size: 28px;
+    margin-bottom: 16px;
+}
+
+.error-line2 {
+    font-size: 24px;
+    margin-bottom: 40px;
+}
+
+/* ボタン群 */
+.error-buttons {
+    display: flex;
+    gap: 40px;
+}
+
+.error-btn {
+    min-width: 120px;
+    padding: 10px 26px;
+    border-radius: 999px;
+    border: 1px solid #555;
+    background: #ffffff;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    cursor: pointer;
+    transition: 0.15s ease;
+}
+
+.error-btn:hover {
+    background: #f4f4f4;
+    transform: translateY(-1px);
+}
+
+.error-btn:active {
+    transform: translateY(1px);
+}
+
+/* スマホ */
+@media (max-width: 600px) {
+    .error-line1 {
+        font-size: 22px;
+    }
+    .error-line2 {
+        font-size: 18px;
+    }
+    .error-buttons {
+        gap: 16px;
+    }
+}

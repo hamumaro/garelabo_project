@@ -62,9 +62,15 @@
 
             <!-- 360° 表示 -->
             <div class="rotate-hint">
-                <img src="{% static 'assets/rotate.png' %}" alt="">
-                <span>360°</span>
-            </div>
+        <button id="prev-btn">←</button>
+        <button id="next-btn">→</button>
+        <span>360°</span>
+        </div>
+        <section class="color-palette-area">
+                <div class="color-row">
+                    <span class="palette-label">ライト設定エリア（後で実装）</span>
+                </div>
+            </section>
 
             <!-- カスタム内容保存ボタン -->
                 <div class="save-area">
@@ -72,18 +78,7 @@
             カスタム内容保存
         </a>
     </div>
-
-            <!-- ライト設定用エリア（枠だけ。中身は後で） -->
-            <section class="color-palette-area">
-                <div class="color-row">
-                    <span class="palette-label">ライト設定エリア（後で実装）</span>
-                    <!-- 例：あとでこういうのを追加する
-                    <div class="light-option-dot" style="background:#ffffff;"></div>
-                    <div class="light-option-dot" style="background:#ffcc00;"></div>
-                    <div class="light-option-dot" style="background:#00ccff;"></div>
-                    -->
-                </div>
-            </section>
+            
 
         </section>
 
