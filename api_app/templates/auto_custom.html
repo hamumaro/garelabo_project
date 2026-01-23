@@ -51,7 +51,8 @@
                         自動カスタム
                     </button>
 
-                    <button type="button" onclick="location.href='{% url 'custom_menu_bodycolor' %}'">
+                    <button type="button" 
+                            onclick="location.href='{% if editing_id %}{% url 'custom_menu_bodycolor' editing_id %}{% else %}{% url 'custom_menu_bodycolor' %}{% endif %}'">
                         メニューに戻る
                     </button>
                 </div>
