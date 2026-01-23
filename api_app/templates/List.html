@@ -1,3 +1,5 @@
+List.html
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="ja">
@@ -77,12 +79,7 @@
                     <div class="custom-card">
                         <div class="card-image-area">
                             <a href="{% url 'custom_menu_bodycolor' item.id %}">
-                                {% if item.vehicle and item.vehicle.base_image_path %}
-                                    <img src="{{ item.vehicle.base_image_path.url }}" class="preview-img">
-                                {% else %}
-                                    <img src="{% static 'assets/一覧車両.png' %}" class="preview-img">
-                                {% endif %}
-                            </a>
+                            {% if item.vehicle and item.vehicle.base_image_path %}
                                 <img src="{{ item.vehicle.base_image_path.url }}" class="preview-img">
                             </a>
                             {% else %}
