@@ -1,6 +1,9 @@
+# api_app内のURL
+
+
 from django.urls import path
-from . import views
 from .views import login_view,logout_view #logout_view #, register_view, dashboard_view
+from . import views
 
 urlpatterns = [
     path('test/', views.test_view),  # 動作確認用
@@ -28,53 +31,41 @@ urlpatterns = [
     path("custom_menu/<int:custom_id>/", views.custom_menu, name="custom_menu"),#カスタムメニュー画面 (既存編集)
     
     path("custom_menu/bodycolor/", views.custom_menu_bodycolor, name="custom_menu_bodycolor"),#ボディーカラー選択画面
-    path("test/", views.test_view, name="test"),
-
-    # auth
-    path("login/", views.login_view, name="login"),
-    path("logout/", views.logout_view, name="logout"),
-    path("register/", views.register_view, name="register"),
-    path("verify/", views.verify_code_view, name="verify"),
-
-    # list / favorite / delete
-    path("", views.list_page_view, name="list_page"),
-    path("list/<int:custom_id>", views.list_page_view, name="list_page"),
-    path("favorite/", views.favorite_page_view, name="favorite_page"),
-    path("delete/<int:item_id>/", views.delete_item, name="delete_item"),
-
-    # custom flow
-    path("custom_menu/", views.custom_menu, name="custom_menu"),
-    path("custom_menu/<int:custom_id>/", views.custom_menu, name="custom_menu"),
-    path("custom_menu/bodycolor/", views.custom_menu_bodycolor, name="custom_menu_bodycolor"),
     path("custom_menu/bodycolor/<int:custom_id>/", views.custom_menu_bodycolor, name="custom_menu_bodycolor"),
-    path("custom_menu/wheel/", views.custom_menu_wheel, name="custom_menu_wheel"),
-    path("custom_menu/bumper/", views.custom_menu_bumper, name="custom_menu_bumper"),
-    path("custom_menu/light/", views.custom_menu_light, name="custom_menu_light"),
-    path("custom_menu/aeroparts/", views.custom_menu_aeroparts, name="custom_menu_aeroparts"),
+    path("custom_menu/wheel/", views.custom_menu_wheel, name="custom_menu_wheel"),#ホイール選択画面
+    path("custom_menu/bumper/", views.custom_menu_bumper, name="custom_menu_bumper"),#バンパー選択画面
+    path("custom_menu/light/", views.custom_menu_light, name="custom_menu_light"),#ライト選択画面
+    path("custom_menu/aeroparts/", views.custom_menu_aeroparts, name="custom_menu_aeroparts"),#エアロパーツ選択画面
+    path('car_select/', views.car_select, name='car_select'),  # 車種選択ページ
 
-    path("custom/save/", views.custom_save, name="save_custom"),
 
-    # car select / auto / estimate
-    path("car_select/", views.car_select, name="car_select"),
-    path("auto_custom/", views.auto_custom, name="auto_custom"),
-    path("auto_custom/<int:custom_id>/", views.auto_custom, name="auto_custom"),
+    # 自動カスタム
+    path('auto_custom/api/', views.auto_custom_api, name='auto_custom_api'),  # 自動カスタムAPI
 
-    path("estimate/", views.estimate_view, name="estimate"),
-    path("estimate/save/", views.save_estimate_view, name="save_estimate"),
+    path('auto_custom/', views.auto_custom, name='auto_custom'), # 自動カスタムページ 
+    path('auto_custom/<int:custom_id>/', views.auto_custom, name='auto_custom'), # 自動カスタムページ
+    
 
-    path("custom_cancel/", views.custom_cancel, name="custom_cancel"),
+    path('estimate/', views.estimate_view, name='estimate'),  # 見積りページ
 
-    # account
-    path("account/", views.account_view, name="account"),
-    path("account_update/", views.account_update_view, name="account_update"),
-    path("account_save/", views.account_save_view, name="account_save"),
+    path('estimate/save/', views.save_estimate_view, name='save_estimate'), # 見積りセーブ
 
-    # misc
-    # path("car/", views.car_view, name="car"),
+    path('custom_cancel/', views.custom_cancel, name='custom_cancel'),  # カスタム中止ページ
+    # path('account/',views.account, name='account'),# アカウント情報ページ
+    # path('account/update/', views.account_update, name='account_update'),  # アカウント情報更新ページ
+
+    path('account/', views.account_view, name='account'), #アカウント
+
+    path('account_update/', views.account_update_view, name='account_update'), #アカウント編集
+
+    path('account_save/', views.account_save_view, name='account_save'), #アカウント保存
+
+    path('logout/', logout_view, name='logout'), #ログアウト
 
     # errors
     path("menu_error/", views.menu_error_view, name="menu_error"),
     path("surroundings_error/", views.surroundings_error_view, name="surroundings_error"),
     path("save_custom_content_error/", views.save_custom_content_error_view, name="save_custom_content_error"),
     path("list_management_delection_error/", views.list_management_delection_error_view, name="list_management_delection_error"),
+
 ]

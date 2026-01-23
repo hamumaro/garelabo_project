@@ -28,85 +28,84 @@
 
         <!-- 車画像エリア -->
         <div class="car-area">
-    <h2 id="display-vehicle-name" class="vehicle-name-label"></h2> <section class="car-display-area">
-                <div class="car-frame">
-                    <!-- JSが画像を差し込む -->
-                    <img id="car-image" alt="car preview" />
+        <h2 id="display-vehicle-name" class="vehicle-name-label"></h2> <section class="car-display-area">
+                    <div class="car-frame">
+                        <!-- JSが画像を差し込む -->
+                        <img id="car-image" alt="car preview" />
+                    </div>
+
+                    <!-- 回転 -->
+                    <div class="rotate-hint">
+                        <button id="prev-btn">←</button>
+                        <button id="next-btn">→</button>
+                    </div>
+                </section>
+
+            </div>
+            <!-- 右側エリア -->
+            <div class="right-area">
+
+                <!-- ボタン行 -->
+                <div class="btn-row">
+                    <button type="button" id="btn-random" onclick="loadCustomData()">
+                        自動カスタム
+                    </button>
+
+                    <button type="button" onclick="location.href='{% url 'custom_menu_bodycolor' %}'">
+                        メニューに戻る
+                    </button>
                 </div>
 
-                <!-- 回転 -->
-                <div class="rotate-hint">
-                    <button id="prev-btn">←</button>
-                    <button id="next-btn">→</button>
+                <!-- カスタム内容表示 -->
+                <div class="custom-box">
+                    <h2 class="custom-title">カスタム内容表示▼</h2>
+                    <div id="custom-content" class="custom-content">
+                        <!-- JSで動的に追加される -->
+                    </div>
                 </div>
-            </section>
 
-        </div>
-        <!-- 右側エリア -->
-        <div class="right-area">
+                <p class="note">※AIによって自動カスタムされています</p>
 
-            <!-- ボタン行 -->
-            <div class="btn-row">
-                <button type="button" id="btn-random" onclick="loadCustomData()">
-                    自動カスタム
-                </button>
+                <!-- 保存ボタン -->
+                <form method="post" action="{% url 'save_custom' %}">
+                    {% csrf_token %}
+                    
+                    <input
+                        type="hidden"
+                        name="is_favorite"
+                        id="is-favorite"
+                        value="{% if is_favorite %}true{% else %}false{% endif %}"
+                    >
 
-                <button type="button" onclick="location.href='{% url 'custom_menu_bodycolor' %}'">
-                    メニューに戻る
-                </button>
+                    <button type="submit" class="save-btn">
+                        カスタム内容保存
+                    </button>
+                </form>
             </div>
 
-            <!-- カスタム内容表示 -->
-            <div class="custom-box">
-                <h2 class="custom-title">カスタム内容表示▼</h2>
-                <div id="custom-content" class="custom-content">
-                    <!-- JSで動的に追加される -->
-                </div>
-            </div>
+        </main>
+        
+        <script id="vehicles-data" type="application/json">[]</script>
+        <script>
+            window.API_URLS = { auto_custom: "{% url 'auto_custom_api' %}" };
+        
+        // --- ここを追加：AIが選択した結果をJSに渡す ---
+        window.autoCustomResult = {
+            carFolder: "{{ vehicle.name_en }}",
+            carName: "{{ vehicle.name }}",
+            color: "{{ color.rotation_image_folder }}"
+        };
 
-            <p class="note">※AIによって自動カスタムされています</p>
-
-            <!-- 保存ボタン -->
-            <form method="post" action="{% url 'save_custom' %}">
-                {% csrf_token %}
-                
-                <input
-                    type="hidden"
-                    name="is_favorite"
-                    id="is-favorite"
-                    value="{% if is_favorite %}true{% else %}false{% endif %}"
-                >
-
-                <button type="submit" class="save-btn">
-                    カスタム内容保存
-                </button>
-            </form>
-        </div>
-
-    </main>
-    
-    <script id="vehicles-data" type="application/json">[]</script>
-    <script>
-        window.API_URLS = { auto_custom: "{% url 'auto_custom_api' %}" };
-    
-    // --- ここを追加：AIが選択した結果をJSに渡す ---
-    window.autoCustomResult = {
-        carFolder: "{{ vehicle.name_en }}",
-        carName: "{{ vehicle.name }}",
-        color: "{{ color.rotation_image_folder }}"
-    };
-
-    // 既存のリスト表示用データ
-    window.initialSelected = {
-        vehicle: { name: "{{ vehicle.name }}" },
-        color: { name: "{{ color_name }}" },
-        wheel: { name: "{{ wheel_name }}" },
-        bumper: { name: "{{ bumper_name }}" },
-        light: { name: "{{ light_name }}" },
-        aero: { name: "{{ aero_name }}" }
-    };
-</script>
-    <script src="{% static 'js/auto_custom.js' %}" defer></script>
-    {% comment %} <script src="{% static 'js/custom_slider.js' %}" defer></script>     {% endcomment %}
-</body>
+        // 既存のリスト表示用データ
+        window.initialSelected = {
+            vehicle: { name: "{{ vehicle.name }}" },
+            color: { name: "{{ color_name }}" },
+            wheel: { name: "{{ wheel_name }}" },
+            bumper: { name: "{{ bumper_name }}" },
+            light: { name: "{{ light_name }}" },
+            aero: { name: "{{ aero_name }}" }
+        };
+    </script>
+        <script src="{% static 'js/auto_custom.js' %}" defer></script>
+    </body>
 </html>
