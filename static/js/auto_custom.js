@@ -4,7 +4,8 @@
 console.log("🚗 自動カスタムJS読み込み開始");
 
 // 角度の定義を共通化
-const ANGLES = ["front", "front_right", "side_right", "rear_left", "rear", "rear_right","side_left", "front_left"];
+// const ANGLES = ["front", "front_right", "side_right", "rear_left", "rear", "rear_right","side_left", "front_left"];
+const  ANGLES = ["side","rear","front"]
 let angleIndex = 0;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -39,8 +40,8 @@ function renderVehicle() {
     if (!img || !window.autoCustomResult) return;
 
     const config = window.autoCustomResult;
-    const path = `/media/uploads/vehicles/${config.carFolder}/${config.color}/${ANGLES[angleIndex]}.png`;
-    
+    // const path = `/media/uploads/vehicles/${config.carFolder}/${config.color}/${ANGLES[angleIndex]}.png`;
+    const path = `/media/uploads/vehicles/${config.carFolder}/${config.color}/${config.wheel}/${ANGLES[angleIndex]}.png`;
     console.log("🎬 表示更新:", path);
     img.src = path;
 
@@ -69,6 +70,7 @@ function loadCustomData() {
             // 車種フォルダ名とカラーを両方更新！
             window.autoCustomResult.carFolder = data.carFolder; 
             window.autoCustomResult.color = data.color;
+            window.autoCustomResult.wheel = data.wheel;
             window.autoCustomResult.carName = data.carName;
 
             // リストのテキストも更新
