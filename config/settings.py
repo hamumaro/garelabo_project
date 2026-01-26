@@ -30,7 +30,7 @@ SECRET_KEY = env(
 # .env から読み込み（なければ True）
 DEBUG = env.bool('DEBUG', default=True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
