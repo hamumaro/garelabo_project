@@ -63,21 +63,13 @@
           <button class="arrow-btn" id="prev-btn">＜</button>
 
           <div class="car-frame">
-            {% if vehicles.0.base_image_path %}
             <img
               id="carImage"
-              src="{{ vehicles.0.base_image_path.url }}"
+              src="{{ vehicles.0.base_image_path.url }}" 
               alt="{{ vehicles.0.name }}"
               class="car-image"
+              onerror="this.src='{% static 'assets/no_image.png' %}';"
             />
-            {% else %}
-            <img
-              id="carImage"
-              src="{% static 'assets/no_image.png' %}"
-              alt="no image"
-              class="car-image"
-            />
-            {% endif %}
           </div>
 
           <button class="arrow-btn" id="next-btn">＞</button>
@@ -85,25 +77,19 @@
 
         <h2 class="car-name" id="carName">{{ vehicles.0.name }}</h2>
 
-        <!-- 選択中の name_en を保持 -->
         <input
           type="hidden"
           id="selectedCarNameEn"
           value="{{ vehicles.0.name_en }}"
         />
 
-        <!-- JS 用データ -->
         <script id="vehicles-data" type="application/json">
           [
             {% for v in vehicles %}
             {
-              {% if v.base_image_path %}
-                "url": "{{ v.base_image_path.url }}",
-              {% else %}
-                "url": "{% static 'assets/no_image.png' %}",
-              {% endif %}
               "name": "{{ v.name }}",
-              "name_en": "{{ v.name_en }}"
+              "name_en": "{{ v.name_en }}",
+              "url": "{{ v.base_image_path.url }}"
             }{% if not forloop.last %},{% endif %}
             {% endfor %}
           ]
@@ -112,24 +98,21 @@
         <script src="{% static 'js/car_select.js' %}"></script>
 
         <script>
+          // カスタム作成画面への遷移ロジック
           function goToBodyColor(e) {
             e.preventDefault();
-
             const nameEn = document.getElementById("selectedCarNameEn").value;
-
             if (!nameEn) {
-              console.error("name_en が空です");
+              alert("車両データが正しく選択されていません。");
               return;
             }
-
-            window.location.href =
-              "{% url 'custom_menu_bodycolor' %}?car=" +
-              encodeURIComponent(nameEn);
+            // URLエンコードして遷移
+            window.location.href = "{% url 'custom_menu_bodycolor' %}?car=" + encodeURIComponent(nameEn);
           }
         </script>
 
         {% else %}
-        <p style="text-align: center">車両データが存在しません</p>
+        <p style="text-align: center; color: white;">車両データが存在しません</p>
         {% endif %}
       </section>
     </main>
