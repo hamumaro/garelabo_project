@@ -14,7 +14,7 @@ from django.templatetags.static import static
 from django.conf import settings
 from django.shortcuts import redirect
 from django.views.decorators.http import require_POST
-
+from django.views.decorators.cache import never_cache
 # モデルとフォームのインポート
 from .forms import LoginForm, RegisterForm, VerificationForm
 from .models import SavedCustom, Vehicle, Wheel, Aero, Bumper, Color, Light # ★追加: パーツモデルをインポート
@@ -371,23 +371,37 @@ def custom_menu(request, custom_id=None):
 def custom_menu_bodycolor(request, custom_id=None):
     # ===== 初期化（custom_menu の代替）=====
     if custom_id:
-        saved = get_object_or_404(
-            SavedCustom, id=custom_id, user=request.user
-        )
-
-        request.session["editing_custom_id"] = saved.id
+        # 削除済みデータでエラーにならないよう filter().first() を使用
+        saved = SavedCustom.objects.filter(id=custom_id, user=request.user).first()
         
-        request.session["custom_data"] = {
-            "vehicle_id": saved.vehicle.id if saved.vehicle else None,
-            "color_id": saved.color.id if saved.color else None,
-            "wheel_id": saved.wheel.id if saved.wheel else None,
-            "bumper_id": saved.bumper.id if saved.bumper else None,
-            "light_id": saved.light.id if saved.light else None,
-            "aero_id": saved.aero.id if saved.aero else None,
-            "is_favorite": saved.is_favorite,
-        }
+        # ★ここが重要: データが見つかった場合のみ読み込む
+        if saved:
+            request.session["custom_data"] = {
+                'vehicle_id': saved.vehicle.id if saved.vehicle else None,
+                'color_id': saved.color.id if saved.color else None,
+                'wheel_id': saved.wheel.id if saved.wheel else None,
+                'bumper_id': saved.bumper.id if saved.bumper else None,
+                'light_id': saved.light.id if saved.light else None,
+                'aero_id': saved.aero.id if saved.aero else None,
+                'is_favorite': saved.is_favorite,
+            }
+            request.session['editing_custom_id'] = saved.id
+        else:
+            # ★データがない（削除済み）場合は、編集モードを解除して「新規作成」として扱う
+            request.session.pop('editing_custom_id', None)
+            # ここで強制的にリダイレクトさせるのも手ですが、今回はそのまま新規として表示します
 
     custom_data = request.session.get('custom_data', {})
+
+    # 車両情報の更新
+    req_car_name = request.GET.get('car')
+    if req_car_name:
+        vehicle_obj = Vehicle.objects.filter(name_en=req_car_name).first()
+        if vehicle_obj:
+            # セッションを更新
+            custom_data['vehicle_id'] = vehicle_obj.id
+            request.session['custom_data'] = custom_data
+            request.session.modified = True
     vehicle_id = custom_data.get('vehicle_id')
 
 
@@ -411,7 +425,8 @@ def custom_menu_bodycolor(request, custom_id=None):
 
     colors = Color.objects.filter(vehicle_id=vehicle_id)
     current_color_id = custom_data.get('color_id')
-
+    car_folder = vehicle.name_en if vehicle else "CompactSedan" # デフォルト値
+    
     context = {
         'colors': colors,
         'color': color,
@@ -420,39 +435,117 @@ def custom_menu_bodycolor(request, custom_id=None):
         'vehicle':vehicle,
         'vehicles': vehicles, # ← ここが重要
         'is_favorite': custom_data.get('is_favorite', False),
+        'car_folder': car_folder,
     }
     return render(request, "custom_menu_bodycolor.html", context)
 
 
+# views.py に以下の関数を上書きしてください
+
 def custom_menu_wheel(request):
-    # セッションから現在のカスタムデータを取得
     custom_data = request.session.get('custom_data', {})
     
-    # お気に入り状態を取得（なければFalse）
+    # 1. 車両の取得
+    vehicle_id = custom_data.get('vehicle_id')
+    vehicle = Vehicle.objects.filter(id=vehicle_id).first()
+    if not vehicle:
+        vehicle = Vehicle.objects.first()
+        if vehicle:
+             custom_data['vehicle_id'] = vehicle.id
+
+    # 2. ホイール一覧の取得
+    wheels = Wheel.objects.filter(vehicle=vehicle)
+
+    # ★★★ 追加: 現在のカラー情報の取得 ★★★
+    color_id = custom_data.get('color_id')
+    current_color = Color.objects.filter(id=color_id).first()
+    
+    
+    # フォルダ名（white, black等）を抽出
+    current_color_folder = "" 
+    
+    if current_color and current_color.rotation_image_folder:
+        clean_path = str(current_color.rotation_image_folder).replace('\\', '/').rstrip('/')
+        current_color_folder = clean_path.split('/')[-1]
+    
+    # もし色が未設定なら、デフォルト色を取得
+    if not current_color_folder:
+         default_c = Color.objects.filter(vehicle=vehicle).first()
+         if default_c and default_c.rotation_image_folder:
+             clean_path = str(default_c.rotation_image_folder).replace('\\', '/').rstrip('/')
+             current_color_folder = clean_path.split('/')[-1]
+
     is_favorite = custom_data.get('is_favorite', False)
-
-    # ...既存の車両取得ロジックなど...
-
+    # vehicle が取得できている状態で
+    car_folder = vehicle.name_en if vehicle else "CompactSedan" # デフォルト値
+    
     context = {
-        'is_favorite': is_favorite, # これをテンプレートに渡す
-        # ...他のデータ...
+        'vehicle': vehicle,
+        'wheels': wheels,
+        'is_favorite': is_favorite,
+        'current_color_folder': current_color_folder, # ★これをHTMLに渡します
+        'car_folder': car_folder,
     }
     return render(request, "custom_menu_wheel.html", context)
- 
-def custom_menu_bumper(request):
-    # セッションから現在のカスタムデータを取得
-    custom_data = request.session.get('custom_data', {})
+
+
+# def custom_menu_wheel(request):
+#     # 1. セッションからデータを取得
+#     custom_data = request.session.get('custom_data', {})
+#     vehicle_id = custom_data.get('vehicle_id')
     
-    # お気に入り状態を取得（なければFalse）
+#     # 2. 車両オブジェクトの取得（なければデフォルト）
+#     vehicle = Vehicle.objects.filter(id=vehicle_id).first()
+#     if not vehicle:
+#         vehicle = Vehicle.objects.first()
+#         # セッションの修復
+#         if vehicle:
+#             custom_data['vehicle_id'] = vehicle.id
+#             request.session['custom_data'] = custom_data
+
+#     # 3. この車両に紐づくホイール一覧を取得
+#     wheels = Wheel.objects.filter(vehicle=vehicle)
+
+#     # 4. お気に入り状態
+#     is_favorite = custom_data.get('is_favorite', False)
+
+#     context = {
+#         'vehicle': vehicle,   
+#         'wheels': wheels,     
+#         'is_favorite': is_favorite,
+#     }
+#     return render(request, "custom_menu_wheel.html", context)
+
+
+def custom_menu_bumper(request):
+    # 1. セッションからデータを取得
+    custom_data = request.session.get('custom_data', {})
+    vehicle_id = custom_data.get('vehicle_id')
+
+    # 2. 車両オブジェクトの取得
+    vehicle = Vehicle.objects.filter(id=vehicle_id).first()
+    if not vehicle:
+        vehicle = Vehicle.objects.first()
+        if vehicle:
+            custom_data['vehicle_id'] = vehicle.id
+            request.session['custom_data'] = custom_data
+
+    # 3. この車両に紐づくバンパー一覧を取得
+    bumpers = Bumper.objects.filter(vehicle=vehicle)
+
+    # 4. お気に入り状態
     is_favorite = custom_data.get('is_favorite', False)
-
-    # ...既存の車両取得ロジックなど...
-
+    # vehicle が取得できている状態で
+    car_folder = vehicle.name_en if vehicle else "CompactSedan" # デフォルト値
+    
     context = {
-        'is_favorite': is_favorite, # これをテンプレートに渡す
-        # ...他のデータ...
+        'vehicle': vehicle,   # ★重要
+        'bumpers': bumpers,   # ★重要: テンプレート側のループ変数名に合わせてください
+        'is_favorite': is_favorite,
+        'car_folder': car_folder,
     }
     return render(request, "custom_menu_bumper.html", context)
+
  
 def custom_menu_light(request):
     return render(request, "custom_menu_light.html")
@@ -461,11 +554,13 @@ def custom_menu_aeroparts(request):
     return render(request, "custom_menu_aeroparts.html")
  
 # # 自動カスタムページ
+@never_cache
 def auto_custom(request, custom_id=None):
     # 1. セッションデータの準備
     custom_data = request.session.get('custom_data', {})
 
-    # 2. custom_id が渡された場合（保存データの読み込み）
+    # --- 保存済みデータの読み込み (custom_idがある場合) ---
+    # まずは保存データをロード（ベースとする）
     if custom_id:
         saved = get_object_or_404(SavedCustom, id=custom_id, user=request.user)
         custom_data = {
@@ -479,45 +574,93 @@ def auto_custom(request, custom_id=None):
         }
         request.session['custom_data'] = custom_data
         request.session['editing_custom_id'] = saved.id
-
+    
     editing_id = request.session.get('editing_custom_id')
     is_favorite = custom_data.get('is_favorite', False)
 
-    # 3. 車両の特定
+    # --- ★重要: URLパラメータによる強制上書き (ここを最後に持ってくる) ---
+    # これにより、保存データやセッションの内容に関わらず、
+    # 直前のリンクで指定された情報(車や色)が必ず優先されます。
+    
+    req_vehicle_id = request.GET.get('vehicle_id')
+    req_color = request.GET.get('color')
+    req_wheel = request.GET.get('wheel')
+    req_bumper = request.GET.get('bumper')
+    
+    # (1) 車両IDの上書き
+    if req_vehicle_id:
+        vehicle_obj = Vehicle.objects.filter(id=req_vehicle_id).first()
+        if vehicle_obj:
+            custom_data['vehicle_id'] = vehicle_obj.id
+            # 車が変わったら、その車に合わないパーツIDはクリアしておくと安全です
+            # (ただし今回は維持を試みるためそのままにします)
+            request.session['custom_data'] = custom_data
+            request.session.modified = True
+
+    # 2. 車両の特定 (更新後のIDを使用)
     vehicle_id = custom_data.get('vehicle_id')
     vehicle = Vehicle.objects.filter(id=vehicle_id).first()
+    
+    # 車両がない場合のフォールバック
     if not vehicle:
         vehicle = Vehicle.objects.first()
+        if vehicle:
+            custom_data['vehicle_id'] = vehicle.id
+            request.session['custom_data'] = custom_data
 
-    # 4. パーツの取得
+    # (2) カラーの上書き
+    if req_color:
+        # フォルダ名の末尾が一致するものを探す
+        temp_color = Color.objects.filter(vehicle=vehicle, rotation_image_folder__endswith=req_color).first()
+        if temp_color:
+            custom_data['color_id'] = temp_color.id
+            request.session['custom_data'] = custom_data
+            request.session.modified = True
+
+    # (3) ホイールの上書き
+    if req_wheel:
+        temp_wheel = Wheel.objects.filter(vehicle=vehicle, image_url__endswith=req_wheel).first()
+        if temp_wheel:
+            custom_data['wheel_id'] = temp_wheel.id
+            request.session['custom_data'] = custom_data
+            request.session.modified = True
+
+    # (4) バンパーの上書き
+    if req_bumper:
+        temp_bumper = Bumper.objects.filter(vehicle=vehicle, image_url__endswith=req_bumper).first()
+        if temp_bumper:
+            custom_data['bumper_id'] = temp_bumper.id
+            request.session['custom_data'] = custom_data
+            request.session.modified = True
+
+    # --- 最終的なパーツオブジェクトの取得 ---
     color = Color.objects.filter(id=custom_data.get('color_id'), vehicle=vehicle).first()
     wheel = Wheel.objects.filter(id=custom_data.get('wheel_id'), vehicle=vehicle).first()
     bumper = Bumper.objects.filter(id=custom_data.get('bumper_id'), vehicle=vehicle).first()
     light = Light.objects.filter(id=custom_data.get('light_id'), vehicle=vehicle).first()
     aero = Aero.objects.filter(id=custom_data.get('aero_id'), vehicle=vehicle).first()
 
-    # 5. カラー補正
+    # パーツがない場合のデフォルト補正
     if not color:
         color = Color.objects.filter(vehicle=vehicle).first()
         if color:
             custom_data['color_id'] = color.id
-            request.session['custom_data'] = custom_data
 
-    # --- パス整形処理 (ここを強化しました) ---
-    
-    # カラーフォルダ名抽出
-    # str()で変換し、replaceで統一し、rstrip('/')で末尾スラッシュを削除
+    # --- パス整形処理 ---
     color_folder_name = "black"
     if color and color.rotation_image_folder:
         clean_path = str(color.rotation_image_folder).replace('\\', '/').rstrip('/')
         color_folder_name = clean_path.split('/')[-1]
 
-    # ホイールフォルダ名抽出
     wheel_folder_name = "wheel1" 
     if wheel and wheel.image_url:
         clean_path = str(wheel.image_url).replace('\\', '/').rstrip('/')
         wheel_folder_name = clean_path.split('/')[-1]
-    # -------------------------------
+
+    bumper_folder_name = "bumper1"
+    if bumper and bumper.image_url:
+        clean_path = str(bumper.image_url).replace('\\', '/').rstrip('/')
+        bumper_folder_name = clean_path.split('/')[-1]
 
     context = {
         'vehicle': vehicle,
@@ -537,8 +680,13 @@ def auto_custom(request, custom_id=None):
         'is_favorite': is_favorite,
         'color_rotation_folder': color_folder_name,
         'wheel_folder': wheel_folder_name, 
+        'bumper': bumper,
+        'bumper_folder': bumper_folder_name,
     }
+
+    print(color)
     return render(request, "auto_custom.html", context)
+
 
 def auto_custom_api(request):
     try:
@@ -900,7 +1048,7 @@ def custom_save(request):
             aero=aero,
             total_price=total,
             is_favorite=is_favorite,
-            preview_image_url='uploads/previews/default.png',
+            # preview_image_url='uploads/previews/default.png',
         )
 
     request.session.pop('editing_custom_id', None)

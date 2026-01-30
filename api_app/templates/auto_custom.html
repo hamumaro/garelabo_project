@@ -85,27 +85,30 @@
             </div>
 
         </main>
-        
+        {% csrf_token %}
         <script id="vehicles-data" type="application/json">[]</script>
         <script>
-            window.API_URLS = { auto_custom: "{% url 'auto_custom_api' %}" };
-        
-        // --- ここを追加：AIが選択した結果をJSに渡す ---
+        // APIのURL
+        window.API_URLS = {
+            auto_custom: "{% url 'auto_custom_api' %}"
+        };
+
+        // 初期表示データ (ここが修正ポイント)
         window.autoCustomResult = {
             carFolder: "{{ vehicle.name_en }}",
             carName: "{{ vehicle.name }}",
-            color: "{{ color.rotation_folder }}",
-            wheel: "{{ wheel_folder }}"
+            // views.py から渡されたフォルダ名変数を使う
+            color: "{{ color_rotation_folder|default:'black' }}", 
+            wheel: "{{ wheel_folder|default:'wheel1' }}",
+            bumper: "{{ bumper_folder|default:'bumper1' }}"
         };
 
-        // 既存のリスト表示用データ
+        // パーツ名リスト
         window.initialSelected = {
             vehicle: { name: "{{ vehicle.name }}" },
             color: { name: "{{ color_name }}" },
             wheel: { name: "{{ wheel_name }}" },
-            bumper: { name: "{{ bumper_name }}" },
-            light: { name: "{{ light_name }}" },
-            aero: { name: "{{ aero_name }}" }
+            bumper: { name: "{{ bumper_name }}" }
         };
     </script>
         <script src="{% static 'js/auto_custom.js' %}" defer></script>

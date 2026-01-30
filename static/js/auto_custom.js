@@ -41,7 +41,7 @@ function renderVehicle() {
 
     const config = window.autoCustomResult;
     // const path = `/media/uploads/vehicles/${config.carFolder}/${config.color}/${ANGLES[angleIndex]}.png`;
-    const path = `/media/uploads/vehicles/${config.carFolder}/${config.color}/${config.wheel}/${ANGLES[angleIndex]}.png`;
+    const path = `/media/uploads/vehicles/${config.carFolder}/${config.color}/${config.wheel}/${config.bumper}/${ANGLES[angleIndex]}.png`;
     console.log("🎬 表示更新:", path);
     img.src = path;
 
