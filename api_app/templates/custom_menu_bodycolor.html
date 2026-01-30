@@ -28,11 +28,12 @@
       </div>
 
       <nav class="header-nav">
-        {% if current_custom_id %}
-          <a href="{% url 'auto_custom' current_custom_id %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
+        {% comment %} {% if current_custom_id %}
+          <a href="{% url 'auto_custom'%}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
         {% else %}
           <a href="{% url 'auto_custom' %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
-        {% endif %}
+        {% endif %} {% endcomment %}
+        <a href="{% url 'auto_custom' %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
         <button
           id="favorite-toggle"
           type="button"
@@ -44,7 +45,7 @@
             お気に入り
           {% endif %}
         </button>
-        <a href="{% url 'estimate' %}" class="nav-btn">カスタム見積り</a>
+        {% comment %} <a href="{% url 'estimate' %}" class="nav-btn">カスタム見積り</a> {% endcomment %}
         <a href="{% url 'custom_cancel' %}" class="nav-btn">カスタム中止</a>
       </nav>
 
@@ -129,4 +130,56 @@
       </section>
     </main>
   </body>
+
+  <!-- 自動カスタムリンクに現在の選択状態を反映させる -->
+  <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}">
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const colorBtns = document.querySelectorAll('.color-dot');
+    const autoLink = document.getElementById('auto-custom-link');
+    // 埋め込んだ車両IDを取得
+    const currentVehicleId = document.getElementById('current-vehicle-id').value;
+    
+    if (!autoLink) return;
+
+    // 1. ページ読み込み時に、まず車両IDをリンクにセットする
+    //    (これをしないと、色を変えずにすぐボタンを押した場合に前の車のままになります)
+    if (currentVehicleId) {
+        const url = new URL(autoLink.href, window.location.origin);
+        url.searchParams.set('vehicle_id', currentVehicleId);
+        
+        // 現在URLに色の指定があればそれも引き継ぐ（戻るボタン対策）
+        const currentParams = new URLSearchParams(window.location.search);
+        const urlColor = currentParams.get('color');
+        if(urlColor) {
+             url.searchParams.set('color', urlColor);
+        }
+        
+        autoLink.href = url.toString();
+    }
+
+    // 2. 色ボタンを押したときの処理
+    colorBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const colorFolder = this.getAttribute('data-color');
+            if (colorFolder) {
+                // 現在のリンクURLを取得（ここには既に vehicle_id が入っているはず）
+                const url = new URL(autoLink.href, window.location.origin);
+                
+                // 色情報を上書き
+                url.searchParams.set('color', colorFolder);
+                
+                // 念のため車両IDが消えていないか確認し、なければ再セット
+                if (currentVehicleId && !url.searchParams.has('vehicle_id')) {
+                    url.searchParams.set('vehicle_id', currentVehicleId);
+                }
+
+                autoLink.href = url.toString();
+                // console.log("Link updated:", autoLink.href); // 確認用
+            }
+        });
+    });
+});
+</script>
 </html>

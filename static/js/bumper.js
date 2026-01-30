@@ -11,53 +11,41 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  // ===== パスからフォルダ名だけを取り出す関数（共通） =====
+  function getFolderName(path) {
+      if (!path) return "";
+      // バックスラッシュをスラッシュに変換し、最後の要素を取得
+      return path.replace(/\\/g, '/').split('/').pop();
+  }
+
   // ===== お気に入りトグル処理 =====
-    const favoriteToggle = document.getElementById("favorite-toggle");
-    const isFavoriteInput = document.getElementById("is-favorite");
+  const favoriteToggle = document.getElementById("favorite-toggle");
+  const isFavoriteInput = document.getElementById("is-favorite");
 
-    if (favoriteToggle && isFavoriteInput) {
-      // 1. ボタンがクリックされた時のイベント
-      favoriteToggle.addEventListener("click", function(e) {
-        e.preventDefault(); // 画面遷移を防ぐ
+  if (favoriteToggle && isFavoriteInput) {
+    favoriteToggle.addEventListener("click", function(e) {
+      e.preventDefault();
+      const isCurrentlyFavorite = (isFavoriteInput.value === "true");
+      const newState = !isCurrentlyFavorite;
+      isFavoriteInput.value = newState ? "true" : "false";
+      this.innerText = newState ? "✔ お気に入り" : "お気に入り";
+      this.classList.toggle("is-favorite", newState);
 
-        // 2. 現在の状態を取得して反転させる
-        // inputの値が "true" なら次は false、そうでなければ true
-        const isCurrentlyFavorite = (isFavoriteInput.value === "true");
-        const newState = !isCurrentlyFavorite;
-
-        // 3. HTML上の値を更新 (保存ボタン用)
-        isFavoriteInput.value = newState ? "true" : "false";
-
-        // 4. ボタンの見た目を更新
-        this.innerText = newState ? "✔ お気に入り" : "お気に入り";
-
-        // ⭐ これを追加するだけ
-        this.classList.toggle("is-favorite", newState);
-
-        // (オプション) デバッグ用ログ
-        console.log("お気に入り状態を切り替えました:", newState);
-
-        // 5. サーバー側のセッションにも即座に反映（他のページへ移動しても維持するため）
-        fetch('/update_session_favorite/', {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ is_favorite: newState })
-        })
-        .then(response => {
-          if (!response.ok) console.error("セッション更新失敗");
-        })
-        .catch(err => console.error("通信エラー:", err));
-      });
-    }
+      fetch('/update_session_favorite/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ is_favorite: newState })
+      }).catch(err => console.error("通信エラー:", err));
+    });
+  }
 
   // ===== URL から車(name_en)取得 =====
   const params = new URLSearchParams(window.location.search);
   let carFolder = params.get("car");
 
-  // URL に無ければ sessionStorage から復元
   if (!carFolder) {
     carFolder = sessionStorage.getItem("selectedCar");
   }
@@ -66,49 +54,44 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("車情報(car)が取得できません");
     return;
   }
-
-  // 正常取得できたら保存
   sessionStorage.setItem("selectedCar", carFolder);
   console.log("選択された車:", carFolder);
 
   // ===== 固定設定 =====
   const angles = ["front", "side", "rear"];
 
-  // 他画面から引き継ぎ
-  let currentColor = sessionStorage.getItem("currentColor");
-  if (!currentColor) {
-    currentColor = "white";
-    sessionStorage.setItem("currentColor", currentColor);
-  }
-
-  let currentWheel = sessionStorage.getItem("currentWheel");
-  if (!currentWheel) {
-    currentWheel = "wheel1";
-    sessionStorage.setItem("currentWheel", currentWheel);
-  }
-
-  let currentBumper = sessionStorage.getItem("currentBumper");
-  if (!currentBumper) {
-    currentBumper = "bumper1";
-    sessionStorage.setItem("currentBumper", currentBumper);
-  }
+  // ===== 状態（並列） =====
+  // 読み込み時に「パスのクリーニング」を行う（これが404エラー対策の要です）
+  let currentColor = getFolderName(sessionStorage.getItem("currentColor")) || "white";
+  let currentWheel = getFolderName(sessionStorage.getItem("currentWheel")) || "wheel1";
+  let currentBumper = getFolderName(sessionStorage.getItem("currentBumper")) || "bumper1";
+  
+  // きれいになった値を保存し直す
+  sessionStorage.setItem("currentColor", currentColor);
+  sessionStorage.setItem("currentWheel", currentWheel);
+  sessionStorage.setItem("currentBumper", currentBumper);
 
   let angleIndex = 0;
 
   // ===== 表示更新 =====
   function updateImage() {
+    // ここでも念のためクリーニング（表示の安全策）
+    const cleanColor = getFolderName(currentColor);
+    const cleanWheel = getFolderName(currentWheel);
+    const cleanBumper = getFolderName(currentBumper);
+
     const path =
       `/media/uploads/vehicles/${carFolder}` +
-      `/${currentColor}/${currentWheel}/${currentBumper}/${angles[angleIndex]}.png`;
+      `/${cleanColor}/${cleanWheel}/${cleanBumper}/${angles[angleIndex]}.png`;
 
     img.src = path;
-    img.alt = `${carFolder} ${currentColor} ${currentWheel} ${currentBumper} ${angles[angleIndex]}`;
+    img.alt = `${carFolder} ${cleanColor} ${cleanWheel} ${cleanBumper} ${angles[angleIndex]}`;
 
     console.log("表示中:", {
       car: carFolder,
-      color: currentColor,
-      wheel: currentWheel,
-      bumper: currentBumper,
+      color: cleanColor,
+      wheel: cleanWheel,
+      bumper: cleanBumper,
       angle: angles[angleIndex],
     });
   }
@@ -119,11 +102,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===== バンパー変更 =====
   bumperBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const bumper = btn.dataset.bumper;
-      if (!bumper) return;
+      const bumperPath = btn.dataset.bumper;
+      if (!bumperPath) return;
 
-      currentBumper = bumper;
-      angleIndex = 0; // 正面へ戻す
+      // ★重要: ここでフォルダ名だけにする！
+      // これをしないと session に長いパスが入り、他の画面でエラーになります
+      currentBumper = getFolderName(bumperPath);
+      
+      angleIndex = 0;
       sessionStorage.setItem("currentBumper", currentBumper);
 
       console.log("バンパー変更:", currentBumper);

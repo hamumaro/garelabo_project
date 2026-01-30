@@ -11,63 +11,61 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // ===== お気に入りトグル処理 =====
-    const favoriteToggle = document.getElementById("favorite-toggle");
-    const isFavoriteInput = document.getElementById("is-favorite");
+  // ===== お気に入りトグル処理 (そのまま維持) =====
+  const favoriteToggle = document.getElementById("favorite-toggle");
+  const isFavoriteInput = document.getElementById("is-favorite");
 
-    if (favoriteToggle && isFavoriteInput) {
-      // 1. ボタンがクリックされた時のイベント
-      favoriteToggle.addEventListener("click", function(e) {
-        e.preventDefault(); // 画面遷移を防ぐ
+  if (favoriteToggle && isFavoriteInput) {
+    favoriteToggle.addEventListener("click", function(e) {
+      e.preventDefault();
+      const isCurrentlyFavorite = (isFavoriteInput.value === "true");
+      const newState = !isCurrentlyFavorite;
 
-        // 2. 現在の状態を取得して反転させる
-        // inputの値が "true" なら次は false、そうでなければ true
-        const isCurrentlyFavorite = (isFavoriteInput.value === "true");
-        const newState = !isCurrentlyFavorite;
+      isFavoriteInput.value = newState ? "true" : "false";
+      this.innerText = newState ? "✔ お気に入り" : "お気に入り";
+      this.classList.toggle("is-favorite", newState);
 
-        // 3. HTML上の値を更新 (保存ボタン用)
-        isFavoriteInput.value = newState ? "true" : "false";
+      // サーバー側のセッションにも即座に反映
+      fetch('/update_session_favorite/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ is_favorite: newState })
+      })
+      .then(response => {
+        if (!response.ok) console.error("セッション更新失敗");
+      })
+      .catch(err => console.error("通信エラー:", err));
+    });
+  }
 
-        // 4. ボタンの見た目を更新
-        this.innerText = newState ? "✔ お気に入り" : "お気に入り";
+  // ===== ★修正ポイント1: 車情報の取得 (優先順位を変更) =====
+  
+  // 1. HTMLに埋め込まれた「サーバーからの正しい値」を最優先で取得
+  const serverCarFolderInput = document.getElementById("server-car-folder");
+  let carFolder = serverCarFolderInput ? serverCarFolderInput.value : null;
 
-        // ⭐ これを追加するだけ
-        this.classList.toggle("is-favorite", newState);
+  // 2. HTMLになければ、URLパラメータを見る
+  if (!carFolder) {
+    const params = new URLSearchParams(window.location.search);
+    carFolder = params.get("car");
+  }
 
-        // (オプション) デバッグ用ログ
-        console.log("お気に入り状態を切り替えました:", newState);
-
-        // 5. サーバー側のセッションにも即座に反映（他のページへ移動しても維持するため）
-        fetch('/update_session_favorite/', {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ is_favorite: newState })
-        })
-        .then(response => {
-          if (!response.ok) console.error("セッション更新失敗");
-        })
-        .catch(err => console.error("通信エラー:", err));
-      });
-    }
-
-  // ===== URL から車(name_en)取得 =====
-  const params = new URLSearchParams(window.location.search);
-  let carFolder = params.get("car");
-
+  // 3. それでもなければ、セッションを見る
   if (!carFolder) {
     carFolder = sessionStorage.getItem("selectedCar");
   }
 
-  if (!carFolder) {
+  // 4. 取得した値をセッションに上書き保存 (これで古い「Rocky」が消えます)
+  if (carFolder) {
+    sessionStorage.setItem("selectedCar", carFolder);
+    console.log("車フォルダを確定:", carFolder);
+  } else {
     console.error("車情報(car)が取得できません");
     return;
   }
-
-  sessionStorage.setItem("selectedCar", carFolder);
-  console.log("選択された車:", carFolder);
 
   // ===== 固定設定 =====
   const angles = ["front", "side", "rear"];
@@ -94,20 +92,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let angleIndex = 0;
 
+  // ===== ★修正ポイント2: パスのクリーニング関数を追加 =====
+  function getFolderName(path) {
+      if (!path) return "";
+      // パスから最後のフォルダ名だけを取り出す (例: "uploads/.../wheel1" -> "wheel1")
+      return path.replace(/\\/g, '/').split('/').pop();
+  }
+
   // ===== 表示更新 =====
   function updateImage() {
+    // クリーニング関数を通してから使用する
+    const cleanColor = getFolderName(currentColor);
+    const cleanWheel = getFolderName(currentWheel);
+    const cleanBumper = getFolderName(currentBumper);
+
     const path =
       `/media/uploads/vehicles/${carFolder}` +
-      `/${currentColor}/${currentWheel}/${currentBumper}/${angles[angleIndex]}.png`;
+      `/${cleanColor}/${cleanWheel}/${cleanBumper}/${angles[angleIndex]}.png`;
 
     img.src = path;
-    img.alt = `${carFolder} ${currentColor} ${currentWheel} ${currentBumper} ${angles[angleIndex]}`;
+    img.alt = `${carFolder} ${cleanColor} ${cleanWheel} ${cleanBumper} ${angles[angleIndex]}`;
 
     console.log("表示中:", {
       car: carFolder,
-      color: currentColor,
-      wheel: currentWheel,
-      bumper: currentBumper,
+      color: cleanColor,
+      wheel: cleanWheel,
+      bumper: cleanBumper,
       angle: angles[angleIndex],
     });
   }

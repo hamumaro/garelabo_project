@@ -17,7 +17,6 @@
   </head>
 
   <body>
-    <!-- ================= ヘッダー ================= -->
     <header class="header">
       <div class="header-left">
         <img
@@ -28,11 +27,8 @@
       </div>
 
       <nav class="header-nav">
-        {% if current_custom_id %}
-          <a href="{% url 'auto_custom' current_custom_id %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
-        {% else %}
-          <a href="{% url 'auto_custom' %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
-        {% endif %}
+        <a href="{% url 'auto_custom' %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
+        
         <button
           id="favorite-toggle"
           type="button"
@@ -44,7 +40,7 @@
             お気に入り
           {% endif %}
         </button>
-        <a href="{% url 'estimate' %}" class="nav-btn">カスタム見積り</a>
+        {% comment %} <a href="{% url 'estimate' %}" class="nav-btn">カスタム見積り</a> {% endcomment %}
         <a href="{% url 'custom_cancel' %}" class="nav-btn">カスタム中止</a>
       </nav>
 
@@ -60,7 +56,6 @@
     </header>
 
     <main class="main-layout">
-      <!-- ================= サイドメニュー ================= -->
       <aside class="side-menu">
         <a href="{% url 'custom_menu_bodycolor' %}" class="side-btn-link">
           ボディカラー
@@ -75,58 +70,116 @@
         <a href="{% url 'custom_menu_bumper' %}" class="side-btn-link">
           バンパー
         </a>
-        {% comment %}
-        <a href="{% url 'custom_menu_light' %}" class="side-btn-link">
-          ライト
-        </a>
-        <a href="{% url 'custom_menu_aeroparts' %}" class="side-btn-link">
-          エアロパーツ
-        </a>
-        {% endcomment %}
       </aside>
 
-      <!-- ================= メイン ================= -->
       <section class="car-display-area">
         <div class="car-frame">
           <img id="car-image" alt="wheel preview" />
         </div>
 
-        <!-- 回転 -->
         <div class="rotate-hint">
           <button id="prev-btn">←</button>
           <button id="next-btn">→</button>
         </div>
 
-        <!-- ホイール選択 -->
+        <input type="hidden" id="server-car-folder" value="{{ car_folder }}">
+        <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}">
+        <input type="hidden" id="current-color-folder" value="{{ current_color_folder }}">
+
         <div class="wheel-palette-area">
           <div class="wheel-row">
-            <button class="wheel-btn" data-wheel="wheel1">wheel1</button>
-            <button class="wheel-btn" data-wheel="wheel2">wheel2</button>
-            <!-- 追加例 -->
-            <!-- <button class="wheel-btn" data-wheel="wheel3">wheel3</button> -->
+            {% for wheel in wheels %}
+              <button class="wheel-btn" data-wheel="{{ wheel.image_url }}">
+                {{ wheel.name }}
+              </button>
+            {% empty %}
+              <p>ホイールが見つかりません</p>
+            {% endfor %}
           </div>
         </div>
 
-        <!-- 保存 -->
         <div class="save-area">
           <form action="{% url 'save_custom' %}" method="post">
             {% csrf_token %}
             
             <input
-            type="hidden"
-            name="is_favorite"
-            id="is-favorite"
-            value="{% if is_favorite %}true{% else %}false{% endif %}"
-          >
-          
+              type="hidden"
+              name="is_favorite"
+              id="is-favorite"
+              value="{% if is_favorite %}true{% else %}false{% endif %}"
+            >
+            
             <button type="submit" class="save-custom-btn">
               カスタム内容保存
             </button>
           </form>
         </div>
 
-        <!-- JS -->
         <script src="{% static 'js/wheel.js' %}"></script>
+        
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const btns = document.querySelectorAll('.wheel-btn'); 
+            const link = document.getElementById('auto-custom-link');
+            
+            // 埋め込んだ値を取得
+            const vehicleIdInput = document.getElementById('current-vehicle-id');
+            const colorFolderInput = document.getElementById('current-color-folder');
+            
+            const currentVehicleId = vehicleIdInput ? vehicleIdInput.value : null;
+            // サーバーから渡された色情報（セッション情報）
+            const currentColorFolder = colorFolderInput ? colorFolderInput.value : null;
+            
+            if (!link) return;
+
+            // 共通のURL更新処理関数
+            function updateLink(wheelFolder = null) {
+                const url = new URL(link.href, window.location.origin);
+                
+                // 1. 車両IDをセット
+                if (currentVehicleId) {
+                    url.searchParams.set('vehicle_id', currentVehicleId);
+                }
+                
+                // 2. カラー情報の決定 (ここが重要)
+                const currentParams = new URLSearchParams(window.location.search);
+                const urlColor = currentParams.get('color');
+                // ブラウザの記憶（bodycolor.jsで保存された最新の色）を取得
+                const sessionColor = sessionStorage.getItem('currentColor');
+                
+                if (urlColor) {
+                    // URLに指定があれば最優先
+                    url.searchParams.set('color', urlColor);
+                } else if (sessionColor) {
+                    // ★追加: URLになくても、ブラウザが覚えている最新の色を使う
+                    url.searchParams.set('color', sessionColor);
+                } else if (currentColorFolder) {
+                    // それもなければ、サーバーのセッション情報を使う
+                    url.searchParams.set('color', currentColorFolder);
+                }
+                
+                // 3. ホイール情報
+                if (wheelFolder) {
+                     url.searchParams.set('wheel', wheelFolder);
+                }
+
+                link.href = url.toString();
+            }
+
+            // 初期表示時にリンクを更新
+            updateLink();
+
+            // ホイールボタンクリック時にリンクを更新
+            btns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const folderPath = this.getAttribute('data-wheel');
+                    if (folderPath) {
+                        updateLink(folderPath);
+                    }
+                });
+            });
+        });
+        </script>
       </section>
     </main>
   </body>
