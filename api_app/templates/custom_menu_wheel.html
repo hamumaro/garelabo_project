@@ -82,9 +82,11 @@
           <button id="next-btn">→</button>
         </div>
 
-        <input type="hidden" id="server-car-folder" value="{{ car_folder }}">
         <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}">
-        <input type="hidden" id="current-color-folder" value="{{ current_color_folder }}">
+        <input type="hidden" id="server-car-folder" value="{{ car_folder }}">
+        <input type="hidden" id="server-color-folder" value="{{ current_color_folder }}">
+        <input type="hidden" id="server-wheel-folder" value="{{ current_wheel_folder }}">
+        <input type="hidden" id="server-bumper-folder" value="{{ current_bumper_folder }}">
 
         <div class="wheel-palette-area">
           <div class="wheel-row">
@@ -119,63 +121,41 @@
         
         <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const btns = document.querySelectorAll('.wheel-btn'); 
-            const link = document.getElementById('auto-custom-link');
+            const autoLink = document.getElementById('auto-custom-link');
+            const currentVehicleIdInput = document.getElementById('current-vehicle-id');
+            const currentVehicleId = currentVehicleIdInput ? currentVehicleIdInput.value : null;
             
-            // 埋め込んだ値を取得
-            const vehicleIdInput = document.getElementById('current-vehicle-id');
-            const colorFolderInput = document.getElementById('current-color-folder');
-            
-            const currentVehicleId = vehicleIdInput ? vehicleIdInput.value : null;
-            // サーバーから渡された色情報（セッション情報）
-            const currentColorFolder = colorFolderInput ? colorFolderInput.value : null;
-            
-            if (!link) return;
+            if (!autoLink) return;
 
-            // 共通のURL更新処理関数
-            function updateLink(wheelFolder = null) {
-                const url = new URL(link.href, window.location.origin);
+            // リンク更新関数: sessionStorage から最新情報を取得してURLパラメータをセット
+            function updateAutoCustomLink() {
+                const url = new URL(autoLink.href, window.location.origin);
                 
-                // 1. 車両IDをセット
+                // 1. 車両ID
                 if (currentVehicleId) {
                     url.searchParams.set('vehicle_id', currentVehicleId);
                 }
-                
-                // 2. カラー情報の決定 (ここが重要)
-                const currentParams = new URLSearchParams(window.location.search);
-                const urlColor = currentParams.get('color');
-                // ブラウザの記憶（bodycolor.jsで保存された最新の色）を取得
-                const sessionColor = sessionStorage.getItem('currentColor');
-                
-                if (urlColor) {
-                    // URLに指定があれば最優先
-                    url.searchParams.set('color', urlColor);
-                } else if (sessionColor) {
-                    // ★追加: URLになくても、ブラウザが覚えている最新の色を使う
-                    url.searchParams.set('color', sessionColor);
-                } else if (currentColorFolder) {
-                    // それもなければ、サーバーのセッション情報を使う
-                    url.searchParams.set('color', currentColorFolder);
-                }
-                
-                // 3. ホイール情報
-                if (wheelFolder) {
-                     url.searchParams.set('wheel', wheelFolder);
-                }
 
-                link.href = url.toString();
+                // 2. ブラウザの記憶(sessionStorage)から最新値を取得
+                const sColor = sessionStorage.getItem('currentColor');
+                const sWheel = sessionStorage.getItem('currentWheel');
+                const sBumper = sessionStorage.getItem('currentBumper');
+
+                if (sColor) url.searchParams.set('color', sColor);
+                if (sWheel) url.searchParams.set('wheel', sWheel);
+                if (sBumper) url.searchParams.set('bumper', sBumper);
+
+                autoLink.href = url.toString();
             }
 
-            // 初期表示時にリンクを更新
-            updateLink();
+            // 初期化時に実行
+            updateAutoCustomLink();
 
-            // ホイールボタンクリック時にリンクを更新
-            btns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const folderPath = this.getAttribute('data-wheel');
-                    if (folderPath) {
-                        updateLink(folderPath);
-                    }
+            // 各ボタンクリック時にも少し待ってから更新 (sessionStorageへの保存待ち)
+            const allBtns = document.querySelectorAll('.bumper-btn, .wheel-btn, .color-dot');
+            allBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                     setTimeout(updateAutoCustomLink, 50);
                 });
             });
         });

@@ -17,7 +17,6 @@
   </head>
 
   <body>
-    <!-- ================= ヘッダー ================= -->
     <header class="header">
       <div class="header-left">
         <img
@@ -28,11 +27,6 @@
       </div>
 
       <nav class="header-nav">
-        {% comment %} {% if current_custom_id %}
-          <a href="{% url 'auto_custom'%}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
-        {% else %}
-          <a href="{% url 'auto_custom' %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
-        {% endif %} {% endcomment %}
         <a href="{% url 'auto_custom' %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
         <button
           id="favorite-toggle"
@@ -61,7 +55,6 @@
     </header>
 
     <main class="main-layout">
-      <!-- ================= サイドメニュー ================= -->
       <aside class="side-menu">
         <a
           href="{% url 'custom_menu_bodycolor' %}"
@@ -76,38 +69,31 @@
         <a href="{% url 'custom_menu_bumper' %}" class="side-btn-link"
           >バンパー</a
         >
-        {% comment %}
-        <a href="{% url 'custom_menu_light' %}" class="side-btn-link">ライト</a>
-        <a href="{% url 'custom_menu_aeroparts' %}" class="side-btn-link">
-          エアロパーツ
-        </a>
-        {% endcomment %}
       </aside>
 
-      <!-- ================= メイン ================= -->
       <section class="car-display-area">
         <div class="car-frame">
-          <!-- JSが画像を差し込む -->
           <img id="car-image" alt="car preview" />
         </div>
 
-        <!-- 回転 -->
         <div class="rotate-hint">
           <button id="prev-btn">←</button>
           <button id="next-btn">→</button>
         </div>
 
-        <!-- カラーパレット -->
         <div class="color-palette-area">
           <div class="color-row">
-            <button class="color-dot" data-color="white">white</button>
-            <button class="color-dot" data-color="black">black</button>
-            <!-- 追加例 -->
-            <!-- <button class="color-dot" data-color="red">red</button> -->
+            {% for color in colors %}
+              <button class="color-dot" data-color="{{ color.rotation_image_folder }}">
+                {{ color.name }}
+              </button>
+            {% empty %}
+              <button class="color-dot" data-color="white">white</button>
+              <button class="color-dot" data-color="black">black</button>
+            {% endfor %}
           </div>
         </div>
 
-        <!-- 保存 -->
         <div class="save-area">
         <form action="{% url 'save_custom' %}" method="post">
           {% csrf_token %}
@@ -124,62 +110,58 @@
           </button>
         </form>
         </div>
+        
+        <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}">
+        <input type="hidden" id="server-car-folder" value="{{ car_folder }}">
+        <input type="hidden" id="server-color-folder" value="{{ current_color_folder }}">
+        <input type="hidden" id="server-wheel-folder" value="{{ current_wheel_folder }}">
+        <input type="hidden" id="server-bumper-folder" value="{{ current_bumper_folder }}">
 
-        <!-- JS -->
+
         <script src="{% static 'js/bodycolor.js' %}"></script>
-      </section>
-    </main>
-  </body>
-
-  <!-- 自動カスタムリンクに現在の選択状態を反映させる -->
-  <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}">
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const colorBtns = document.querySelectorAll('.color-dot');
-    const autoLink = document.getElementById('auto-custom-link');
-    // 埋め込んだ車両IDを取得
-    const currentVehicleId = document.getElementById('current-vehicle-id').value;
-    
-    if (!autoLink) return;
-
-    // 1. ページ読み込み時に、まず車両IDをリンクにセットする
-    //    (これをしないと、色を変えずにすぐボタンを押した場合に前の車のままになります)
-    if (currentVehicleId) {
-        const url = new URL(autoLink.href, window.location.origin);
-        url.searchParams.set('vehicle_id', currentVehicleId);
         
-        // 現在URLに色の指定があればそれも引き継ぐ（戻るボタン対策）
-        const currentParams = new URLSearchParams(window.location.search);
-        const urlColor = currentParams.get('color');
-        if(urlColor) {
-             url.searchParams.set('color', urlColor);
-        }
-        
-        autoLink.href = url.toString();
-    }
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const autoLink = document.getElementById('auto-custom-link');
+            const currentVehicleIdInput = document.getElementById('current-vehicle-id');
+            const currentVehicleId = currentVehicleIdInput ? currentVehicleIdInput.value : null;
+            
+            if (!autoLink) return;
 
-    // 2. 色ボタンを押したときの処理
-    colorBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const colorFolder = this.getAttribute('data-color');
-            if (colorFolder) {
-                // 現在のリンクURLを取得（ここには既に vehicle_id が入っているはず）
+            // リンク更新関数: sessionStorage から最新情報を取得してURLパラメータをセット
+            function updateAutoCustomLink() {
                 const url = new URL(autoLink.href, window.location.origin);
                 
-                // 色情報を上書き
-                url.searchParams.set('color', colorFolder);
-                
-                // 念のため車両IDが消えていないか確認し、なければ再セット
-                if (currentVehicleId && !url.searchParams.has('vehicle_id')) {
+                // 1. 車両ID
+                if (currentVehicleId) {
                     url.searchParams.set('vehicle_id', currentVehicleId);
                 }
 
+                // 2. ブラウザの記憶(sessionStorage)から最新値を取得
+                const sColor = sessionStorage.getItem('currentColor');
+                const sWheel = sessionStorage.getItem('currentWheel');
+                const sBumper = sessionStorage.getItem('currentBumper');
+
+                if (sColor) url.searchParams.set('color', sColor);
+                if (sWheel) url.searchParams.set('wheel', sWheel);
+                if (sBumper) url.searchParams.set('bumper', sBumper);
+
                 autoLink.href = url.toString();
-                // console.log("Link updated:", autoLink.href); // 確認用
             }
+
+            // 初期化時に実行
+            updateAutoCustomLink();
+
+            // 各ボタンクリック時にも少し待ってから更新 (sessionStorageへの保存待ち)
+            const allBtns = document.querySelectorAll('.bumper-btn, .wheel-btn, .color-dot');
+            allBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                     setTimeout(updateAutoCustomLink, 50);
+                });
+            });
         });
-    });
-});
-</script>
+        </script>
+      </section>
+    </main>
+  </body>
 </html>

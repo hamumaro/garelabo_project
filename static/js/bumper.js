@@ -1,4 +1,4 @@
-console.log("NEW bumper.js LOADED");
+console.log("NEW bumper.js LOADED (RESET FIX)");
 
 document.addEventListener("DOMContentLoaded", () => {
   const img = document.getElementById("car-image");
@@ -6,76 +6,84 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextBtn = document.getElementById("next-btn");
   const bumperBtns = document.querySelectorAll(".bumper-btn");
 
+  // ===== サーバーセッション更新 =====
+  function updateServerSession(partType, folderName) {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch('/update_session_parts/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ part_type: partType, folder_name: folderName }),
+      keepalive: true 
+    }).catch(err => console.error("Session update error:", err));
+  }
+
   if (!img) {
     console.error("car-image が見つかりません");
     return;
   }
 
-  // ===== パスからフォルダ名だけを取り出す関数（共通） =====
   function getFolderName(path) {
       if (!path) return "";
-      // バックスラッシュをスラッシュに変換し、最後の要素を取得
       return path.replace(/\\/g, '/').split('/').pop();
   }
 
-  // ===== お気に入りトグル処理 =====
-  const favoriteToggle = document.getElementById("favorite-toggle");
-  const isFavoriteInput = document.getElementById("is-favorite");
+  const serverCar = document.getElementById("server-car-folder")?.value;
+  const serverColor = document.getElementById("server-color-folder")?.value;
+  const serverWheel = document.getElementById("server-wheel-folder")?.value;
+  const serverBumper = document.getElementById("server-bumper-folder")?.value;
 
-  if (favoriteToggle && isFavoriteInput) {
-    favoriteToggle.addEventListener("click", function(e) {
-      e.preventDefault();
-      const isCurrentlyFavorite = (isFavoriteInput.value === "true");
-      const newState = !isCurrentlyFavorite;
-      isFavoriteInput.value = newState ? "true" : "false";
-      this.innerText = newState ? "✔ お気に入り" : "お気に入り";
-      this.classList.toggle("is-favorite", newState);
-
-      fetch('/update_session_favorite/', {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ is_favorite: newState })
-      }).catch(err => console.error("通信エラー:", err));
-    });
-  }
-
-  // ===== URL から車(name_en)取得 =====
+  // ===== 1. 初期値の決定とリセット処理 (★修正箇所) =====
   const params = new URLSearchParams(window.location.search);
-  let carFolder = params.get("car");
+  const resetParam = params.get("reset");
+  const urlCar = params.get("car");
+  const storedCar = sessionStorage.getItem("selectedCar");
 
-  if (!carFolder) {
-    carFolder = sessionStorage.getItem("selectedCar");
+  if (resetParam === "true" || (urlCar && storedCar && urlCar !== storedCar)) {
+      console.log("リセット要求を検知: セッションストレージをクリアします");
+      sessionStorage.removeItem("currentColor");
+      sessionStorage.removeItem("currentWheel");
+      sessionStorage.removeItem("currentBumper");
+      sessionStorage.setItem("selectedCar", urlCar);
+      
+      if (resetParam === "true") {
+          const newUrl = new URL(window.location);
+          newUrl.searchParams.delete("reset");
+          window.history.replaceState(null, '', newUrl);
+      }
   }
+
+  let carFolder = urlCar;
+  if (!carFolder) carFolder = sessionStorage.getItem("selectedCar"); 
+  if (!carFolder && serverCar) carFolder = serverCar; 
 
   if (!carFolder) {
     console.error("車情報(car)が取得できません");
     return;
   }
   sessionStorage.setItem("selectedCar", carFolder);
-  console.log("選択された車:", carFolder);
 
-  // ===== 固定設定 =====
-  const angles = ["front", "side", "rear"];
+  if (serverColor && !sessionStorage.getItem("currentColor")) {
+      sessionStorage.setItem("currentColor", getFolderName(serverColor));
+  }
+  if (serverWheel && !sessionStorage.getItem("currentWheel")) {
+      sessionStorage.setItem("currentWheel", getFolderName(serverWheel));
+  }
+  if (serverBumper && !sessionStorage.getItem("currentBumper")) {
+      sessionStorage.setItem("currentBumper", getFolderName(serverBumper));
+  }
 
-  // ===== 状態（並列） =====
-  // 読み込み時に「パスのクリーニング」を行う（これが404エラー対策の要です）
   let currentColor = getFolderName(sessionStorage.getItem("currentColor")) || "white";
   let currentWheel = getFolderName(sessionStorage.getItem("currentWheel")) || "wheel1";
   let currentBumper = getFolderName(sessionStorage.getItem("currentBumper")) || "bumper1";
   
-  // きれいになった値を保存し直す
-  sessionStorage.setItem("currentColor", currentColor);
-  sessionStorage.setItem("currentWheel", currentWheel);
-  sessionStorage.setItem("currentBumper", currentBumper);
-
+  const angles = ["front", "side_right", "rear","side_left"];
   let angleIndex = 0;
 
   // ===== 表示更新 =====
   function updateImage() {
-    // ここでも念のためクリーニング（表示の安全策）
     const cleanColor = getFolderName(currentColor);
     const cleanWheel = getFolderName(currentWheel);
     const cleanBumper = getFolderName(currentBumper);
@@ -86,17 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     img.src = path;
     img.alt = `${carFolder} ${cleanColor} ${cleanWheel} ${cleanBumper} ${angles[angleIndex]}`;
-
-    console.log("表示中:", {
-      car: carFolder,
-      color: cleanColor,
-      wheel: cleanWheel,
-      bumper: cleanBumper,
-      angle: angles[angleIndex],
-    });
   }
 
-  // 初期表示
   updateImage();
 
   // ===== バンパー変更 =====
@@ -105,12 +104,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const bumperPath = btn.dataset.bumper;
       if (!bumperPath) return;
 
-      // ★重要: ここでフォルダ名だけにする！
-      // これをしないと session に長いパスが入り、他の画面でエラーになります
       currentBumper = getFolderName(bumperPath);
-      
-      angleIndex = 0;
+      angleIndex = 0; // 変更時は正面に戻す
       sessionStorage.setItem("currentBumper", currentBumper);
+      
+      // サーバーへ通知
+      updateServerSession('bumper', currentBumper);
 
       console.log("バンパー変更:", currentBumper);
       updateImage();
@@ -127,4 +126,27 @@ document.addEventListener("DOMContentLoaded", () => {
     angleIndex = (angleIndex + 1) % angles.length;
     updateImage();
   });
+
+  // ===== お気に入りトグル =====
+  const favoriteToggle = document.getElementById("favorite-toggle");
+  const isFavoriteInput = document.getElementById("is-favorite");
+  if (favoriteToggle && isFavoriteInput) {
+    favoriteToggle.addEventListener("click", function(e) {
+      e.preventDefault();
+      const isCurrentlyFavorite = (isFavoriteInput.value === "true");
+      const newState = !isCurrentlyFavorite;
+      isFavoriteInput.value = newState ? "true" : "false";
+      this.innerText = newState ? "✔ お気に入り" : "お気に入り";
+      this.classList.toggle("is-favorite", newState);
+      fetch('/update_session_favorite/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ is_favorite: newState }),
+        keepalive: true
+      }).catch(err => console.error("通信エラー:", err));
+    });
+  }
 });

@@ -110,8 +110,8 @@
               alert("車両データが正しく選択されていません。");
               return;
             }
-            // URLエンコードして遷移
-            window.location.href = "{% url 'custom_menu_bodycolor' %}?car=" + encodeURIComponent(nameEn);
+            
+            window.location.href = "{% url 'custom_menu_bodycolor' %}?car=" + encodeURIComponent(nameEn) + "&reset=true";
           }
         </script>
 

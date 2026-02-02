@@ -62,6 +62,8 @@ urlpatterns = [
 
     path('logout/', logout_view, name='logout'), #ログアウト
 
+    path('update_session_parts/', views.update_session_parts, name='update_session_parts'), # 通知を受け取る機能
+
     # errors
     path("menu_error/", views.menu_error_view, name="menu_error"),
     path("surroundings_error/", views.surroundings_error_view, name="surroundings_error"),
