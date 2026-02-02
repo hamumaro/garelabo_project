@@ -5,7 +5,7 @@ console.log("🚗 自動カスタムJS読み込み開始");
 
 // 角度の定義を共通化
 // const ANGLES = ["front", "front_right", "side_right", "rear_left", "rear", "rear_right","side_left", "front_left"];
-const  ANGLES = ["side","rear","front"]
+const  ANGLES = ["front", "side_right", "rear","side_left"]
 let angleIndex = 0;
 
 document.addEventListener("DOMContentLoaded", () => {

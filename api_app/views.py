@@ -369,6 +369,8 @@ def custom_menu(request, custom_id=None):
  
 
 def custom_menu_bodycolor(request, custom_id=None):
+    restore_session_backup(request)
+
     # ===== 初期化（custom_menu の代替）=====
     if custom_id:
         # 削除済みデータでエラーにならないよう filter().first() を使用
@@ -443,6 +445,7 @@ def custom_menu_bodycolor(request, custom_id=None):
 # views.py に以下の関数を上書きしてください
 
 def custom_menu_wheel(request):
+    restore_session_backup(request)
     custom_data = request.session.get('custom_data', {})
     
     # 1. 車両の取得
@@ -518,6 +521,7 @@ def custom_menu_wheel(request):
 
 
 def custom_menu_bumper(request):
+    restore_session_backup(request)
     # 1. セッションからデータを取得
     custom_data = request.session.get('custom_data', {})
     vehicle_id = custom_data.get('vehicle_id')
@@ -560,7 +564,6 @@ def auto_custom(request, custom_id=None):
     custom_data = request.session.get('custom_data', {})
 
     # --- 保存済みデータの読み込み (custom_idがある場合) ---
-    # まずは保存データをロード（ベースとする）
     if custom_id:
         saved = get_object_or_404(SavedCustom, id=custom_id, user=request.user)
         custom_data = {
@@ -575,6 +578,11 @@ def auto_custom(request, custom_id=None):
         request.session['custom_data'] = custom_data
         request.session['editing_custom_id'] = saved.id
     
+    # ★追加: まだバックアップがなければ、現在の状態（自動カスタム前）を保存する
+    # これにより、何度APIを叩いても「最初の状態」を覚えていることができます
+    if 'pre_auto_custom_backup' not in request.session:
+        request.session['pre_auto_custom_backup'] = custom_data.copy()
+
     editing_id = request.session.get('editing_custom_id')
     is_favorite = custom_data.get('is_favorite', False)
 
@@ -858,10 +866,17 @@ def car_select(request):
     return render(request, 'car_select.html', {'vehicles': vehicles})
 
 def custom_cancel(request):
-    """カスタムを中止してリダイレクトする"""
+    """カスタムを中止して元の状態に戻す"""
     
-    # 中止した後の遷移先（例: トップページや車種選択）を指定
-    return render(request,'custom_canceled.html')
+    # ★追加: バックアップがあれば復元する（これで車両が元に戻ります）
+    if 'pre_auto_custom_backup' in request.session:
+        request.session['custom_data'] = request.session['pre_auto_custom_backup']
+        del request.session['pre_auto_custom_backup'] # 復元したら消す
+        request.session.modified = True
+
+    # 中止完了画面へ（または redirect('custom_menu') でも良いかもしれません）
+    return render(request, 'custom_canceled.html')
+
 
 # お気に入り切替機能
 @login_required
@@ -918,6 +933,7 @@ def update_session_favorite(request):
 
 # --- ★重要: 見積もり計算機能 ---
 def estimate_view(request):
+    restore_session_backup(request)
     # 1. セッションから選択データを取得
     custom_data = request.session.get('custom_data', {})
     
@@ -1072,3 +1088,11 @@ def save_custom_content_error_view(request):
 def list_management_delection_error_view(request):
     return render(request, "list_management_delection_error.html", status=500)
 
+
+
+# ★追加: 自動カスタムから保存せずに離脱した場合、バックアップから復元する関数
+def restore_session_backup(request):
+    if 'pre_auto_custom_backup' in request.session:
+        request.session['custom_data'] = request.session['pre_auto_custom_backup']
+        del request.session['pre_auto_custom_backup']
+        request.session.modified = True

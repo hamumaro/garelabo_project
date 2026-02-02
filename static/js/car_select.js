@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!imageUrl.endsWith('/')) {
             imageUrl += '/';
         }
-        imageUrl += 'side.png'; // ここでフォルダ内のファイル名を指定
+        imageUrl += 'side_left.png'; // ここでフォルダ内のファイル名を指定
     }
 
     img.src = imageUrl;

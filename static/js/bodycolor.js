@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("選択された車:", carFolder);
 
   // ===== 固定設定 =====
-  const angles = ["front", "side", "rear"];
+  const angles = ["front", "side_right", "rear","side_left"];
 
   // ===== 状態（並列） =====
   // ★修正: 読み込み時に getFolderName でパスをきれいにする (重要)

@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("選択された車:", carFolder);
 
   // ===== 固定設定 =====
-  const angles = ["front", "side", "rear"];
+  const angles = ["front", "side_right", "rear","side_left"];
 
   // ===== 状態（並列） =====
   // 読み込み時に「パスのクリーニング」を行う（これが404エラー対策の要です）
