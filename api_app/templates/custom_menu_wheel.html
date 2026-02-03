@@ -3,164 +3,221 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <link
-      rel="icon"
-      type="image/png"
-      href="{% static 'assets/Garelabo_Logo.png' %}"
-    />
+    <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>GARELABO+｜ホイール</title>
-    <link
-      rel="stylesheet"
-      href="{% static 'css/custom_menu_wheel_style.css' %}"
-    />
+
+    <link rel="stylesheet" href="{% static 'css/custom_menu_bodycolor_style.css' %}?v=20260202_2" />
+
+    <!-- ✅ サイドメニュー削除に伴い1カラム化（余白/ズレ防止） -->
+    <style>
+      .main-layout {
+        grid-template-columns: 1fr !important;
+      }
+      .side-menu {
+        display: none !important;
+      }
+    </style>
   </head>
 
   <body>
+    <!-- ================= ヘッダー ================= -->
     <header class="header">
       <div class="header-left">
-        <img
-          src="{% static 'assets/ガレラボ+.png' %}"
-          class="logo"
-          alt="GARELABO+"
-        />
+        <img src="{% static 'assets/ガレラボ+.png' %}" class="logo" alt="GARELABO+" />
       </div>
 
       <nav class="header-nav">
-        <a href="{% url 'auto_custom' %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
-        
+        <a
+          href="{% if current_custom_id %}{% url 'auto_custom' current_custom_id %}{% else %}{% url 'auto_custom' %}{% endif %}"
+          id="auto-custom-link"
+          class="nav-btn"
+        >
+          自動カスタム
+        </a>
+
         <button
           id="favorite-toggle"
           type="button"
           class="nav-btn favorite-btn {% if is_favorite %}is-favorite{% endif %}"
         >
-          {% if is_favorite %}
-            ✔ お気に入り
-          {% else %}
-            お気に入り
-          {% endif %}
+          {% if is_favorite %}✔ お気に入り{% else %}お気に入り{% endif %}
         </button>
-        {% comment %} <a href="{% url 'estimate' %}" class="nav-btn">カスタム見積り</a> {% endcomment %}
+
         <a href="{% url 'custom_cancel' %}" class="nav-btn">カスタム中止</a>
       </nav>
 
       <div class="header-user">
         <span class="user-name">{{ user.nickname }}さん</span>
         <a href="{% url 'account' %}" class="user-icon">
-          <img
-            src="{% static 'assets/アカウントアイコン.png' %}"
-            alt="アイコン"
-          />
+          <img src="{% static 'assets/アカウントアイコン.png' %}" alt="アイコン" />
         </a>
       </div>
     </header>
 
-    <main class="main-layout">
-      <aside class="side-menu">
-        <a href="{% url 'custom_menu_bodycolor' %}" class="side-btn-link">
-          ボディカラー
-        </a>
-        <a
-          href="{% url 'custom_menu_wheel' %}"
-          class="side-btn-link"
-          style="background: #111; color: #fff"
-        >
-          ホイール
-        </a>
-        <a href="{% url 'custom_menu_bumper' %}" class="side-btn-link">
-          バンパー
-        </a>
-      </aside>
+    <!-- ================= メニューボタン（ドロワー） ================= -->
+    <button
+      type="button"
+      id="menu-open"
+      class="menu-fab"
+      aria-label="メニュー"
+      aria-expanded="false"
+    ></button>
 
+    <div id="menu-hint" class="menu-tooltip" aria-hidden="true">メニューを表示</div>
+    <div id="drawer-overlay" class="menu-overlay" aria-hidden="true"></div>
+
+    <aside id="drawer" class="side-drawer" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-title">メニュー</div>
+        <button type="button" id="drawer-close" class="drawer-close">×</button>
+      </div>
+
+      <!-- ✅ 中身を復活（ただし、ボディカラー/ホイール/バンパー等のカスタム遷移は入れない） -->
+      <div class="drawer-body">
+  <a href="{% url 'custom_menu_bodycolor' %}" class="drawer-item">
+    <span>ボディカラー</span><span class="arrow">›</span>
+  </a>
+
+  <a href="{% url 'custom_menu_wheel' %}" class="drawer-item is-active">
+    <span>ホイール</span><span class="arrow">›</span>
+  </a>
+
+  <a href="{% url 'custom_menu_bumper' %}" class="drawer-item">
+    <span>バンパー</span><span class="arrow">›</span>
+  </a>
+
+  <a href="{% url 'custom_menu_aeroparts' %}" class="drawer-item">
+    <span>エアロパーツ</span><span class="arrow">›</span>
+  </a>
+</div>
+    </aside>
+
+    <!-- ================= メイン ================= -->
+    <main class="main-layout">
       <section class="car-display-area">
         <div class="car-frame">
-          <img id="car-image" alt="wheel preview" />
+          <img id="car-image" alt="wheel preview" loading="eager" />
         </div>
 
         <div class="rotate-hint">
-          <button id="prev-btn">←</button>
-          <button id="next-btn">→</button>
+          <button type="button" id="open-wheel" class="nav-btn">ホイール</button>
+          <button type="button" id="prev-btn">←</button>
+          <button type="button" id="next-btn">→</button>
         </div>
 
-        <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}">
-        <input type="hidden" id="server-car-folder" value="{{ car_folder }}">
-        <input type="hidden" id="server-color-folder" value="{{ current_color_folder }}">
-        <input type="hidden" id="server-wheel-folder" value="{{ current_wheel_folder }}">
-        <input type="hidden" id="server-bumper-folder" value="{{ current_bumper_folder }}">
+        <!-- ✅ JSへ渡すサーバー値 -->
+        <input type="hidden" id="server-car-folder" value="{{ car_folder }}" />
+        <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}" />
+        <input type="hidden" id="current-color-folder" value="{{ current_color_folder }}" />
 
+        <!-- ✅ ホイールパネル（初期は隠す） -->
         <div class="wheel-palette-area">
-          <div class="wheel-row">
-            {% for wheel in wheels %}
-              <button class="wheel-btn" data-wheel="{{ wheel.image_url }}">
-                {{ wheel.name }}
-              </button>
-            {% empty %}
-              <p>ホイールが見つかりません</p>
-            {% endfor %}
+          <div class="garelabo-palette-panel" id="wheel-panel" aria-hidden="true">
+            <div class="wheel-row" id="wheelPalette">
+              {% for wheel in wheels %}
+                <button type="button" class="wheel-btn" data-wheel="{{ wheel.image_url }}">
+                  {{ wheel.name }}
+                </button>
+              {% empty %}
+                <p>ホイールが見つかりません</p>
+              {% endfor %}
+            </div>
+
+            <input type="hidden" id="wheelValue" name="wheel" value="" />
           </div>
         </div>
 
+        <!-- 保存 -->
         <div class="save-area">
           <form action="{% url 'save_custom' %}" method="post">
             {% csrf_token %}
-            
             <input
               type="hidden"
               name="is_favorite"
               id="is-favorite"
               value="{% if is_favorite %}true{% else %}false{% endif %}"
-            >
-            
-            <button type="submit" class="save-custom-btn">
-              カスタム内容保存
-            </button>
+            />
+            <button type="submit" class="save-custom-btn">カスタム内容保存</button>
           </form>
         </div>
 
-        <script src="{% static 'js/wheel.js' %}"></script>
-        
+        <!-- ✅ wheel.js は1回だけ -->
+        <script src="{% static 'js/wheel.js' %}?v=20260202_1"></script>
+
+        <!-- ✅ 自動カスタムリンクへvehicle/color/wheelを付与（必要なら後で消せる） -->
         <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const autoLink = document.getElementById('auto-custom-link');
-            const currentVehicleIdInput = document.getElementById('current-vehicle-id');
-            const currentVehicleId = currentVehicleIdInput ? currentVehicleIdInput.value : null;
-            
-            if (!autoLink) return;
+          document.addEventListener("DOMContentLoaded", function () {
+            const btns = document.querySelectorAll(".wheel-btn");
+            const link = document.getElementById("auto-custom-link");
 
-            // リンク更新関数: sessionStorage から最新情報を取得してURLパラメータをセット
-            function updateAutoCustomLink() {
-                const url = new URL(autoLink.href, window.location.origin);
-                
-                // 1. 車両ID
-                if (currentVehicleId) {
-                    url.searchParams.set('vehicle_id', currentVehicleId);
-                }
+            const vehicleIdInput = document.getElementById("current-vehicle-id");
+            const colorFolderInput = document.getElementById("current-color-folder");
 
-                // 2. ブラウザの記憶(sessionStorage)から最新値を取得
-                const sColor = sessionStorage.getItem('currentColor');
-                const sWheel = sessionStorage.getItem('currentWheel');
-                const sBumper = sessionStorage.getItem('currentBumper');
+            const currentVehicleId = vehicleIdInput ? vehicleIdInput.value : null;
+            const currentColorFolder = colorFolderInput ? colorFolderInput.value : null;
 
-                if (sColor) url.searchParams.set('color', sColor);
-                if (sWheel) url.searchParams.set('wheel', sWheel);
-                if (sBumper) url.searchParams.set('bumper', sBumper);
+            if (!link) return;
 
-                autoLink.href = url.toString();
+            function pickColorParam() {
+              const currentParams = new URLSearchParams(window.location.search);
+              const urlColor = currentParams.get("color");
+              const sessionColor = sessionStorage.getItem("currentColor");
+
+              if (urlColor) return urlColor;
+              if (sessionColor) return sessionColor;
+              if (currentColorFolder) return currentColorFolder;
+              return null;
             }
 
-            // 初期化時に実行
-            updateAutoCustomLink();
+            function normalizeWheelParam(raw) {
+              if (!raw) return null;
+              const s = String(raw).replace("\\", "/");
+              const parts = s.split("/").filter(Boolean);
+              return parts.length ? parts[parts.length - 1] : s;
+            }
 
-            // 各ボタンクリック時にも少し待ってから更新 (sessionStorageへの保存待ち)
-            const allBtns = document.querySelectorAll('.bumper-btn, .wheel-btn, .color-dot');
-            allBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                     setTimeout(updateAutoCustomLink, 50);
-                });
+            function updateLink(wheelRaw = null) {
+              const url = new URL(link.href, window.location.origin);
+
+              if (currentVehicleId) {
+                url.searchParams.set("vehicle_id", currentVehicleId);
+              }
+
+              const colorParam = pickColorParam();
+              if (colorParam) {
+                url.searchParams.set("color", colorParam);
+              }
+
+              const wheelParam = normalizeWheelParam(wheelRaw);
+              if (wheelParam) {
+                url.searchParams.set("wheel", wheelParam);
+              }
+
+              link.href = url.toString();
+            }
+
+            updateLink();
+
+            btns.forEach((btn) => {
+              btn.addEventListener("click", function () {
+                const wheelRaw = this.getAttribute("data-wheel");
+                updateLink(wheelRaw);
+              });
             });
-        });
+          });
         </script>
       </section>
     </main>
+
+    <!-- ================= 全画面表示 ================= -->
+    <div id="fullscreen-overlay" class="fullscreen-overlay" aria-hidden="true">
+      <div class="fullscreen-actions">
+        <button id="fullscreen-save" class="fullscreen-save" type="button">画像保存</button>
+        <button id="fullscreen-close" class="fullscreen-close" type="button">×</button>
+      </div>
+      <img id="fullscreen-image" alt="fullscreen car" />
+    </div>
   </body>
 </html>

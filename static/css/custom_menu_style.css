@@ -116,6 +116,7 @@ body {
     color: #fff;
 }
 
+/* ===== 旧リンク（互換用で残す） ===== */
 .side-btn-link {
     display: block;
     width: 100%;
@@ -130,6 +131,78 @@ body {
 
 .side-btn-link:hover {
     background: #f2f2f2;
+}
+
+/* =========================================
+   追加：表示/非表示できるメニュー（ランボ風寄せ）
+   ========================================= */
+
+/* タブ（エクステリア） */
+.side-tab {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #333;
+    border-radius: 10px;
+    background: #2f2f2f;
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.side-tab:hover {
+    background: #3a3a3a;
+    transform: translateY(-1px);
+}
+
+/* 開閉エリア（閉じてる時） */
+.side-section {
+    overflow: hidden;
+    max-height: 0;                 /* ここが閉じる鍵 */
+    transition: max-height 0.35s ease;
+}
+
+/* 開いてる時 */
+.side-section.open {
+    max-height: 800px;             /* 中身より大きければOK */
+}
+
+/* 中の項目（ボディカラーなど） */
+.side-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+    padding: 14px 14px;
+    margin-top: 10px;
+
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.25);
+    background: #111;
+    color: #fff;
+
+    text-decoration: none;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.side-item:hover {
+    background: #1a1a1a;
+    transform: translateY(-1px);
+}
+
+/* 選択中 */
+.side-item.active {
+    border-color: rgba(255, 200, 0, 0.9);
+    box-shadow: 0 0 0 2px rgba(255, 200, 0, 0.25) inset;
+}
+
+/* 矢印 */
+.side-item .arrow {
+    font-size: 22px;
+    opacity: 0.65;
 }
 
 /* ===== 車表示エリア（ホイール画面と完全一致） ===== */
@@ -172,3 +245,4 @@ body {
 .rotate-hint img {
     width: 28px;
 }
+
