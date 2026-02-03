@@ -157,3 +157,14 @@ EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 print("--------------------------------------------------")
 print("メールパスワード読み込み確認:", EMAIL_HOST_PASSWORD)
 print("--------------------------------------------------")
+
+
+# ログインに関する記述を試験的に追加
+# ログインページのURLは 'login' (urls.pyのname='login') であると指定
+LOGIN_URL = 'login'
+
+# ログイン後に飛ばすページの指定
+LOGIN_REDIRECT_URL = 'list_page'
+
+# ログアウト後に飛ばすページの指定
+LOGOUT_REDIRECT_URL = 'list_page'
