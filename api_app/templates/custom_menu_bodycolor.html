@@ -8,7 +8,6 @@
     <title>GARELABO+｜ボディカラー</title>
     <link rel="stylesheet" href="{% static 'css/custom_menu_bodycolor_style.css' %}?v=20260202_1" />
 
-    <!-- ✅ 白黒チップを「色だけ表示」に強制（既存CSSに上書き） -->
     <style>
       /* ✅ 白黒含むチップは基本「色だけ」優先 */
       #bodyPalette .garelabo-palette__chip {
@@ -24,7 +23,6 @@
   </head>
 
   <body>
-    <!-- ================= ヘッダー ================= -->
     <header class="header">
       <div class="header-left">
         <img src="{% static 'assets/ガレラボ+.png' %}" class="logo" alt="GARELABO+" />
@@ -52,7 +50,6 @@
       </div>
     </header>
 
-    <!-- ================= メニューボタン ================= -->
     <button
       type="button"
       id="menu-open"
@@ -86,11 +83,9 @@
       </div>
     </aside>
 
-    <!-- ================= メイン ================= -->
     <main class="main-layout">
       <section class="car-display-area">
         <div class="car-frame">
-          <!-- ✅ srcはHTMLで設定しない。JSが入れる -->
           <img id="car-image" alt="car preview" loading="eager" />
         </div>
 
@@ -100,11 +95,9 @@
           <button type="button" id="next-btn">→</button>
         </div>
 
-        <!-- ================= パレット（初期は隠す） ================= -->
         <div class="color-palette-area">
           <div class="garelabo-palette-panel" id="bodycolor-panel" aria-hidden="true">
             <div class="garelabo-palette" id="bodyPalette">
-              <!-- ✅ 白（色だけ表示） -->
               <button
                 type="button"
                 class="garelabo-palette__chip is-selected"
@@ -113,7 +106,6 @@
                 aria-label="white"
               ></button>
 
-              <!-- ✅ 黒（色だけ表示） -->
               <button
                 type="button"
                 class="garelabo-palette__chip"
@@ -122,7 +114,6 @@
                 aria-label="black"
               ></button>
 
-              <!-- 既存のカラー（いったん残す：仕様が未確定なので壊さない） -->
               <button type="button" class="garelabo-palette__chip" style="--c:#f2c94c;" data-color="#f2c94c" aria-label="yellow"></button>
               <button type="button" class="garelabo-palette__chip" style="--c:#f2994a;" data-color="#f2994a" aria-label="orange"></button>
               <button type="button" class="garelabo-palette__chip" style="--c:#eb5757;" data-color="#eb5757" aria-label="red"></button>
@@ -130,12 +121,10 @@
               <button type="button" class="garelabo-palette__chip" style="--c:#27ae60;" data-color="#27ae60" aria-label="green"></button>
             </div>
 
-            <!-- hiddenは既存を維持（崩さない） -->
             <input type="hidden" id="bodyColorValue" name="body_color" value="#e6e6e6" />
           </div>
         </div>
 
-        <!-- ================= 保存 ================= -->
         <div class="save-area">
           <form action="{% url 'save_custom' %}" method="post">
             {% csrf_token %}
@@ -157,7 +146,6 @@
       </section>
     </main>
 
-    <!-- ================= 全画面表示 ================= -->
     <div id="fullscreen-overlay" class="fullscreen-overlay" aria-hidden="true">
       <div class="fullscreen-actions">
         <button id="fullscreen-save" class="fullscreen-save" type="button">画像保存</button>
@@ -166,16 +154,55 @@
       <img id="fullscreen-image" alt="fullscreen car" />
     </div>
 
-    <!-- ✅ 既存JSはここだけ（崩さない） -->
+    <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}">
+    <input type="hidden" id="server-car-folder" value="{{ car_folder }}">
+    <input type="hidden" id="server-color-folder" value="{{ current_color_folder }}">
+    <input type="hidden" id="server-wheel-folder" value="{{ current_wheel_folder }}">
+    <input type="hidden" id="server-bumper-folder" value="{{ current_bumper_folder }}">
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const autoLink = document.getElementById('auto-custom-link');
+        const vehicleId = "{{ vehicle.id }}";
+        
+        // リンク先URLに現在の選択状態（セッションストレージ）を反映させる関数
+        function syncAutoCustomLink() {
+            if (!autoLink) return;
+            const url = new URL(autoLink.href, window.location.origin);
+            
+            // 車両ID
+            if (vehicleId) {
+                url.searchParams.set('vehicle_id', vehicleId);
+            }
+            
+            // セッションストレージから現在の選択状態を取得して反映
+            // (currentColor, currentWheel, currentBumper)
+            ['currentColor', 'currentWheel', 'currentBumper'].forEach(key => {
+                const val = sessionStorage.getItem(key);
+                if (val) {
+                    // パラメータ名は color, wheel, bumper
+                    url.searchParams.set(key.replace('current', '').toLowerCase(), val);
+                }
+            });
+            autoLink.href = url.toString();
+            // console.log("Link Updated:", autoLink.href);
+        }
+
+        // 初期化時に同期
+        syncAutoCustomLink();
+
+        // ユーザーがボタンをクリックした際にも同期（少し遅延させてsessionStorageへの保存を待つ）
+        document.addEventListener('click', (e) => {
+            // パレットチップ、ホイールボタン、バンパーボタン等が対象
+            if (e.target.closest('.garelabo-palette__chip, .color-dot, .wheel-btn, .bumper-btn')) {
+                setTimeout(syncAutoCustomLink, 100);
+            }
+        });
+    });
+    </script>
+
     <script src="{% static 'js/bodycolor.js' %}?v=20260202_1"></script>
 
-    <!-- =========================
-      ✅ 追記だけ：白黒チップ対応
-      ・既存bodycolor.jsは触らない
-      ・白黒は data-color="white/black" を sessionStorage.currentColor に入れる
-      ・is-selected を付け替える
-      ・他ページ（wheel/bumper）へ行っても色が残る
-    ========================= -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const palette = document.getElementById("bodyPalette");
