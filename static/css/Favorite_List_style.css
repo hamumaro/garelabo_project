@@ -186,53 +186,51 @@ HEADER（車両選択っぽい設計）
 ============================== */
 .ribbons-overlay {
     position: absolute;
-    right: 16px;
-    bottom: 14px;
+    bottom: 0;
+    right: 0;
     display: flex;
-    gap: 12px;
     z-index: 20;
-    align-items: center;
-    justify-content: flex-end;
 }
 
 .ribbon {
-    position: relative;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 10px;
-
-    padding: 12px 22px 12px 18px;
-    border-radius: 12px;
-
-    text-decoration: none;
-    font-weight: 900;
-    letter-spacing: 0.05em;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 44px;
     color: #fff;
-
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    height: 50px;
+    min-width: 160px;
+    transform: skewX(-20deg);
+    transform-origin: bottom;
+    margin-right: -5px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.ribbon::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: -14px;
-    width: 28px;
-    height: 100%;
-    transform: skewX(-18deg);
-    border-right: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(0, 0, 0, 0.00);
+.ribbon > * {
+    transform: skewX(20deg);
 }
 
 .ribbon img {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     object-fit: contain;
 }
 
 .ribbon-blue {
-    background: linear-gradient(135deg, var(--blue), var(--dark-ribbon));
+    background: var(--blue);
+}
+
+.ribbon-dark {
+    background: var(--dark-ribbon);
+    margin-right: 20px;
+}
+
+.ribbon:hover {
+    filter: brightness(1.1);
 }
 
 /* ==============================
