@@ -6,13 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>GARELABO+｜車両選択</title>
 
-    <link
-      rel="icon"
-      type="image/png"
-      href="{% static 'assets/Garelabo_Logo.png' %}"
-    />
-    <link rel="stylesheet" href="{% static 'css/List_style.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/car_select_style.css' %}" />
+    <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}" />
+    <link rel="stylesheet" href="{% static 'css/car_select_style.css' %}?v=20260202_1" />
   </head>
 
   <body>
@@ -20,10 +15,10 @@
       <div class="header-inner">
         <div class="header-grid">
           <div class="panel">
-            <img src="{% static 'assets/メーター.png' %}" />
+            <img src="{% static 'assets/メーター2.png' %}" alt="メーター" />
           </div>
           <div class="panel">
-            <img src="{% static 'assets/R32.png' %}" />
+            <img src="{% static 'assets/R33風.png' %}" alt="R33" />
           </div>
 
           <div class="brand-area">
@@ -34,25 +29,40 @@
                 <img
                   src="{% static 'assets/アカウントアイコン.png' %}"
                   class="user-icon"
+                  alt="アカウント"
                 />
               </a>
             </div>
             {% endif %}
+
             <img
               class="garelabo-logo"
               src="{% static 'assets/garelabo_title.png' %}"
+              alt="GARELABO+"
             />
           </div>
         </div>
 
-        <nav class="ribbons-overlay">
-          <a class="ribbon ribbon-blue" href="#" onclick="goToBodyColor(event)">
-            <img src="{% static 'assets/カスタム作成.png' %}" />
-            カスタム作成
-          </a>
-          <a class="ribbon ribbon-dark" href="{% url "list_page" %}">
-            <img src="{% static 'assets/一覧.png' %}" alt="一覧">
-            一覧
+        <!-- ✅ 一覧ページと同じ「青リボン統一」ナビに変更 -->
+        <nav class="ribbons-overlay" aria-label="メインメニュー">
+          {% if user.is_authenticated %}
+            <!-- カスタム作成：このページでは選択中車両でボディカラーへ -->
+            <a class="ribbon ribbon-blue" href="#" onclick="goToBodyColor(event)">
+              <img src="{% static 'assets/カスタム作成.png' %}" alt="カスタム作成" />
+              カスタム作成
+            </a>
+          {% else %}
+            <!-- 未ログインは全部ログインへ（一覧ページと同じ思想） -->
+            <a class="ribbon ribbon-blue" href="{% url 'login' %}">
+              <img src="{% static 'assets/カスタム作成.png' %}" alt="カスタム作成" />
+              カスタム作成
+            </a>
+          {% endif %}
+
+          <!-- ✅ 追加：一覧へ戻る -->
+          <a class="ribbon ribbon-dark" href="{% url 'list_page' %}">
+            <span aria-hidden="true"></span>
+            一覧へ戻る
           </a>
         </nav>
       </div>
@@ -71,60 +81,92 @@
     <main class="content">
       <section class="car-display-area">
         {% if vehicles %}
-        <div class="car-display">
-          <button class="arrow-btn" id="prev-btn">＜</button>
+          <div class="car-display">
+            <button type="button" class="arrow-btn" id="prev-btn">＜</button>
 
-          <div class="car-frame">
-            <img
-              id="carImage"
-              src="{{ vehicles.0.base_image_path.url }}" 
-              alt="{{ vehicles.0.name }}"
-              class="car-image"
-              onerror="this.src='{% static 'assets/no_image.png' %}';"
-            />
+            <div class="car-frame" id="carFrame">
+              {% if vehicles.0.base_image_path %}
+                <img
+                  id="carImage"
+                  src="{{ vehicles.0.base_image_path.url }}"
+                  alt="{{ vehicles.0.name }}"
+                  class="car-image"
+                  onerror="this.src='{% static 'assets/no_image.png' %}';"
+                />
+              {% else %}
+                <img
+                  id="carImage"
+                  src="{% static 'assets/no_image.png' %}"
+                  alt="no image"
+                  class="car-image"
+                />
+              {% endif %}
+            </div>
+
+            <button type="button" class="arrow-btn" id="next-btn">＞</button>
           </div>
 
-          <button class="arrow-btn" id="next-btn">＞</button>
-        </div>
+          <h2 class="car-name" id="carName">{{ vehicles.0.name }}</h2>
+          <input
+            type="hidden"
+            id="selectedCarNameEn"
+            value="{{ vehicles.0.name_en }}"
+          />
 
-        <h2 class="car-name" id="carName">{{ vehicles.0.name }}</h2>
+          <script id="vehicles-data" type="application/json">
+            [
+              {% for v in vehicles %}
+              {
+                "name": "{{ v.name }}",
+                "name_en": "{{ v.name_en }}",
+                {% if v.base_image_path %}
+                "url": "{{ v.base_image_path.url }}"
+                {% else %}
+                "url": "{% static 'assets/no_image.png' %}"
+                {% endif %}
+              }{% if not forloop.last %},{% endif %}
+              {% endfor %}
+            ]
+          </script>
 
-        <input
-          type="hidden"
-          id="selectedCarNameEn"
-          value="{{ vehicles.0.name_en }}"
-        />
+          <script src="{% static 'js/car_select.js' %}?v=20260127_2"></script>
 
-        <script id="vehicles-data" type="application/json">
-          [
-            {% for v in vehicles %}
-            {
-              "name": "{{ v.name }}",
-              "name_en": "{{ v.name_en }}",
-              "url": "{{ v.base_image_path.url }}"
-            }{% if not forloop.last %},{% endif %}
-            {% endfor %}
-          ]
-        </script>
-
-        <script src="{% static 'js/car_select.js' %}"></script>
-
-        <script>
-          // カスタム作成画面への遷移ロジック
-          function goToBodyColor(e) {
-            e.preventDefault();
-            const nameEn = document.getElementById("selectedCarNameEn").value;
-            if (!nameEn) {
-              alert("車両データが正しく選択されていません。");
-              return;
+          <script>
+            function goToBodyColor(e) {
+              e.preventDefault();
+              const nameEnEl = document.getElementById("selectedCarNameEn");
+              const nameEn = nameEnEl ? nameEnEl.value : "";
+              if (!nameEn) {
+                alert("車両データが正しく選択されていません。");
+                return;
+              }
+              window.location.href =
+                "{% url 'custom_menu_bodycolor' %}?car=" + encodeURIComponent(nameEn);
             }
-            
-            window.location.href = "{% url 'custom_menu_bodycolor' %}?car=" + encodeURIComponent(nameEn) + "&reset=true";
-          }
-        </script>
+          </script>
 
+          <!-- ✅ :has() を使わず Chrome 安定で skeleton 切替 -->
+          <script>
+            window.addEventListener("load", () => {
+              const frame = document.getElementById("carFrame");
+              const img = document.getElementById("carImage");
+              if (!frame || !img) return;
+
+              const apply = () => {
+                if (img.complete && img.naturalWidth > 0) {
+                  frame.classList.add("has-image");
+                } else {
+                  frame.classList.remove("has-image");
+                }
+              };
+
+              img.addEventListener("load", apply);
+              img.addEventListener("error", () => frame.classList.remove("has-image"));
+              apply();
+            });
+          </script>
         {% else %}
-        <p style="text-align: center; color: white;">車両データが存在しません</p>
+          <p style="text-align: center; color: white;">車両データが存在しません</p>
         {% endif %}
       </section>
     </main>

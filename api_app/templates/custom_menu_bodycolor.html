@@ -3,165 +3,222 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <link
-      rel="icon"
-      type="image/png"
-      href="{% static 'assets/Garelabo_Logo.png' %}"
-    />
+    <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GARELABO+｜ボディカラー</title>
-    <link
-      rel="stylesheet"
-      href="{% static 'css/custom_menu_bodycolor_style.css' %}"
-    />
+    <link rel="stylesheet" href="{% static 'css/custom_menu_bodycolor_style.css' %}?v=20260202_1" />
+
+    <!-- ✅ 白黒チップを「色だけ表示」に強制（既存CSSに上書き） -->
+    <style>
+      /* ✅ 白黒含むチップは基本「色だけ」優先 */
+      #bodyPalette .garelabo-palette__chip {
+        background: var(--c, #fff) !important;
+        background-image: none !important;
+      }
+
+      /* 既存で ::before が何か描いてたら無効化 */
+      #bodyPalette .garelabo-palette__chip::before {
+        content: none !important;
+      }
+    </style>
   </head>
 
   <body>
+    <!-- ================= ヘッダー ================= -->
     <header class="header">
       <div class="header-left">
-        <img
-          src="{% static 'assets/ガレラボ+.png' %}"
-          class="logo"
-          alt="GARELABO+"
-        />
+        <img src="{% static 'assets/ガレラボ+.png' %}" class="logo" alt="GARELABO+" />
       </div>
 
       <nav class="header-nav">
         <a href="{% url 'auto_custom' %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
+
         <button
           id="favorite-toggle"
           type="button"
           class="nav-btn favorite-btn {% if is_favorite %}is-favorite{% endif %}"
         >
-          {% if is_favorite %}
-            ✔ お気に入り
-          {% else %}
-            お気に入り
-          {% endif %}
+          {% if is_favorite %}✔ お気に入り{% else %}お気に入り{% endif %}
         </button>
-        {% comment %} <a href="{% url 'estimate' %}" class="nav-btn">カスタム見積り</a> {% endcomment %}
+
         <a href="{% url 'custom_cancel' %}" class="nav-btn">カスタム中止</a>
       </nav>
 
       <div class="header-user">
         <span class="user-name">{{ user.nickname }}さん</span>
         <a href="{% url 'account' %}" class="user-icon">
-          <img
-            src="{% static 'assets/アカウントアイコン.png' %}"
-            alt="アイコン"
-          />
+          <img src="{% static 'assets/アカウントアイコン.png' %}" alt="アイコン" />
         </a>
       </div>
     </header>
 
-    <main class="main-layout">
-      <aside class="side-menu">
-        <a
-          href="{% url 'custom_menu_bodycolor' %}"
-          class="side-btn-link"
-          style="background: #111; color: #fff"
-        >
-          ボディカラー
-        </a>
-        <a href="{% url 'custom_menu_wheel' %}" class="side-btn-link"
-          >ホイール</a
-        >
-        <a href="{% url 'custom_menu_bumper' %}" class="side-btn-link"
-          >バンパー</a
-        >
-      </aside>
+    <!-- ================= メニューボタン ================= -->
+    <button
+      type="button"
+      id="menu-open"
+      class="menu-fab"
+      aria-label="メニュー"
+      aria-expanded="false"
+    ></button>
 
+    <div id="menu-hint" class="menu-tooltip" aria-hidden="true">メニューを表示</div>
+    <div id="drawer-overlay" class="menu-overlay" aria-hidden="true"></div>
+
+    <aside id="drawer" class="side-drawer" aria-hidden="true">
+      <div class="drawer-header">
+        <div class="drawer-title">カスタム項目</div>
+        <button type="button" id="drawer-close" class="drawer-close">×</button>
+      </div>
+
+      <div class="drawer-body">
+        <a href="{% url 'custom_menu_bodycolor' %}" class="drawer-item is-active">
+          <span>ボディカラー</span><span class="arrow">›</span>
+        </a>
+        <a href="{% url 'custom_menu_wheel' %}" class="drawer-item">
+          <span>ホイール</span><span class="arrow">›</span>
+        </a>
+        <a href="{% url 'custom_menu_bumper' %}" class="drawer-item">
+          <span>バンパー</span><span class="arrow">›</span>
+        </a>
+        <a href="{% url 'custom_menu_aeroparts' %}" class="drawer-item">
+          <span>エアロパーツ</span><span class="arrow">›</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- ================= メイン ================= -->
+    <main class="main-layout">
       <section class="car-display-area">
         <div class="car-frame">
-          <img id="car-image" alt="car preview" />
+          <!-- ✅ srcはHTMLで設定しない。JSが入れる -->
+          <img id="car-image" alt="car preview" loading="eager" />
         </div>
 
         <div class="rotate-hint">
-          <button id="prev-btn">←</button>
-          <button id="next-btn">→</button>
+          <button type="button" id="open-bodycolor" class="nav-btn">ボディカラー</button>
+          <button type="button" id="prev-btn">←</button>
+          <button type="button" id="next-btn">→</button>
         </div>
 
+        <!-- ================= パレット（初期は隠す） ================= -->
         <div class="color-palette-area">
-          <div class="color-row">
-            {% for color in colors %}
-              <button class="color-dot" data-color="{{ color.rotation_image_folder }}">
-                {{ color.name }}
-              </button>
-            {% empty %}
-              <button class="color-dot" data-color="white">white</button>
-              <button class="color-dot" data-color="black">black</button>
-            {% endfor %}
+          <div class="garelabo-palette-panel" id="bodycolor-panel" aria-hidden="true">
+            <div class="garelabo-palette" id="bodyPalette">
+              <!-- ✅ 白（色だけ表示） -->
+              <button
+                type="button"
+                class="garelabo-palette__chip is-selected"
+                style="--c:#e6e6e6;"
+                data-color="white"
+                aria-label="white"
+              ></button>
+
+              <!-- ✅ 黒（色だけ表示） -->
+              <button
+                type="button"
+                class="garelabo-palette__chip"
+                style="--c:#111111;"
+                data-color="black"
+                aria-label="black"
+              ></button>
+
+              <!-- 既存のカラー（いったん残す：仕様が未確定なので壊さない） -->
+              <button type="button" class="garelabo-palette__chip" style="--c:#f2c94c;" data-color="#f2c94c" aria-label="yellow"></button>
+              <button type="button" class="garelabo-palette__chip" style="--c:#f2994a;" data-color="#f2994a" aria-label="orange"></button>
+              <button type="button" class="garelabo-palette__chip" style="--c:#eb5757;" data-color="#eb5757" aria-label="red"></button>
+              <button type="button" class="garelabo-palette__chip" style="--c:#2d9cdb;" data-color="#2d9cdb" aria-label="blue"></button>
+              <button type="button" class="garelabo-palette__chip" style="--c:#27ae60;" data-color="#27ae60" aria-label="green"></button>
+            </div>
+
+            <!-- hiddenは既存を維持（崩さない） -->
+            <input type="hidden" id="bodyColorValue" name="body_color" value="#e6e6e6" />
           </div>
         </div>
 
+        <!-- ================= 保存 ================= -->
         <div class="save-area">
-        <form action="{% url 'save_custom' %}" method="post">
-          {% csrf_token %}
+          <form action="{% url 'save_custom' %}" method="post">
+            {% csrf_token %}
 
-          <input
-            type="hidden"
-            name="is_favorite"
-            id="is-favorite"
-            value="{% if is_favorite %}true{% else %}false{% endif %}"
-          >
+            <input
+              type="hidden"
+              name="is_favorite"
+              id="is-favorite"
+              value="{% if is_favorite %}true{% else %}false{% endif %}"
+            />
 
-          <button type="submit" class="save-custom-btn">
-            カスタム内容保存
-          </button>
-        </form>
+            {% if current_custom_id %}
+              <input type="hidden" name="custom_id" value="{{ current_custom_id }}">
+            {% endif %}
+
+            <button type="submit" class="save-custom-btn">カスタム内容保存</button>
+          </form>
         </div>
-        
-        <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}">
-        <input type="hidden" id="server-car-folder" value="{{ car_folder }}">
-        <input type="hidden" id="server-color-folder" value="{{ current_color_folder }}">
-        <input type="hidden" id="server-wheel-folder" value="{{ current_wheel_folder }}">
-        <input type="hidden" id="server-bumper-folder" value="{{ current_bumper_folder }}">
-
-
-        <script src="{% static 'js/bodycolor.js' %}"></script>
-        
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const autoLink = document.getElementById('auto-custom-link');
-            const currentVehicleIdInput = document.getElementById('current-vehicle-id');
-            const currentVehicleId = currentVehicleIdInput ? currentVehicleIdInput.value : null;
-            
-            if (!autoLink) return;
-
-            // リンク更新関数: sessionStorage から最新情報を取得してURLパラメータをセット
-            function updateAutoCustomLink() {
-                const url = new URL(autoLink.href, window.location.origin);
-                
-                // 1. 車両ID
-                if (currentVehicleId) {
-                    url.searchParams.set('vehicle_id', currentVehicleId);
-                }
-
-                // 2. ブラウザの記憶(sessionStorage)から最新値を取得
-                const sColor = sessionStorage.getItem('currentColor');
-                const sWheel = sessionStorage.getItem('currentWheel');
-                const sBumper = sessionStorage.getItem('currentBumper');
-
-                if (sColor) url.searchParams.set('color', sColor);
-                if (sWheel) url.searchParams.set('wheel', sWheel);
-                if (sBumper) url.searchParams.set('bumper', sBumper);
-
-                autoLink.href = url.toString();
-            }
-
-            // 初期化時に実行
-            updateAutoCustomLink();
-
-            // 各ボタンクリック時にも少し待ってから更新 (sessionStorageへの保存待ち)
-            const allBtns = document.querySelectorAll('.bumper-btn, .wheel-btn, .color-dot');
-            allBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                     setTimeout(updateAutoCustomLink, 50);
-                });
-            });
-        });
-        </script>
       </section>
     </main>
+
+    <!-- ================= 全画面表示 ================= -->
+    <div id="fullscreen-overlay" class="fullscreen-overlay" aria-hidden="true">
+      <div class="fullscreen-actions">
+        <button id="fullscreen-save" class="fullscreen-save" type="button">画像保存</button>
+        <button id="fullscreen-close" class="fullscreen-close" type="button">×</button>
+      </div>
+      <img id="fullscreen-image" alt="fullscreen car" />
+    </div>
+
+    <!-- ✅ 既存JSはここだけ（崩さない） -->
+    <script src="{% static 'js/bodycolor.js' %}?v=20260202_1"></script>
+
+    <!-- =========================
+      ✅ 追記だけ：白黒チップ対応
+      ・既存bodycolor.jsは触らない
+      ・白黒は data-color="white/black" を sessionStorage.currentColor に入れる
+      ・is-selected を付け替える
+      ・他ページ（wheel/bumper）へ行っても色が残る
+    ========================= -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const palette = document.getElementById("bodyPalette");
+        if (!palette) return;
+
+        const chips = palette.querySelectorAll(".garelabo-palette__chip");
+        if (!chips.length) return;
+
+        function getFolderName(path) {
+          if (!path) return "";
+          return String(path).replace(/\\/g, "/").split("/").filter(Boolean).pop();
+        }
+
+        function applySelected(colorFolder) {
+          chips.forEach((c) => {
+            c.classList.toggle("is-selected", getFolderName(c.dataset.color) === colorFolder);
+          });
+        }
+
+        // 初期反映（なければ white）
+        const savedColor = getFolderName(sessionStorage.getItem("currentColor")) || "white";
+        sessionStorage.setItem("currentColor", savedColor);
+        applySelected(savedColor);
+
+        // クリックで保存＆見た目更新
+        chips.forEach((chip) => {
+          chip.addEventListener("click", () => {
+            const raw = chip.dataset.color;
+            if (!raw) return;
+
+            const colorFolder = getFolderName(raw) || "white";
+
+            sessionStorage.setItem("currentColor", colorFolder);
+            applySelected(colorFolder);
+
+            // hidden更新も一応入れる（崩さないために残す）
+            const hidden = document.getElementById("bodyColorValue");
+            if (hidden) hidden.value = colorFolder;
+
+            console.log("palette color selected:", colorFolder);
+          });
+        });
+      });
+    </script>
   </body>
 </html>

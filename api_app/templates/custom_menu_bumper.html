@@ -1,165 +1,225 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <link
-      rel="icon"
-      type="image/png"
-      href="{% static 'assets/Garelabo_Logo.png' %}"
-    />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GARELABO+｜バンパー</title>
-    <link
-      rel="stylesheet"
-      href="{% static 'css/custom_menu_bumper_style.css' %}"
-    />
-  </head>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <body>
-    <header class="header">
-      <div class="header-left">
-        <img
-          src="{% static 'assets/ガレラボ+.png' %}"
-          class="logo"
-          alt="GARELABO+"
-        />
-      </div>
+        <title>GARELABO+｜バンパー</title>
 
-      <nav class="header-nav">
-        <a href="{% url 'auto_custom' %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
+        <link rel="stylesheet" href="{% static 'css/custom_menu_bodycolor_style.css' %}?v=20260202_2" />
+    </head>
+
+    <body>
+        <!-- ================= ヘッダー ================= -->
+        <header class="header">
+            <div class="header-left">
+                <img src="{% static 'assets/ガレラボ+.png' %}" class="logo" alt="GARELABO+" />
+            </div>
+
+            <nav class="header-nav">
+                <!-- ✅ 自動カスタムリンクは1つに統一（current_custom_id対応） -->
+                <a
+                    href="{% if current_custom_id %}{% url 'auto_custom' current_custom_id %}{% else %}{% url 'auto_custom' %}{% endif %}"
+                    id="auto-custom-link"
+                    class="nav-btn"
+                >
+                    自動カスタム
+                </a>
+
+                <button
+                    id="favorite-toggle"
+                    type="button"
+                    class="nav-btn favorite-btn {% if is_favorite %}is-favorite{% endif %}"
+                >
+                    {% if is_favorite %}✔ お気に入り{% else %}お気に入り{% endif %}
+                </button>
+
+                <a href="{% url 'custom_cancel' %}" class="nav-btn">カスタム中止</a>
+            </nav>
+
+            <div class="header-user">
+                <span class="user-name">{{ user.nickname }}さん</span>
+                <a href="{% url 'account' %}" class="user-icon">
+                    <img src="{% static 'assets/アカウントアイコン.png' %}" alt="アイコン" />
+                </a>
+            </div>
+        </header>
+
+        <!-- ================= メニューボタン（ドロワー） ================= -->
         <button
-          id="favorite-toggle"
-          type="button"
-          class="nav-btn favorite-btn {% if is_favorite %}is-favorite{% endif %}"
-        >
-          {% if is_favorite %}
-            ✔ お気に入り
-          {% else %}
-            お気に入り
-          {% endif %}
-        </button>
-        {% comment %} <a href="{% url 'estimate' %}" class="nav-btn">カスタム見積り</a> {% endcomment %}
-        <a href="{% url 'custom_cancel' %}" class="nav-btn">カスタム中止</a>
-      </nav>
+            type="button"
+            id="menu-open"
+            class="menu-fab"
+            aria-label="メニュー"
+            aria-expanded="false"
+        ></button>
 
-      <div class="header-user">
-        <span class="user-name">{{ user.nickname }}さん</span>
-        <a href="{% url 'account' %}" class="user-icon">
-          <img
-            src="{% static 'assets/アカウントアイコン.png' %}"
-            alt="アイコン"
-          />
-        </a>
-      </div>
-    </header>
+        <div id="menu-hint" class="menu-tooltip" aria-hidden="true">メニューを表示</div>
+        <div id="drawer-overlay" class="menu-overlay" aria-hidden="true"></div>
 
-    <main class="main-layout">
-      <aside class="side-menu">
-        <a href="{% url 'custom_menu_bodycolor' %}" class="side-btn-link">
-          ボディカラー
-        </a>
-        <a href="{% url 'custom_menu_wheel' %}" class="side-btn-link">
-          ホイール
-        </a>
-        <a
-          href="{% url 'custom_menu_bumper' %}"
-          class="side-btn-link"
-          style="background: #111; color: #fff"
-        >
-          バンパー
-        </a>
-      </aside>
+        <aside id="drawer" class="side-drawer" aria-hidden="true">
+            <div class="drawer-header">
+                <div class="drawer-title">カスタム項目</div>
+                <button type="button" id="drawer-close" class="drawer-close">×</button>
+            </div>
 
-      <section class="car-display-area">
-        <div class="car-frame">
-          <img id="car-image" alt="bumper preview" />
+            <div class="drawer-body">
+                <a href="{% url 'custom_menu_bodycolor' %}" class="drawer-item">
+                    <span>ボディカラー</span><span class="arrow">›</span>
+                </a>
+                <a href="{% url 'custom_menu_wheel' %}" class="drawer-item">
+                    <span>ホイール</span><span class="arrow">›</span>
+                </a>
+                <a href="{% url 'custom_menu_bumper' %}" class="drawer-item is-active">
+                    <span>バンパー</span><span class="arrow">›</span>
+                </a>
+                <a href="{% url 'custom_menu_aeroparts' %}" class="drawer-item">
+                    <span>エアロパーツ</span><span class="arrow">›</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- ================= メイン ================= -->
+        <main class="main-layout">
+            <section class="car-display-area">
+                <div class="car-frame">
+                    <!-- ✅ srcはHTMLで固定しない（JSが入れる） -->
+                    <img id="car-image" alt="bumper preview" loading="eager" />
+                </div>
+
+                <div class="rotate-hint">
+                    <button type="button" id="open-bumper" class="nav-btn">バンパー</button>
+                    <button type="button" id="prev-btn">←</button>
+                    <button type="button" id="next-btn">→</button>
+                </div>
+
+                <!-- ✅ JSへ渡すサーバー値（既存を維持） -->
+                <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}" />
+                <input type="hidden" id="server-car-folder" value="{{ car_folder }}" />
+                <input type="hidden" id="server-color-folder" value="{{ current_color_folder }}" />
+                <input type="hidden" id="server-wheel-folder" value="{{ current_wheel_folder }}" />
+                <input type="hidden" id="server-bumper-folder" value="{{ current_bumper_folder }}" />
+
+                <!-- ✅ バンパーパネル（DBのbumpersで生成） -->
+                <div class="bumper-palette-area">
+                    <div class="garelabo-palette-panel" id="bumper-panel" aria-hidden="true">
+                        <div class="bumper-row" id="bumperPalette">
+                            {% for bumper in bumpers %}
+                                <button type="button" class="bumper-btn" data-bumper="{{ bumper.image_url }}">
+                                    {{ bumper.name }}
+                                </button>
+                            {% empty %}
+                                <p>バンパーが見つかりません</p>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" id="bumperValue" name="bumper" value="" />
+                    </div>
+                </div>
+
+                <!-- 保存 -->
+                <div class="save-area">
+                    <form action="{% url 'save_custom' %}" method="post">
+                        {% csrf_token %}
+                        <input
+                            type="hidden"
+                            name="is_favorite"
+                            id="is-favorite"
+                            value="{% if is_favorite %}true{% else %}false{% endif %}"
+                        />
+                        <button type="submit" class="save-custom-btn">カスタム内容保存</button>
+                    </form>
+                </div>
+
+                <!-- ✅ bumper.js は1回だけ -->
+                <script src="{% static 'js/bumper.js' %}?v=20260202_2"></script>
+
+                <!-- =========================
+                  ✅ 追記だけ：保持＆復元＆リンク更新
+                  ・bumper選択で sessionStorage.currentBumper に保存
+                  ・sessionStorage の color/wheel/bumper を auto_custom に付与
+                  ・folder名だけ抜く（image_urlがフルパスでもOK）
+                ========================= -->
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const autoLink = document.getElementById("auto-custom-link");
+                        const vehicleIdInput = document.getElementById("current-vehicle-id");
+
+                        const serverCarFolder = document.getElementById("server-car-folder");
+                        const serverColorFolder = document.getElementById("server-color-folder");
+                        const serverWheelFolder = document.getElementById("server-wheel-folder");
+                        const serverBumperFolder = document.getElementById("server-bumper-folder");
+
+                        const bumperBtns = document.querySelectorAll(".bumper-btn");
+
+                        function getFolderName(path) {
+                            if (!path) return "";
+                            return String(path).replace(/\\/g, "/").split("/").filter(Boolean).pop();
+                        }
+
+                        // ✅ 初期：sessionStorage優先で無ければサーバー値で埋める
+                        const initColor = getFolderName(sessionStorage.getItem("currentColor")) || getFolderName(serverColorFolder?.value) || "white";
+                        const initWheel = getFolderName(sessionStorage.getItem("currentWheel")) || getFolderName(serverWheelFolder?.value) || "wheel1";
+                        const initBumper = getFolderName(sessionStorage.getItem("currentBumper")) || getFolderName(serverBumperFolder?.value) || "bumper1";
+
+                        sessionStorage.setItem("currentColor", initColor);
+                        sessionStorage.setItem("currentWheel", initWheel);
+                        sessionStorage.setItem("currentBumper", initBumper);
+
+                        // ✅ auto_customリンク更新（sessionStorageから取得して付与）
+                        function updateAutoCustomLink() {
+                            if (!autoLink) return;
+
+                            const url = new URL(autoLink.href, window.location.origin);
+
+                            const vehicleId = vehicleIdInput ? vehicleIdInput.value : null;
+                            if (vehicleId) url.searchParams.set("vehicle_id", vehicleId);
+
+                            const sColor = getFolderName(sessionStorage.getItem("currentColor"));
+                            const sWheel = getFolderName(sessionStorage.getItem("currentWheel"));
+                            const sBumper = getFolderName(sessionStorage.getItem("currentBumper"));
+
+                            if (sColor) url.searchParams.set("color", sColor);
+                            if (sWheel) url.searchParams.set("wheel", sWheel);
+                            if (sBumper) url.searchParams.set("bumper", sBumper);
+
+                            autoLink.href = url.toString();
+                        }
+
+                        // 初期反映
+                        updateAutoCustomLink();
+
+                        // ✅ バンパー選択で保存（bumper.jsが画像更新しても邪魔しない）
+                        bumperBtns.forEach((btn) => {
+                            btn.addEventListener("click", function () {
+                                const raw = btn.getAttribute("data-bumper");
+                                const folder = getFolderName(raw);
+                                if (!folder) return;
+
+                                sessionStorage.setItem("currentBumper", folder);
+
+                                // hiddenも更新（残してるやつ）
+                                const hidden = document.getElementById("bumperValue");
+                                if (hidden) hidden.value = folder;
+
+                                // 反映
+                                setTimeout(updateAutoCustomLink, 50);
+                                console.log("bumper selected:", folder);
+                            });
+                        });
+                    });
+                </script>
+            </section>
+        </main>
+
+        <!-- ================= 全画面表示 ================= -->
+        <div id="fullscreen-overlay" class="fullscreen-overlay" aria-hidden="true">
+            <div class="fullscreen-actions">
+                <button id="fullscreen-save" class="fullscreen-save" type="button">画像保存</button>
+                <button id="fullscreen-close" class="fullscreen-close" type="button">×</button>
+            </div>
+            <img id="fullscreen-image" alt="fullscreen car" />
         </div>
-
-        <div class="rotate-hint">
-          <button id="prev-btn">←</button>
-          <button id="next-btn">→</button>
-        </div>
-
-        <div class="bumper-palette-area">
-          <div class="bumper-row">
-            {% for bumper in bumpers %}
-              <button class="bumper-btn" data-bumper="{{ bumper.image_url }}">
-                {{ bumper.name }}
-              </button>
-            {% empty %}
-              <p>バンパーが見つかりません</p>
-            {% endfor %}
-          </div>
-        </div>
-
-        <div class="save-area">
-          <form action="{% url 'save_custom' %}" method="post">
-            {% csrf_token %}
-  
-            <input
-                type="hidden"
-                name="is_favorite"
-                id="is-favorite"
-                value="{% if is_favorite %}true{% else %}false{% endif %}"
-            >
-
-            <button type="submit" class="save-custom-btn">
-              カスタム内容保存
-            </button>
-          </form>
-        </div>
-        
-        <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}">
-        <input type="hidden" id="server-car-folder" value="{{ car_folder }}">
-        <input type="hidden" id="server-color-folder" value="{{ current_color_folder }}">
-        <input type="hidden" id="server-wheel-folder" value="{{ current_wheel_folder }}">
-        <input type="hidden" id="server-bumper-folder" value="{{ current_bumper_folder }}">
-
-        <script src="{% static 'js/bumper.js' %}"></script>
-        
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const autoLink = document.getElementById('auto-custom-link');
-            const currentVehicleIdInput = document.getElementById('current-vehicle-id');
-            const currentVehicleId = currentVehicleIdInput ? currentVehicleIdInput.value : null;
-            
-            if (!autoLink) return;
-
-            // リンク更新関数: sessionStorage から最新情報を取得してURLパラメータをセット
-            function updateAutoCustomLink() {
-                const url = new URL(autoLink.href, window.location.origin);
-                
-                // 1. 車両ID
-                if (currentVehicleId) {
-                    url.searchParams.set('vehicle_id', currentVehicleId);
-                }
-
-                // 2. ブラウザの記憶(sessionStorage)から最新値を取得
-                const sColor = sessionStorage.getItem('currentColor');
-                const sWheel = sessionStorage.getItem('currentWheel');
-                const sBumper = sessionStorage.getItem('currentBumper');
-
-                if (sColor) url.searchParams.set('color', sColor);
-                if (sWheel) url.searchParams.set('wheel', sWheel);
-                if (sBumper) url.searchParams.set('bumper', sBumper);
-
-                autoLink.href = url.toString();
-            }
-
-            // 初期化時に実行
-            updateAutoCustomLink();
-
-            // 各ボタンクリック時にも少し待ってから更新 (sessionStorageへの保存待ち)
-            const allBtns = document.querySelectorAll('.bumper-btn, .wheel-btn, .color-dot');
-            allBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                     setTimeout(updateAutoCustomLink, 50);
-                });
-            });
-        });
-        </script>
-      </section>
-    </main>
-  </body>
+    </body>
 </html>

@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>GARELABO+｜アカウント編集</title>
         <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}">
-        <link rel="stylesheet" href="{% static 'css/account_style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/account_style.css' %}?v=20260130_2">
     </head>
     <body>
 
@@ -16,10 +16,16 @@
                     <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo-img">
                 </a>
             </div>
+            <div class="header-grid">
+            <div class="panel">
+                        <img src="{% static 'assets/R36風.png' %}" alt="R35">
+                    </div>
+        </div>
             <div class="header-user">
                 <span class="user-name">{{user.nickname }}さん</span>
                 <img src="{% static 'assets/アカウントアイコン.png' %}" alt="ユーザーアイコン" class="user-icon">
             </div>
+            
         </header>
 
         {% if messages %}

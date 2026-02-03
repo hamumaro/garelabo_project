@@ -6,10 +6,17 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>GARELABO+｜一覧</title>
-        <link rel="stylesheet" href="{% static 'css/List_style.css' %}"/>
+        <link rel="stylesheet" href="{% static 'css/List_style.css' %}?v=20260126_4"/>
     </head>
 
     <body>
+        <!-- ✅ 中央イントロ（文字だけ） -->
+        <div class="intro-overlay" aria-hidden="true">
+            <div class="intro-sheen">
+                <h1 class="intro-text" aria-label="GARELABO+">GARELABO+</h1>
+            </div>
+        </div>
+
         <header class="header">
             <div class="header-inner">
 
@@ -26,17 +33,16 @@
 
                 <div class="header-grid">
                     <div class="panel">
-                        <img src="{% static 'assets/メーター.png' %}" alt="メーター">
+                        <img src="{% static 'assets/メーター2.png' %}" alt="メーター">
                     </div>
                     <div class="panel">
-                        <img src="{% static 'assets/R34.png' %}" alt="R34">
+                        <img src="{% static 'assets/R32風.png' %}" alt="R32">
                     </div>
-                    <div class="panel">
-                        </div>
+                    <div class="panel"></div>
                 </div>
 
                 <div class="logo-overlay">
-                    <img class="garelabo-logo" src="{% static 'assets/garelabo_title.png' %}" alt="GARELABO+"> 
+                    <img class="garelabo-logo" src="{% static 'assets/garelabo_title.png' %}" alt="GARELABO+">
                 </div>
 
                 <nav class="ribbons-overlay" aria-label="メインメニュー">
@@ -70,7 +76,6 @@
         </div>
 
         <main class="content">
-
             {% if user.is_authenticated %}
                 <div class="custom-data-list">
                     {% for item in custom_items %}
@@ -79,12 +84,12 @@
                             <a href="{% url 'custom_menu_bodycolor' item.id %}">
                             {% if item.vehicle and item.vehicle.base_image_path %}
                                 <img src="{{ item.vehicle.base_image_path.url }}" class="preview-img">
-                            </a>
                             {% else %}
                                 <img src="{% static 'assets/一覧車両.png' %}" class="preview-img">
                             {% endif %}
+                            </a>
                         </div>
-                        
+
                         <div class="card-footer">
                             <p class="saved-date">最終保存：{{ item.updated_at|date:"Y/m/d" }}</p>
                             <form action="{% url 'delete_item' item.id %}" method="post" class="delete-form">
@@ -96,10 +101,44 @@
                         </div>
                     </div>
                     {% empty %}
-                        <p>まだお気に入りのカスタム車両がありません。</p>
+                    <div class="no-data-message-wrap">
+                        <p class="no-data-message">カスタム車両がありません。</p>
+                    </div>
                     {% endfor %}
                 </div>
             {% endif %}
         </main>
+
+        <!-- ✅ JS：イントロ→UI表示（時間調整は INTRO_FALLBACK_MS） -->
+        <script>
+            window.addEventListener("DOMContentLoaded", () => {
+                const overlay = document.querySelector(".intro-overlay");
+                const text = document.querySelector(".intro-overlay .intro-text");
+
+                document.body.classList.add("is-intro");
+
+                // ✅ 保険：animationendが拾えん時でも必ず閉じる（ms）
+                // introCine 1600ms に合わせて少し余裕
+                const INTRO_FALLBACK_MS = 1900;
+
+                const finishIntro = () => {
+                    document.body.classList.remove("is-intro");
+                    document.body.classList.add("is-ready");
+                    if (overlay) overlay.remove();
+                };
+
+                if (text) {
+                    text.addEventListener("animationend", () => {
+                        finishIntro();
+                    }, { once: true });
+                }
+
+                window.setTimeout(() => {
+                    if (document.body.classList.contains("is-intro")) {
+                        finishIntro();
+                    }
+                }, INTRO_FALLBACK_MS);
+            });
+        </script>
     </body>
 </html>
