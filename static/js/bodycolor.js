@@ -1,98 +1,100 @@
-console.log("NEW bodycolor.js LOADED (RESET FIX)");
+console.log("NEW bodycolor.js LOADED (INTEGRATED)");
 
 document.addEventListener("DOMContentLoaded", () => {
-    /* =========================
-       基本：画像表示（回転/選択）
-    ========================= */
+    /* =================================================================
+       1. 要素の取得 & ヘルパー関数
+    ================================================================= */
     const img = document.getElementById("car-image");
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
-
-    // ✅ HTML側は .garelabo-palette__chip を使ってる前提
-    const chips = document.querySelectorAll(".garelabo-palette__chip");
+    
+    // 隠しフィールドから基本情報を取得
+    const currentVehicleIdInput = document.getElementById('current-vehicle-id');
+    const currentVehicleId = currentVehicleIdInput ? currentVehicleIdInput.value : null;
+    
+    // 自動カスタムリンク
+    const autoLink = document.getElementById('auto-custom-link');
 
     if (!img) {
         console.error("car-image が見つかりません");
         return;
     }
 
-    /* =========================
-       共通：フォルダ名抽出
-    ========================= */
+    /**
+     * パスからフォルダ名（最後の要素）を取得する
+     * 拡張子(.png等)がついている場合は除去する
+     */
     function getFolderName(path) {
         if (!path) return "";
-        const v = String(path).replace(/\\/g, "/").split("/").filter(Boolean);
-        return v.length ? v[v.length - 1] : "";
+        // パス区切りを統一し、最後の要素を取得
+        let name = String(path).replace(/\\/g, "/").split("/").filter(Boolean).pop();
+        // 拡張子除去
+        return name.replace(/\.[^/.]+$/, "");
     }
 
-    /* =========================
-       画像src フォールバック
-       - フォルダ構造が違っても候補順に試す
-    ========================= */
+    /**
+     * CSRFトークン取得
+     */
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    /**
+     * 画像ロード失敗時のフォールバック処理
+     */
     function setSrcWithFallback(imgEl, urls) {
         let i = 0;
-
         imgEl.onerror = () => {
-            i += 1;
+            i++;
             if (i < urls.length) {
+                console.warn(`画像読み込み失敗、次を試行: ${urls[i]}`);
                 imgEl.src = urls[i];
             } else {
                 imgEl.onerror = null;
-                console.error("画像が見つかりません:", urls);
+                console.error("全ての画像候補が見つかりませんでした", urls);
             }
         };
-
         imgEl.src = urls[0];
     }
 
-    /* =========================
-       サーバーセッション更新
-       - /update_session_parts/ に part_type + folder_name を送る
-       - サーバ側がID前提なら views.py 側も寄せる必要あり
-    ========================= */
-    function updateServerSession(partType, folderName) {
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
-        if (!csrfToken) return;
-
-        fetch("/update_session_parts/", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": csrfToken,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ part_type: partType, folder_name: folderName }),
-            keepalive: true,
-        }).catch((err) => console.error("Session update error:", err));
-    }
-
-    /* =========================
-       サーバ初期値（hidden input）
-    ========================= */
+    /* =================================================================
+       2. 初期化 & リセットロジック (Base機能)
+    ================================================================= */
+    const params = new URLSearchParams(window.location.search);
+    const resetParam = params.get("reset");
+    const urlCar = params.get("car");
+    
+    // サーバーからの初期値（HTML内のhidden input）
     const serverCar = document.getElementById("server-car-folder")?.value;
     const serverColor = document.getElementById("server-color-folder")?.value;
     const serverWheel = document.getElementById("server-wheel-folder")?.value;
     const serverBumper = document.getElementById("server-bumper-folder")?.value;
 
-    /* =========================
-       1. 初期値の決定とリセット処理
-    ========================= */
-    const params = new URLSearchParams(window.location.search);
-    const resetParam = params.get("reset");
-    const urlCar = params.get("car");
     const storedCar = sessionStorage.getItem("selectedCar");
 
-    // reset=true もしくは URL車種が変わったら、パーツ選択をクリア
+    // リセット条件: URLパラメータ reset=true または 車種変更時
     if (resetParam === "true" || (urlCar && storedCar && urlCar !== storedCar)) {
-        console.log("リセット要求を検知: セッションストレージをクリアします");
-
+        console.log("リセット実行: セッションストレージをクリア");
         sessionStorage.removeItem("currentColor");
         sessionStorage.removeItem("currentWheel");
         sessionStorage.removeItem("currentBumper");
-
+        
         if (urlCar) {
             sessionStorage.setItem("selectedCar", urlCar);
         }
 
+        // URLからresetパラメータを削除
         if (resetParam === "true") {
             const newUrl = new URL(window.location.href);
             newUrl.searchParams.delete("reset");
@@ -100,182 +102,189 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // 車フォルダ確定（URL > sessionStorage > server）
-    let carFolder = urlCar;
-    if (!carFolder) carFolder = sessionStorage.getItem("selectedCar");
+    // 現在のステートを確定
+    let carFolder = urlCar || sessionStorage.getItem("selectedCar");
     if (!carFolder && serverCar) carFolder = getFolderName(serverCar);
-
+    
     if (!carFolder) {
-        console.error("車情報(car)が取得できません");
-        return;
+        // フォールバック
+        carFolder = "CompactSedan"; 
     }
     sessionStorage.setItem("selectedCar", carFolder);
 
-    // 初回だけ server 値で埋める（sessionStorage が空なら）
-    if (serverColor && !sessionStorage.getItem("currentColor")) {
-        sessionStorage.setItem("currentColor", getFolderName(serverColor));
-    }
-    if (serverWheel && !sessionStorage.getItem("currentWheel")) {
-        sessionStorage.setItem("currentWheel", getFolderName(serverWheel));
-    }
-    if (serverBumper && !sessionStorage.getItem("currentBumper")) {
-        sessionStorage.setItem("currentBumper", getFolderName(serverBumper));
-    }
+    // 各パーツの初期値決定 (セッション > サーバー値 > デフォルト)
+    const initPart = (key, serverVal, defaultVal) => {
+        if (!sessionStorage.getItem(key)) {
+            const val = getFolderName(serverVal) || defaultVal;
+            sessionStorage.setItem(key, val);
+        }
+        return sessionStorage.getItem(key);
+    };
 
-    // 現在値（フォルダ名で保持）
-    let currentColor = getFolderName(sessionStorage.getItem("currentColor")) || "white";
-    let currentWheel = getFolderName(sessionStorage.getItem("currentWheel")) || "wheel1";
-    let currentBumper = getFolderName(sessionStorage.getItem("currentBumper")) || "bumper1";
+    let currentColor = initPart("currentColor", serverColor, "white");
+    let currentWheel = initPart("currentWheel", serverWheel, "wheel1");
+    let currentBumper = initPart("currentBumper", serverBumper, "normal");
 
-    sessionStorage.setItem("currentColor", currentColor);
-    sessionStorage.setItem("currentWheel", currentWheel);
-    sessionStorage.setItem("currentBumper", currentBumper);
-
-    /* =========================
-       回転角度（4方向）
-    ========================= */
+    // 角度管理
     const angles = ["front", "side_right", "rear", "side_left"];
     let angleIndex = 0;
 
-    /* =========================
-       画像候補を組む（フォルダ構造の省略に対応）
-       ① car/color/wheel/bumper/angle.png
-       ② car/color/wheel/angle.png
-       ③ car/color/angle.png
-    ========================= */
-    function buildCandidates(angle) {
-        const c = getFolderName(currentColor) || "white";
-        const w = getFolderName(currentWheel) || "wheel1";
-        const b = getFolderName(currentBumper) || "bumper1";
-
-        return [
-            `/media/uploads/vehicles/${carFolder}/${c}/${w}/${b}/${angle}.png`,
-            `/media/uploads/vehicles/${carFolder}/${c}/${w}/${angle}.png`,
-            `/media/uploads/vehicles/${carFolder}/${c}/${angle}.png`,
-        ];
-    }
-
-    /* =========================
-       表示更新
-    ========================= */
-    function updateImage() {
+    /* =================================================================
+       3. 表示更新 & サーバー同期
+    ================================================================= */
+    
+    /**
+     * 画像とリンクの更新
+     */
+    function updateState() {
+        // 1. 画像更新
+        const c = currentColor;
+        const w = currentWheel;
+        const b = currentBumper;
         const angle = angles[angleIndex];
-        const urls = buildCandidates(angle);
+
+        // 画像パスの候補を作成 (バンパー有無や階層の違いに対応)
+        let urls = [];
+        
+        // パターンA: 標準的なフルパス
+        if (b && b !== "normal") {
+            urls.push(`/media/uploads/vehicles/${carFolder}/${c}/${w}/${b}/${angle}.png`);
+        }
+        // パターンB: バンパーなし(normal) or 階層省略
+        urls.push(`/media/uploads/vehicles/${carFolder}/${c}/${w}/${angle}.png`);
+        // パターンC: ホイール省略 (念のため)
+        urls.push(`/media/uploads/vehicles/${carFolder}/${c}/${angle}.png`);
+
         setSrcWithFallback(img, urls);
+        img.alt = `${carFolder} ${c} ${w} ${b} ${angle}`;
 
-        img.alt = `${carFolder} ${currentColor} ${currentWheel} ${currentBumper} ${angle}`;
-
-        console.log("表示中:", {
-            car: carFolder,
-            color: currentColor,
-            wheel: currentWheel,
-            bumper: currentBumper,
-            angle: angle,
+        // 2. チップの選択状態更新
+        document.querySelectorAll('.garelabo-palette__chip, .color-dot').forEach(btn => {
+            const btnColor = getFolderName(btn.dataset.color);
+            btn.classList.toggle('is-selected', btnColor === currentColor);
         });
+
+        // 3. 自動カスタムリンクの更新
+        updateAutoCustomLink();
     }
 
-    /* =========================
-       チップ見た目更新（is-selected）
-       - data-color が "white" "black" みたいに
-         フォルダ名になってる前提
-    ========================= */
-    function syncSelectedChip() {
-        chips.forEach((c) => c.classList.remove("is-selected"));
-        const active = document.querySelector(`.garelabo-palette__chip[data-color="${currentColor}"]`);
-        if (active) active.classList.add("is-selected");
+    /**
+     * 自動カスタムボタンのリンク先パラメータを更新
+     */
+    function updateAutoCustomLink() {
+        if (!autoLink) return;
+        const url = new URL(autoLink.href, window.location.origin);
+        
+        if (currentVehicleId) {
+            url.searchParams.set('vehicle_id', currentVehicleId);
+        }
+        
+        url.searchParams.set('color', currentColor);
+        url.searchParams.set('wheel', currentWheel);
+        // バンパーが normal の場合はパラメータを含めない、または明示する（サーバー側の仕様に合わせる）
+        if (currentBumper && currentBumper !== "normal") {
+            url.searchParams.set('bumper', currentBumper);
+        } else {
+            url.searchParams.delete('bumper');
+        }
+
+        autoLink.href = url.toString();
     }
 
-    /* =========================
-       黒白サムネ更新（front固定）
-       - .garelabo-palette__chip.has-thumb の子 img.palette-thumb を更新
-    ========================= */
-    function updatePaletteThumbs() {
-        document.querySelectorAll(".garelabo-palette__chip.has-thumb").forEach((btn) => {
-            const color = btn.dataset.color; // "white" / "black"
-            const thumb = btn.querySelector(".palette-thumb");
-            if (!color || !thumb) return;
-
-            const w = getFolderName(currentWheel) || "wheel1";
-            const b = getFolderName(currentBumper) || "bumper1";
-
-            const urls = [
-                `/media/uploads/vehicles/${carFolder}/${color}/${w}/${b}/front.png`,
-                `/media/uploads/vehicles/${carFolder}/${color}/${w}/front.png`,
-                `/media/uploads/vehicles/${carFolder}/${color}/front.png`,
-            ];
-
-            setSrcWithFallback(thumb, urls);
-        });
+    /**
+     * サーバーセッションの非同期更新
+     */
+    async function updateServerSession(type, value) {
+        try {
+            const response = await fetch('/update_session_selection/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({ type: type, value: value })
+            });
+            if (!response.ok) throw new Error("Network response was not ok");
+            console.log(`Session Synced: ${type} = ${value}`);
+        } catch (e) {
+            console.error("Session sync failed:", e);
+        }
     }
 
-    /* =========================
-       初期表示
-    ========================= */
-    syncSelectedChip();
-    updatePaletteThumbs();
-    updateImage();
+    // 初回表示反映
+    updateState();
 
-    /* =========================
-       カラー変更（ホイール・バンパー保持）
-    ========================= */
-    chips.forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const color = btn.dataset.color; // "white" / "black" 等
-            if (!color) return;
+    /* =================================================================
+       4. イベントリスナー (パーツ操作)
+    ================================================================= */
+    
+    // カラー・ホイール・バンパーボタンの共通ハンドラ
+    // (bodycolorページにはカラーしかありませんが、将来的な拡張や共通化に対応)
+    const partBtns = document.querySelectorAll(".garelabo-palette__chip, .color-dot, .wheel-btn, .bumper-btn");
+    
+    partBtns.forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            
+            // データ属性からパスまたは名前を取得
+            const rawPath = btn.dataset.color || btn.dataset.wheel || btn.dataset.bumper;
+            if (!rawPath) return;
 
-            currentColor = getFolderName(color);
-            sessionStorage.setItem("currentColor", currentColor);
+            const folderName = getFolderName(rawPath);
+            
+            // ボタンの種類を判定
+            let type = "color"; // デフォルト
+            if (btn.dataset.wheel || btn.classList.contains("wheel-btn")) type = "wheel";
+            if (btn.dataset.bumper || btn.classList.contains("bumper-btn")) type = "bumper";
 
-            angleIndex = 0;
+            // 状態更新
+            if (type === "color") {
+                currentColor = folderName;
+                sessionStorage.setItem("currentColor", currentColor);
+                angleIndex = 0; // 色変更時は正面に戻すのが一般的
+            } else if (type === "wheel") {
+                currentWheel = folderName;
+                sessionStorage.setItem("currentWheel", currentWheel);
+            } else if (type === "bumper") {
+                currentBumper = folderName;
+                sessionStorage.setItem("currentBumper", currentBumper);
+            }
 
-            // サーバーへ通知（色）
-            updateServerSession("color", currentColor);
+            // 画面反映
+            updateState();
 
-            syncSelectedChip();
-            updatePaletteThumbs();
-            updateImage();
-
-            console.log("カラー変更:", currentColor);
+            // サーバー同期
+            await updateServerSession(type, folderName);
         });
     });
 
-    /* =========================
-       回転
-    ========================= */
+    // 回転ボタン
     prevBtn?.addEventListener("click", () => {
         angleIndex = (angleIndex - 1 + angles.length) % angles.length;
-        updateImage();
+        updateState();
     });
-
     nextBtn?.addEventListener("click", () => {
         angleIndex = (angleIndex + 1) % angles.length;
-        updateImage();
+        updateState();
     });
 
-    /* =========================
-       お気に入りトグル（1回だけ）
-    ========================= */
+    // お気に入り登録
     const favoriteToggle = document.getElementById("favorite-toggle");
     const isFavoriteInput = document.getElementById("is-favorite");
-
     if (favoriteToggle && isFavoriteInput) {
         favoriteToggle.addEventListener("click", (e) => {
             e.preventDefault();
-
-            const isCurrentlyFavorite = (isFavoriteInput.value === "true");
-            const newState = !isCurrentlyFavorite;
-
+            const isFav = (isFavoriteInput.value === "true");
+            const newState = !isFav;
+            
             isFavoriteInput.value = newState ? "true" : "false";
             favoriteToggle.innerText = newState ? "✔ お気に入り" : "お気に入り";
             favoriteToggle.classList.toggle("is-favorite", newState);
 
-            const csrf = document.querySelector("[name=csrfmiddlewaretoken]")?.value;
-            if (!csrf) return;
-
             fetch("/update_session_favorite/", {
                 method: "POST",
                 headers: {
-                    "X-CSRFToken": csrf,
+                    "X-CSRFToken": getCookie('csrftoken'),
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ is_favorite: newState }),
@@ -284,284 +293,154 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /* =========================
-       UI：ボディカラー / ドロワー / ツールチップ
-    ========================= */
-    console.log("bodycolor UI loaded ✅");
-
-    const bodyBtn = document.getElementById("open-bodycolor");
-    const bodyPanel = document.getElementById("bodycolor-panel");
-
+    /* =================================================================
+       5. UI機能 (ドロワー・フルスクリーン)
+    ================================================================= */
+    
+    // --- ドロワーメニュー ---
     const menuBtn = document.getElementById("menu-open");
-    const drawerOverlay = document.getElementById("drawer-overlay");
     const drawer = document.getElementById("drawer");
+    const drawerOverlay = document.getElementById("drawer-overlay");
     const drawerCloseBtn = document.getElementById("drawer-close");
     const menuHint = document.getElementById("menu-hint");
 
-    const showHint = () => menuHint?.setAttribute("aria-hidden", "false");
-    const hideHint = () => menuHint?.setAttribute("aria-hidden", "true");
-
-    if (menuBtn) {
-        menuBtn.addEventListener("mouseenter", showHint);
-        menuBtn.addEventListener("mouseleave", hideHint);
-        menuBtn.addEventListener("focus", showHint);
-        menuBtn.addEventListener("blur", hideHint);
-        menuBtn.addEventListener(
-            "touchstart",
-            () => {
-                showHint();
-                window.setTimeout(hideHint, 900);
-            },
-            { passive: true }
-        );
-    }
-
-    if (bodyBtn && bodyPanel) {
-        bodyBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            bodyPanel.classList.toggle("is-open");
-            bodyPanel.classList.toggle("panel-enter");
-            bodyPanel.setAttribute("aria-hidden", bodyPanel.classList.contains("is-open") ? "false" : "true");
-        });
-
-        bodyPanel.addEventListener("click", (e) => e.stopPropagation());
-    }
-
-    const openDrawer = () => {
+    const toggleDrawer = (open) => {
         if (!drawer || !drawerOverlay) return;
-        drawer.classList.add("is-open");
-        drawerOverlay.classList.add("is-open");
-        drawer.setAttribute("aria-hidden", "false");
-        drawerOverlay.setAttribute("aria-hidden", "false");
-        menuBtn?.setAttribute("aria-expanded", "true");
-        hideHint();
-    };
-
-    const closeDrawer = () => {
-        if (!drawer || !drawerOverlay) return;
-        drawer.classList.remove("is-open");
-        drawerOverlay.classList.remove("is-open");
-        drawer.setAttribute("aria-hidden", "true");
-        drawerOverlay.setAttribute("aria-hidden", "true");
-        menuBtn?.setAttribute("aria-expanded", "false");
+        const action = open ? 'add' : 'remove';
+        drawer.classList[action]("is-open");
+        drawerOverlay.classList[action]("is-open");
+        drawer.setAttribute("aria-hidden", !open);
+        drawerOverlay.setAttribute("aria-hidden", !open);
+        menuBtn?.setAttribute("aria-expanded", open);
+        if(open && menuHint) menuHint.setAttribute("aria-hidden", "true");
     };
 
     menuBtn?.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-
-        const isOpen = drawer && drawer.classList.contains("is-open");
-        if (isOpen) closeDrawer();
-        else openDrawer();
+        toggleDrawer(!drawer.classList.contains("is-open"));
     });
 
-    drawer?.addEventListener("click", (e) => e.stopPropagation());
+    drawerCloseBtn?.addEventListener("click", () => toggleDrawer(false));
+    drawerOverlay?.addEventListener("click", () => toggleDrawer(false));
 
-    drawerCloseBtn?.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        closeDrawer();
-    });
-
-    drawerOverlay?.addEventListener("click", (e) => {
-        e.preventDefault();
-        closeDrawer();
-    });
-
-    window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-            closeDrawer();
-            if (bodyPanel?.classList.contains("is-open")) {
-                bodyPanel.classList.remove("is-open", "panel-enter");
-                bodyPanel.setAttribute("aria-hidden", "true");
-            }
-            hideHint();
-        }
-    });
-
-    /* =========================
-       Fullscreen（CSS依存しない強制表示 + 保存時右下GARELABO+）
-    ========================= */
-    const fullscreenOverlay = document.getElementById("fullscreen-overlay");
-    const fullscreenImage = document.getElementById("fullscreen-image");
-    const fullscreenClose = document.getElementById("fullscreen-close");
-    const fullscreenSave = document.getElementById("fullscreen-save");
-
-    if (!fullscreenOverlay || !fullscreenImage || !fullscreenClose) {
-        console.log("fullscreen elements not found -> skip");
-        return;
+    // --- ボディカラーパネル (SP用) ---
+    const bodyBtn = document.getElementById("open-bodycolor");
+    const bodyPanel = document.getElementById("bodycolor-panel");
+    if (bodyBtn && bodyPanel) {
+        bodyBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            bodyPanel.classList.toggle("is-open");
+            bodyPanel.setAttribute("aria-hidden", !bodyPanel.classList.contains("is-open"));
+        });
+        bodyPanel.addEventListener("click", (e) => e.stopPropagation());
     }
 
-    const openFullscreen = () => {
-        if (!img.src) return;
-
-        fullscreenImage.src = img.src;
-
-        fullscreenOverlay.classList.add("is-open");
-        fullscreenOverlay.setAttribute("aria-hidden", "false");
-
-        fullscreenOverlay.style.display = "flex";
-        fullscreenOverlay.style.alignItems = "center";
-        fullscreenOverlay.style.justifyContent = "center";
-        fullscreenOverlay.style.position = "fixed";
-        fullscreenOverlay.style.inset = "0";
-        fullscreenOverlay.style.zIndex = "99999";
-
-        document.body.style.overflow = "hidden";
-        console.log("fullscreen OPEN", { src: fullscreenImage.src });
-    };
-
-    const closeFullscreen = () => {
-        fullscreenOverlay.classList.remove("is-open");
-        fullscreenOverlay.setAttribute("aria-hidden", "true");
-
-        fullscreenOverlay.style.display = "";
-        fullscreenOverlay.style.alignItems = "";
-        fullscreenOverlay.style.justifyContent = "";
-        fullscreenOverlay.style.position = "";
-        fullscreenOverlay.style.inset = "";
-        fullscreenOverlay.style.zIndex = "";
-
-        document.body.style.overflow = "";
-        console.log("fullscreen CLOSE");
-    };
-
-    const frame = img.closest(".car-frame");
-    frame?.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        openFullscreen();
-    });
-
-    img.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        openFullscreen();
-    });
-
-    fullscreenClose.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        closeFullscreen();
-    });
-
-    fullscreenOverlay.addEventListener("click", (e) => {
-        if (e.target === fullscreenOverlay) closeFullscreen();
-    });
-
+    // --- エスケープキーで閉じる ---
     window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && fullscreenOverlay.classList.contains("is-open")) {
+        if (e.key === "Escape") {
+            toggleDrawer(false);
+            if (bodyPanel?.classList.contains("is-open")) {
+                bodyPanel.classList.remove("is-open");
+            }
             closeFullscreen();
         }
     });
 
-    // ✅ 保存：fullscreenImage をそのまま canvas へ描画して右下に GARELABO+
-    fullscreenSave?.addEventListener("click", async (e) => {
+    // --- フルスクリーン & 画像保存 ---
+    const fsOverlay = document.getElementById("fullscreen-overlay");
+    const fsImage = document.getElementById("fullscreen-image");
+    const fsClose = document.getElementById("fullscreen-close");
+    const fsSave = document.getElementById("fullscreen-save");
+
+    const openFullscreen = () => {
+        if (!img.src || !fsOverlay) return;
+        fsImage.src = img.src;
+        fsOverlay.classList.add("is-open");
+        fsOverlay.setAttribute("aria-hidden", "false");
+        fsOverlay.style.display = "flex"; // CSSがない場合の保険
+        document.body.style.overflow = "hidden";
+    };
+
+    const closeFullscreen = () => {
+        if (!fsOverlay) return;
+        fsOverlay.classList.remove("is-open");
+        fsOverlay.setAttribute("aria-hidden", "true");
+        fsOverlay.style.display = "";
+        document.body.style.overflow = "";
+    };
+
+    // 画像クリックまたは枠クリックでフルスクリーン
+    img.addEventListener("click", (e) => { e.stopPropagation(); openFullscreen(); });
+    img.closest(".car-frame")?.addEventListener("click", (e) => { e.preventDefault(); openFullscreen(); });
+    
+    fsClose?.addEventListener("click", closeFullscreen);
+    fsOverlay?.addEventListener("click", (e) => {
+        if (e.target === fsOverlay) closeFullscreen();
+    });
+
+    // --- 画像保存機能 (Canvas合成) ---
+    fsSave?.addEventListener("click", async (e) => {
         e.preventDefault();
         e.stopPropagation();
+        
+        if (!fsImage.src) return;
 
         try {
-            if (!fullscreenImage.src) {
-                console.error("fullscreenImage.src が空です");
-                return;
-            }
-
-            // 画像ロード待ち
-            if (!fullscreenImage.complete || fullscreenImage.naturalWidth === 0) {
+            // 画像読み込み完了を待機
+            if (!fsImage.complete || fsImage.naturalWidth === 0) {
                 await new Promise((resolve, reject) => {
-                    const t = setTimeout(() => reject(new Error("image load timeout")), 4000);
-                    fullscreenImage.onload = () => {
-                        clearTimeout(t);
-                        resolve();
-                    };
-                    fullscreenImage.onerror = () => {
-                        clearTimeout(t);
-                        reject(new Error("image load error"));
-                    };
+                    fsImage.onload = resolve;
+                    fsImage.onerror = reject;
+                    setTimeout(() => reject(new Error("Timeout")), 3000);
                 });
             }
 
-            const w = fullscreenImage.naturalWidth;
-            const h = fullscreenImage.naturalHeight;
-
             const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const w = fsImage.naturalWidth;
+            const h = fsImage.naturalHeight;
             canvas.width = w;
             canvas.height = h;
 
-            const ctx = canvas.getContext("2d");
-            if (!ctx) return;
+            // 車を描画
+            ctx.drawImage(fsImage, 0, 0, w, h);
 
-            ctx.drawImage(fullscreenImage, 0, 0, w, h);
-
+            // GARELABO+ ロゴ描画
             const text = "GARELABO+";
-            const fontSize = Math.max(22, Math.round(w * 0.035));
-            const bgPadX = Math.round(fontSize * 0.6);
-            const bgPadY = Math.round(fontSize * 0.45);
-            const pad = Math.max(10, Math.round(fontSize * 0.6));
-
-            ctx.font = `700 ${fontSize}px "Noto Sans JP", system-ui, sans-serif`;
-            ctx.textBaseline = "bottom";
+            const fontSize = Math.max(20, Math.round(w * 0.04));
+            ctx.font = `bold ${fontSize}px sans-serif`;
             ctx.textAlign = "right";
+            ctx.textBaseline = "bottom";
+            
+            const padding = Math.round(fontSize * 0.5);
+            const x = w - padding;
+            const y = h - padding;
 
-            const metrics = ctx.measureText(text);
-            const textW = Math.ceil(metrics.width);
-            const textH = fontSize;
+            // 文字の影 (視認性向上)
+            ctx.shadowColor = "rgba(0,0,0,0.7)";
+            ctx.shadowBlur = 4;
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(text, x, y);
 
-            const xText = w - pad - bgPadX;
-            const yText = h - pad - bgPadY;
-
-            const bgW = textW + bgPadX * 2;
-            const bgH = textH + bgPadY * 2;
-
-            const bgX = xText - textW - bgPadX;
-            const bgY = yText - textH - bgPadY;
-
-            const r = Math.round(fontSize * 0.35);
-            ctx.save();
-            ctx.globalAlpha = 0.55;
-            ctx.fillStyle = "#000";
-            ctx.beginPath();
-            ctx.moveTo(bgX + r, bgY);
-            ctx.lineTo(bgX + bgW - r, bgY);
-            ctx.quadraticCurveTo(bgX + bgW, bgY, bgX + bgW, bgY + r);
-            ctx.lineTo(bgX + bgW, bgY + bgH - r);
-            ctx.quadraticCurveTo(bgX + bgW, bgY + bgH, bgX + bgW - r, bgY + bgH);
-            ctx.lineTo(bgX + r, bgY + bgH);
-            ctx.quadraticCurveTo(bgX, bgY + bgH, bgX, bgY + bgH - r);
-            ctx.lineTo(bgX, bgY + r);
-            ctx.quadraticCurveTo(bgX, bgY, bgX + r, bgY);
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
-
-            ctx.save();
-            ctx.fillStyle = "#fff";
-            ctx.shadowColor = "rgba(0,0,0,0.6)";
-            ctx.shadowBlur = Math.round(fontSize * 0.25);
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = Math.round(fontSize * 0.08);
-            ctx.fillText(text, xText, yText);
-            ctx.restore();
-
-            canvas.toBlob((outBlob) => {
-                if (!outBlob) {
-                    console.error("toBlob失敗（canvasが汚染扱いの可能性）");
-                    return;
+            // ダウンロード処理
+            canvas.toBlob(blob => {
+                if(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `garelabo_custom_${new Date().getTime()}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
                 }
-
-                const outUrl = URL.createObjectURL(outBlob);
-                const a = document.createElement("a");
-                a.href = outUrl;
-                a.download = "garelabo_custom.png";
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                URL.revokeObjectURL(outUrl);
             }, "image/png");
+
         } catch (err) {
-            console.error("画像保存失敗:", err);
+            console.error("保存エラー:", err);
+            alert("画像の保存に失敗しました。");
         }
     });
 });
