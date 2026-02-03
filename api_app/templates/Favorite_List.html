@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>GARELABO+｜お気に入り一覧</title>
-    <link rel="stylesheet" href="{% static 'css/favorite_List_style.css' %}?v=20260128_3" />
+    <link rel="stylesheet" href="{% static 'css/favorite_List_style.css' %}?v=20260202_3" />
 </head>
 
 <body>
@@ -50,6 +50,10 @@
                 カスタム作成
             </a>
             {% endif %}
+            <a class="ribbon ribbon-dark" href="{% url 'favorite_page' %}">
+                <img src="{% static 'assets/一覧.png' %}" alt="一覧へ戻る">
+                一覧へ戻る
+            </a>
         </nav>
 
     </div>
