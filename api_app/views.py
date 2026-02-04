@@ -47,45 +47,40 @@ def login_view(request):
     return render(request, "login.html", {'form': form})
 
 # 一覧ページ表示
-@login_required
 def list_page_view(request):
-    custom_items = SavedCustom.objects.filter(user=request.user).select_related(
-        'vehicle', 'color', 'wheel', 'bumper'
-    ).order_by('-id')
+    if request.user.is_authenticated:
+        # 関連パーツを一括取得
+        custom_items = SavedCustom.objects.filter(
+            user=request.user
+        ).select_related(
+            "vehicle", "color", "wheel", "bumper", "light", "aero"
+        ).order_by('-updated_at')
 
-    for item in custom_items:
-        try:
-            # 1. 各フォルダ名の確定（JSの変数に対応）
-            car_folder = "CompactSedan" # または item.vehicle.name
-            current_color = item.color.rotation_image_folder if item.color else "white"
-            
-            # ホイールフォルダ名の抽出
-            if item.wheel and item.wheel.image_url:
-                # /media/uploads/vehicles/.../wheel1/thumb.png -> wheel1 を取得
-                wheel_folder = item.wheel.image_url.url.split('/')[-2]
-            else:
-                wheel_folder = "wheel1"
+        for item in custom_items:
+            def get_folder(obj, attr_name, default=""):
+                if obj and getattr(obj, attr_name):
+                    return str(getattr(obj, attr_name)).replace('\\', '/').rstrip('/').split('/')[-1]
+                return default
 
-            # 2. ベースパスの構築
-            base_path = f"/media/uploads/vehicles/{car_folder}/{current_color}/{wheel_folder}"
+            car_folder = item.vehicle.name_en if item.vehicle else "CompactSedan"
+            color_folder = get_folder(item.color, 'rotation_image_folder', "black")
+            wheel_folder = get_folder(item.wheel, 'image_url', "wheel1")
+            bumper_folder = get_folder(item.bumper, 'image_url', "bumper1")
+            # ★追加: エアロフォルダの取得 (デフォルトは aero1 または normal など環境に合わせてください)
+            aero_folder = get_folder(item.aero, 'image_url', "normal")
 
-            # 3. バンパー判定（JSロジックの再現）
-            # バンパーが normal または存在しない場合は階層を挟まない
-            current_bumper = ""
-            if item.bumper:
-                # image_urlからフォルダ名を抽出
-                current_bumper = item.bumper.image_url.url.split('/')[-2]
+            # ★修正: パス構成を変更 (.../wheel/bumper/aero/...)
+            item.generated_image_url = (
+                f"/media/uploads/vehicles/{car_folder}/"
+                f"{color_folder}/{wheel_folder}/{bumper_folder}/{aero_folder}/side_left.png"
+            )
+    else:
+        custom_items = []
 
-            if current_bumper == "normal" or not current_bumper:
-                item.image_path = f"{base_path}/front.png"
-            else:
-                item.image_path = f"{base_path}/{current_bumper}/front.png"
-
-        except Exception as e:
-            print(f"Path Error: {e}")
-            item.image_path = "/static/assets/一覧車両.png"
-
-    return render(request, 'List.html', {'custom_items': custom_items})
+    return render(request, 'List.html', {
+        'custom_items': custom_items,
+        'user': request.user,
+    })
 
 
 # お気に入りページ表示
@@ -500,12 +495,62 @@ def custom_menu_bumper(request):
     }
     return render(request, "custom_menu_bumper.html", context)
 
- 
+# ライトパーツ
 def custom_menu_light(request):
     return render(request, "custom_menu_light.html")
  
+
+# エアロパーツ
 def custom_menu_aeroparts(request):
-    return render(request, "custom_menu_aeroparts.html")
+    restore_session_backup(request)
+    
+    custom_data = request.session.get('custom_data', {})
+    vehicle_id = custom_data.get('vehicle_id')
+
+    # 車両情報の取得・検証
+    vehicle = Vehicle.objects.filter(id=vehicle_id).first()
+    if not vehicle:
+        vehicle = Vehicle.objects.first()
+        if vehicle:
+            custom_data['vehicle_id'] = vehicle.id
+            request.session['custom_data'] = custom_data
+
+    # ★ここが重要：エアロパーツのデータをDBから取得
+    aeros = Aero.objects.filter(vehicle=vehicle)
+
+    # 現在選択されている各パーツのオブジェクトを取得
+    current_color = Color.objects.filter(id=custom_data.get('color_id')).first()
+    current_wheel = Wheel.objects.filter(id=custom_data.get('wheel_id')).first()
+    current_bumper = Bumper.objects.filter(id=custom_data.get('bumper_id')).first()
+    current_aero = Aero.objects.filter(id=custom_data.get('aero_id')).first()
+
+    # フォルダ名抽出用ヘルパー
+    def get_folder(obj, attr_name):
+        if obj and getattr(obj, attr_name):
+            return str(getattr(obj, attr_name)).replace('\\', '/').rstrip('/').split('/')[-1]
+        return ""
+
+    # フロントエンド用のフォルダ名を作成
+    car_folder = vehicle.name_en if vehicle else "CompactSedan"
+    current_color_folder = get_folder(current_color, 'rotation_image_folder')
+    current_wheel_folder = get_folder(current_wheel, 'image_url')
+    current_bumper_folder = get_folder(current_bumper, 'image_url')
+    current_aero_folder = get_folder(current_aero, 'image_url')
+
+    is_favorite = custom_data.get('is_favorite', False)
+    
+    context = {
+        'vehicle': vehicle,
+        'aeros': aeros, # テンプレートの {% for aero in aeros %} に渡されます
+        'is_favorite': is_favorite,
+        'car_folder': car_folder,
+        'current_color_folder': current_color_folder,
+        'current_wheel_folder': current_wheel_folder,
+        'current_bumper_folder': current_bumper_folder,
+        'current_aero_folder': current_aero_folder,
+    }
+    return render(request, "custom_menu_aeroparts.html", context)
+
  
 # # 自動カスタムページ
 @never_cache
@@ -536,6 +581,7 @@ def auto_custom(request, custom_id=None):
     req_color = request.GET.get('color')
     req_wheel = request.GET.get('wheel')
     req_bumper = request.GET.get('bumper')
+    req_aero = request.GET.get('aero')
     
     if req_vehicle_id:
         vehicle_obj = Vehicle.objects.filter(id=req_vehicle_id).first()
@@ -574,6 +620,13 @@ def auto_custom(request, custom_id=None):
             request.session['custom_data'] = custom_data
             request.session.modified = True
 
+    if req_aero:
+        temp_aero = Aero.objects.filter(vehicle=vehicle, image_url__endswith=req_aero).first()
+        if temp_aero:
+            custom_data['aero_id'] = temp_aero.id
+            request.session['custom_data'] = custom_data
+            request.session.modified = True
+
     color = Color.objects.filter(id=custom_data.get('color_id'), vehicle=vehicle).first()
     wheel = Wheel.objects.filter(id=custom_data.get('wheel_id'), vehicle=vehicle).first()
     bumper = Bumper.objects.filter(id=custom_data.get('bumper_id'), vehicle=vehicle).first()
@@ -600,6 +653,11 @@ def auto_custom(request, custom_id=None):
         clean_path = str(bumper.image_url).replace('\\', '/').rstrip('/')
         bumper_folder_name = clean_path.split('/')[-1]
 
+    aero_folder_name = "aero1"
+    if aero and aero.image_url:
+        clean_path = str(aero.image_url).replace('\\', '/').rstrip('/')
+        aero_folder_name = clean_path.split('/')[-1]
+
     context = {
         'vehicle': vehicle,
         'color': color,
@@ -620,6 +678,7 @@ def auto_custom(request, custom_id=None):
         'wheel_folder': wheel_folder_name, 
         'bumper': bumper,
         'bumper_folder': bumper_folder_name,
+        'aero_folder': aero_folder_name,
     }
 
     print(color)
@@ -631,14 +690,15 @@ def auto_custom_api(request):
         custom_data = request.session.get('custom_data', {})
         current_is_favorite = custom_data.get('is_favorite', False)
 
+        # ランダムにパーツを取得
         vehicle = Vehicle.objects.order_by('?').first()
+        color   = Color.objects.filter(vehicle=vehicle).order_by('?').first()
+        wheel   = Wheel.objects.filter(vehicle=vehicle).order_by('?').first()
+        bumper  = Bumper.objects.filter(vehicle=vehicle).order_by('?').first()
+        light   = Light.objects.filter(vehicle=vehicle).order_by('?').first()
+        aero    = Aero.objects.filter(vehicle=vehicle).order_by('?').first()
 
-        color  = Color.objects.filter(vehicle=vehicle).order_by('?').first()
-        wheel  = Wheel.objects.filter(vehicle=vehicle).order_by('?').first()
-        bumper = Bumper.objects.filter(vehicle=vehicle).order_by('?').first()
-        light  = Light.objects.filter(vehicle=vehicle).order_by('?').first()
-        aero   = Aero.objects.filter(vehicle=vehicle).order_by('?').first()
-
+        # セッション更新
         custom_data.update({
             'vehicle_id': vehicle.id,
             'color_id': color.id if color else None,
@@ -651,24 +711,43 @@ def auto_custom_api(request):
         request.session['custom_data'] = custom_data
         request.session.modified = True 
 
+        # --- フォルダ名抽出ロジック ---
+
+        # 1. カラー
         color_folder_name = "black"
         if color and color.rotation_image_folder:
             clean_path = str(color.rotation_image_folder).replace('\\', '/').rstrip('/')
             color_folder_name = clean_path.split('/')[-1]
 
+        # 2. ホイール
         wheel_folder_name = "wheel1"
         if wheel and wheel.image_url:
             clean_path = str(wheel.image_url).replace('\\', '/').rstrip('/')
             wheel_folder_name = clean_path.split('/')[-1]
+
+        # 3. バンパー (★ここを追加)
+        bumper_folder = "bumper1"
+        if bumper and bumper.image_url:
+            clean_path = str(bumper.image_url).replace('\\', '/').rstrip('/')
+            bumper_folder = clean_path.split('/')[-1]
+
+        # 4. エアロ (★ここを追加)
+        aero_folder = "aero1"
+        if aero and aero.image_url:
+            clean_path = str(aero.image_url).replace('\\', '/').rstrip('/')
+            aero_folder = clean_path.split('/')[-1]
 
         return JsonResponse({
             'carFolder': vehicle.name_en,
             'carName': vehicle.name,
             'color': color_folder_name,
             'wheel': wheel_folder_name,
-            'color_name': color.name if color else 'ブラック',
+            'bumper': bumper_folder,    
+            'aero': aero_folder,         
+            'color_name': color.name if color else 'カラー',
             'wheel_name': wheel.name if wheel else 'ホイール',
             'bumper_name': bumper.name if bumper else 'バンパー',
+            'aero_name': aero.name if aero else 'エアロ',  
             'is_favorite': current_is_favorite,
         })
 
@@ -910,77 +989,66 @@ def restore_session_backup(request):
         del request.session['pre_auto_custom_backup']
         request.session.modified = True
 
-
+# セッションの更新
 @require_POST
 def update_session_parts(request):
     try:
         data = json.loads(request.body)
-        # JS (bodycolor.js) の送信データに合わせて key 名を修正
-        part_type = data.get('type')   # 'part_type' から 'type' へ修正
-        folder_name = data.get('value') # 'folder_name' から 'value' へ修正
+        part_type = data.get('part_type')
+        val = data.get('folder_name')
 
         custom_data = request.session.get('custom_data', {})
         vehicle_id = custom_data.get('vehicle_id')
+        if not vehicle_id: return JsonResponse({'status': 'error'}, status=400)
         vehicle = Vehicle.objects.filter(id=vehicle_id).first()
 
-        if not vehicle:
-            return JsonResponse({'status': 'error', 'message': 'No vehicle in session'}, status=400)
-
-        # フォルダ名とDBレコードを確実に紐付けるロジック
+        obj = None
         if part_type == 'color':
-            # rotation_image_folder が folder_name と一致するものを検索
-            obj = Color.objects.filter(vehicle=vehicle, rotation_image_folder=folder_name).first()
-            if obj: 
-                custom_data['color_id'] = obj.id
-                print(f"DEBUG: Color matched! ID={obj.id}")
-        
+            obj = Color.objects.filter(vehicle=vehicle, rotation_image_folder__icontains=val).first()
+            if obj: custom_data['color_id'] = obj.id
         elif part_type == 'wheel':
-            # image_url にフォルダ名が含まれているものを検索 (icontainsを使用)
-            obj = Wheel.objects.filter(vehicle=vehicle, image_url__icontains=folder_name).first()
-            if obj: 
-                custom_data['wheel_id'] = obj.id
-                print(f"DEBUG: Wheel matched! ID={obj.id}")
-            
+            obj = Wheel.objects.filter(vehicle=vehicle, image_url__icontains=val).first()
+            if obj: custom_data['wheel_id'] = obj.id
         elif part_type == 'bumper':
-            if folder_name == "normal" or not folder_name:
-                custom_data['bumper_id'] = None
-            else:
-                obj = Bumper.objects.filter(vehicle=vehicle, image_url__icontains=folder_name).first()
-                if obj: 
-                    custom_data['bumper_id'] = obj.id
-                    print(f"DEBUG: Bumper matched! ID={obj.id}")
+            # normalでもDB検索するよう修正
+            obj = Bumper.objects.filter(vehicle=vehicle, image_url__icontains=val).first()
+            if obj: custom_data['bumper_id'] = obj.id
+        elif part_type == 'aero':
+            # ★追加: aero対応
+            obj = Aero.objects.filter(vehicle=vehicle, image_url__icontains=val).first()
+            if obj: custom_data['aero_id'] = obj.id
 
-        # セッションを保存
         request.session['custom_data'] = custom_data
         request.session.modified = True
-        return JsonResponse({'status': 'success'})
-
+        return JsonResponse({'status': 'success', 'updated_id': obj.id if obj else None})
     except Exception as e:
-        print(f"DEBUG ERROR: {e}")
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-    
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)    
+
+
 
 @require_POST
-def update_session_selection(request):  # 名前をJS/URLと合わせる
+def update_session_selection(request):
     try:
         data = json.loads(request.body)
-        part_type = data.get('type')   # 'color'
-        folder_name = data.get('value') # 'white' など
+        part_type = data.get('type')
+        folder_name = data.get('value')
 
         custom_data = request.session.get('custom_data', {})
         vehicle_id = custom_data.get('vehicle_id')
         vehicle = Vehicle.objects.filter(id=vehicle_id).first()
 
         if part_type == 'color':
-            # Qを使って「フォルダ名」と「日本語名」の両方でDBを検索
-            obj = Color.objects.filter(vehicle=vehicle).filter(
-                Q(rotation_image_folder=folder_name) | Q(name=folder_name)
-            ).first()
-            if obj:
-                custom_data['color_id'] = obj.id
-                print(f"✅ Color Synced: {obj.name}")
-
-        # ... wheel, bumper の処理（前回の回答と同様）...
+            obj = Color.objects.filter(vehicle=vehicle).filter(Q(rotation_image_folder=folder_name)|Q(name=folder_name)).first()
+            if obj: custom_data['color_id'] = obj.id
+        elif part_type == 'wheel':
+            obj = Wheel.objects.filter(vehicle=vehicle, image_url__icontains=folder_name).first()
+            if obj: custom_data['wheel_id'] = obj.id
+        elif part_type == 'bumper':
+            obj = Bumper.objects.filter(vehicle=vehicle, image_url__icontains=folder_name).first()
+            if obj: custom_data['bumper_id'] = obj.id
+        elif part_type == 'aero':
+            obj = Aero.objects.filter(vehicle=vehicle, image_url__icontains=folder_name).first()
+            if obj: custom_data['aero_id'] = obj.id
 
         request.session['custom_data'] = custom_data
         request.session.modified = True

@@ -3,9 +3,8 @@
  */
 console.log("🚗 自動カスタムJS読み込み開始");
 
-// 角度の定義を共通化
-// const ANGLES = ["front", "front_right", "side_right", "rear_left", "rear", "rear_right","side_left", "front_left"];
-const  ANGLES = ["front", "side_right", "rear","side_left"]
+// 角度の定義
+const ANGLES = ["front", "side_right", "rear", "side_left"];
 let angleIndex = 0;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 1. 初回表示
     renderVehicle();
 
-    // 2. 回転ボタンのイベント登録（ここで行うことで重複を防ぐ）
+    // 2. 回転ボタンのイベント登録
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
 
@@ -29,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
+    // 3. 初期リスト表示
     loadInitialCustom();
 });
 
@@ -40,13 +40,15 @@ function renderVehicle() {
     if (!img || !window.autoCustomResult) return;
 
     const config = window.autoCustomResult;
-    // const path = `/media/uploads/vehicles/${config.carFolder}/${config.color}/${ANGLES[angleIndex]}.png`;
-    const path = `/media/uploads/vehicles/${config.carFolder}/${config.color}/${config.wheel}/${config.bumper}/${ANGLES[angleIndex]}.png`;
+    
+    // パス生成: エアロパーツを含めた構成
+    const path = `/media/uploads/vehicles/${config.carFolder}/${config.color}/${config.wheel}/${config.bumper}/${config.aero}/${ANGLES[angleIndex]}.png`;
+    
     console.log("🎬 表示更新:", path);
     img.src = path;
 
     img.onerror = () => {
-        console.error("❌ 画像が見つかりません:", path);
+        console.warn("❌ 画像が見つかりません:", path);
     };
 }
 
@@ -71,13 +73,18 @@ function loadCustomData() {
             window.autoCustomResult.carFolder = data.carFolder; 
             window.autoCustomResult.color = data.color;
             window.autoCustomResult.wheel = data.wheel;
+            window.autoCustomResult.bumper = data.bumper;
+            window.autoCustomResult.aero = data.aero;
             window.autoCustomResult.carName = data.carName;
+            
 
             // リストのテキストも更新
             window.initialSelected.vehicle.name = data.carName;
             window.initialSelected.color.name = data.color_name;
             window.initialSelected.wheel.name = data.wheel_name;
             window.initialSelected.bumper.name = data.bumper_name;
+            window.initialSelected.aero = window.initialSelected.aero || {};
+            window.initialSelected.aero.name = data.aero_name;
 
             // 隠しフィールドの値を更新（保存ボタンを押したときに反映されるようにする）
             const favInput = document.getElementById('is-favorite');
@@ -113,9 +120,11 @@ function loadInitialCustom() {
             <li>カラー：${selectedData.color.name}</li>
             <li>ホイール：${selectedData.wheel.name}</li>
             <li>バンパー：${selectedData.bumper.name}</li>
+            <li>エアロ：${selectedData.aero.name}</li>
         </ul>
     `;
 }
+
 const favToggle = document.getElementById('favorite-toggle');
 if (favToggle) {
     favToggle.addEventListener('click', function(e) {

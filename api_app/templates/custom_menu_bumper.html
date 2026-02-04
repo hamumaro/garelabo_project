@@ -95,12 +95,14 @@
                     <button type="button" id="next-btn">→</button>
                 </div>
 
-                <!-- ✅ JSへ渡すサーバー値（既存を維持） -->
-                <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}" />
-                <input type="hidden" id="server-car-folder" value="{{ car_folder }}" />
-                <input type="hidden" id="server-color-folder" value="{{ current_color_folder }}" />
-                <input type="hidden" id="server-wheel-folder" value="{{ current_wheel_folder }}" />
-                <input type="hidden" id="server-bumper-folder" value="{{ current_bumper_folder }}" />
+              <!-- ✅ JSへ渡すサーバー値 -->
+              <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}">
+              <input type="hidden" id="server-car-folder" value="{{ car_folder }}">
+              <input type="hidden" id="server-color-folder" value="{{ current_color_folder }}">
+              <input type="hidden" id="server-wheel-folder" value="{{ current_wheel_folder }}">
+              <input type="hidden" id="server-bumper-folder" value="{{ current_bumper_folder }}">
+              <input type="hidden" id="server-aero-folder" value="{{ current_aero_folder }}">
+
 
                 <!-- ✅ バンパーパネル（DBのbumpersで生成） -->
                 <div class="bumper-palette-area">
