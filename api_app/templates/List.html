@@ -82,11 +82,23 @@
                     <div class="custom-card">
                         <div class="card-image-area">
                             <a href="{% url 'custom_menu_bodycolor' item.id %}">
-                            {% if item.vehicle and item.vehicle.base_image_path %}
-                                <img src="{{ item.vehicle.base_image_path.url }}" class="preview-img">
-                            {% else %}
-                                <img src="{% static 'assets/一覧車両.png' %}" class="preview-img">
-                            {% endif %}
+
+                                {% if item.preview_image_url %}
+                                    <!-- ✅ 保存したカスタム画像URLを最優先 -->
+                                    <img src="{{ item.preview_image_url }}" class="preview-img">
+
+                                {% elif item.generated_image_url %}
+                                    <!-- ✅ サーバ側で生成したURL（保険） -->
+                                    <img src="{{ item.generated_image_url }}" class="preview-img">
+
+                                {% elif item.vehicle and item.vehicle.base_image_path %}
+                                    <!-- ✅ 最後の保険：ベース画像 -->
+                                    <img src="{{ item.vehicle.base_image_path.url }}" class="preview-img">
+
+                                {% else %}
+                                    <img src="{% static 'assets/一覧車両.png' %}" class="preview-img">
+                                {% endif %}
+
                             </a>
                         </div>
 

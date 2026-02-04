@@ -120,11 +120,21 @@ document.addEventListener("DOMContentLoaded", () => {
     sessionStorage.setItem("selectedCar", carFolder);
 
     // 各パーツの初期値決定 (セッション > サーバー値 > デフォルト)
+    // 各パーツの初期値決定（★サーバー値を最優先にする）
     const initPart = (key, serverVal, defaultVal) => {
-        if (!sessionStorage.getItem(key)) {
-            const val = getFolderName(serverVal) || defaultVal;
-            sessionStorage.setItem(key, val);
+        const serverFolder = getFolderName(serverVal);
+
+        // サーバーから値が来ている場合はそれを正として上書き
+        if (serverFolder) {
+            sessionStorage.setItem(key, serverFolder);
+            return serverFolder;
         }
+
+        // サーバー値が無い場合のみ session またはデフォルト
+        if (!sessionStorage.getItem(key)) {
+            sessionStorage.setItem(key, defaultVal);
+        }
+
         return sessionStorage.getItem(key);
     };
 
