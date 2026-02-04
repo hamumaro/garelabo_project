@@ -1,4 +1,4 @@
-console.log("NEW wheel.js LOADED (UNIFIED WITH BODYCOLOR)");
+console.log("NEW aeroparts.js LOADED (WITH PANEL TOGGLE)");
 
 document.addEventListener("DOMContentLoaded", () => {
     /* =================================================================
@@ -8,11 +8,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
     
-    // ホイール特有
-    const wheelBtns = document.querySelectorAll(".wheel-btn");
-    const wheelPanel = document.getElementById("wheel-panel");
-    const wheelOpenBtn = document.getElementById("open-wheel");
-    const wheelValue = document.getElementById("wheelValue");
+    // エアロ特有
+    const aeroBtns = document.querySelectorAll(".aero-btn");
+    const aeroPanel = document.getElementById("aero-panel");
+    const aeroOpenBtn = document.getElementById("open-aero"); // 追加
+    const aeroValue = document.getElementById("aeroValue"); // 追加
 
     const currentVehicleIdInput = document.getElementById('current-vehicle-id');
     const currentVehicleId = currentVehicleIdInput ? currentVehicleIdInput.value : null;
@@ -115,12 +115,10 @@ document.addEventListener("DOMContentLoaded", () => {
     /* =================================================================
        3. 表示更新 & サーバー同期
     ================================================================= */
-    
     function updateState() {
         const c = currentColor;
         const w = currentWheel;
         
-        // normal除去
         let b = currentBumper;
         if (!b || b === "normal") b = "bumper1";
 
@@ -136,14 +134,15 @@ document.addEventListener("DOMContentLoaded", () => {
         setSrcWithFallback(img, urls);
         img.alt = `${carFolder} ${c} ${w} ${b} ${a} ${angle}`;
 
-        // ホイールボタン選択状態
-        if (wheelBtns) {
-            wheelBtns.forEach(btn => {
-                const btnVal = getFolderName(btn.dataset.wheel || btn.dataset.value);
-                btn.classList.toggle('is-selected', btnVal === currentWheel);
+        // エアロボタン選択状態
+        if (aeroBtns) {
+            aeroBtns.forEach(btn => {
+                const btnVal = getFolderName(btn.dataset.aero);
+                const isSelected = (btnVal === currentAero) || (currentAero === "normal" && btnVal === "aero1");
+                btn.classList.toggle('is-selected', isSelected);
             });
         }
-        if (wheelValue) wheelValue.value = w;
+        if (aeroValue) aeroValue.value = a;
 
         updateAutoCustomLink();
     }
@@ -190,20 +189,19 @@ document.addEventListener("DOMContentLoaded", () => {
        4. イベントリスナー
     ================================================================= */
     
-    // ホイール変更
-    wheelBtns.forEach(btn => {
+    // エアロ変更
+    aeroBtns.forEach(btn => {
         btn.addEventListener("click", async (e) => {
             e.preventDefault();
-            const rawPath = btn.dataset.wheel || btn.dataset.value;
+            const rawPath = btn.dataset.aero;
             if (!rawPath) return;
 
             const folderName = getFolderName(rawPath);
-            currentWheel = folderName;
-            sessionStorage.setItem("currentWheel", currentWheel);
-            
-            angleIndex = 0;
+            currentAero = folderName;
+            sessionStorage.setItem("currentAero", currentAero);
+
             updateState();
-            await updateServerSession("wheel", currentWheel);
+            await updateServerSession("aero", currentAero);
         });
     });
 
@@ -237,25 +235,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =================================================================
-       5. UI機能 (ドロワー・ホイールパネル・フルスクリーン)
+       5. UI機能 (パネル開閉・ドロワー・フルスクリーン)
     ================================================================= */
     
-    // ホイールパネル
-    const toggleWheelPanel = (open) => {
-        if (!wheelPanel) return;
+    // ★追加: エアロパネル開閉
+    const toggleAeroPanel = (open) => {
+        if (!aeroPanel) return;
         const action = open ? 'add' : 'remove';
-        wheelPanel.classList[action]("is-open", "panel-enter");
-        wheelPanel.setAttribute("aria-hidden", !open);
+        aeroPanel.classList[action]("is-open", "panel-enter");
+        aeroPanel.setAttribute("aria-hidden", !open);
     };
 
-    wheelOpenBtn?.addEventListener("click", (e) => {
+    aeroOpenBtn?.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const isOpen = wheelPanel?.classList.contains("is-open");
-        toggleWheelPanel(!isOpen);
+        const isOpen = aeroPanel?.classList.contains("is-open");
+        toggleAeroPanel(!isOpen);
     });
 
-    wheelPanel?.addEventListener("click", (e) => e.stopPropagation());
+    // パネル内クリックで閉じない
+    aeroPanel?.addEventListener("click", (e) => e.stopPropagation());
 
     // ドロワー
     const menuBtn = document.getElementById("menu-open");
@@ -284,17 +283,23 @@ document.addEventListener("DOMContentLoaded", () => {
     drawerCloseBtn?.addEventListener("click", () => toggleDrawer(false));
     drawerOverlay?.addEventListener("click", () => toggleDrawer(false));
 
-    // 全体クリック監視
+    // 全体クリック監視（パネル外クリックで閉じる）
     document.addEventListener("click", (e) => {
-        if (wheelPanel?.classList.contains("is-open") && !wheelPanel.contains(e.target) && !wheelOpenBtn?.contains(e.target)) {
-            toggleWheelPanel(false);
+        // エアロパネルが開いていて、パネル外かつボタン外なら閉じる
+        if (aeroPanel?.classList.contains("is-open") && !aeroPanel.contains(e.target) && !aeroOpenBtn?.contains(e.target)) {
+            toggleAeroPanel(false);
+        }
+        
+        // ドロワーが開いていて... (既存ロジックと統合可だが個別記述)
+        if (drawer?.classList.contains("is-open") && !drawer.contains(e.target) && !menuBtn?.contains(e.target) && !drawerOverlay?.contains(e.target)) {
+            toggleDrawer(false);
         }
     });
 
     window.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
             toggleDrawer(false);
-            toggleWheelPanel(false);
+            toggleAeroPanel(false);
             closeFullscreen();
         }
     });
@@ -369,7 +374,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement("a");
                     a.href = url;
-                    a.download = `garelabo_wheel_${new Date().getTime()}.png`;
+                    a.download = `garelabo_aero_${new Date().getTime()}.png`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);

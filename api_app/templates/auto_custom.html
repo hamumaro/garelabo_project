@@ -100,7 +100,8 @@
             // views.py から渡されたフォルダ名変数を使う
             color: "{{ color_rotation_folder|default:'black' }}", 
             wheel: "{{ wheel_folder|default:'wheel1' }}",
-            bumper: "{{ bumper_folder|default:'bumper1' }}"
+            bumper: "{{ bumper_folder|default:'bumper1' }}",
+            aero: "{{aero_folder|default:'aero1'}}",
         };
 
         // パーツ名リスト
@@ -108,7 +109,8 @@
             vehicle: { name: "{{ vehicle.name }}" },
             color: { name: "{{ color_name }}" },
             wheel: { name: "{{ wheel_name }}" },
-            bumper: { name: "{{ bumper_name }}" }
+            bumper: { name: "{{ bumper_name }}" },
+            aero: { name: "{{ aero_name }}"},
         };
     </script>
         <script src="{% static 'js/auto_custom.js' %}" defer></script>

@@ -1,4 +1,4 @@
-console.log("NEW bodycolor.js LOADED (INTEGRATED)");
+console.log("NEW bodycolor.js LOADED (NORMAL FIX)");
 
 document.addEventListener("DOMContentLoaded", () => {
     /* =================================================================
@@ -55,21 +55,28 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     function setSrcWithFallback(imgEl, urls) {
         let i = 0;
-        imgEl.onerror = () => {
-            i++;
-            if (i < urls.length) {
-                console.warn(`画像読み込み失敗、次を試行: ${urls[i]}`);
-                imgEl.src = urls[i];
-            } else {
-                imgEl.onerror = null;
+        imgEl.onload = null; // リセット
+        
+        const tryLoad = () => {
+            if (i >= urls.length) {
                 console.error("全ての画像候補が見つかりませんでした", urls);
+                imgEl.onerror = null;
+                return;
             }
+            
+            imgEl.onerror = () => {
+                console.warn(`画像読み込み失敗、次を試行: ${urls[i]}`);
+                i++;
+                tryLoad();
+            };
+            
+            imgEl.src = urls[i];
         };
-        imgEl.src = urls[0];
+        tryLoad();
     }
 
     /* =================================================================
-       2. 初期化 & リセットロジック (Base機能)
+       2. 初期化 & リセットロジック
     ================================================================= */
     const params = new URLSearchParams(window.location.search);
     const resetParam = params.get("reset");
@@ -80,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const serverColor = document.getElementById("server-color-folder")?.value;
     const serverWheel = document.getElementById("server-wheel-folder")?.value;
     const serverBumper = document.getElementById("server-bumper-folder")?.value;
+    const serverAero = document.getElementById("server-aero-folder")?.value;
 
     const storedCar = sessionStorage.getItem("selectedCar");
 
@@ -89,12 +97,12 @@ document.addEventListener("DOMContentLoaded", () => {
         sessionStorage.removeItem("currentColor");
         sessionStorage.removeItem("currentWheel");
         sessionStorage.removeItem("currentBumper");
+        sessionStorage.removeItem("currentAero");
         
         if (urlCar) {
             sessionStorage.setItem("selectedCar", urlCar);
         }
 
-        // URLからresetパラメータを削除
         if (resetParam === "true") {
             const newUrl = new URL(window.location.href);
             newUrl.searchParams.delete("reset");
@@ -107,8 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!carFolder && serverCar) carFolder = getFolderName(serverCar);
     
     if (!carFolder) {
-        // フォールバック
-        carFolder = "CompactSedan"; 
+        carFolder = "CompactSedan"; // フォールバック
     }
     sessionStorage.setItem("selectedCar", carFolder);
 
@@ -123,7 +130,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let currentColor = initPart("currentColor", serverColor, "white");
     let currentWheel = initPart("currentWheel", serverWheel, "wheel1");
-    let currentBumper = initPart("currentBumper", serverBumper, "normal");
+    // 初期値として normal ではなく bumper1/aero1 をセット（404回避）
+    let currentBumper = initPart("currentBumper", serverBumper, "bumper1");
+    let currentAero = initPart("currentAero", serverAero, "aero1");
 
     // 角度管理
     const angles = ["front", "side_right", "rear", "side_left"];
@@ -137,34 +146,42 @@ document.addEventListener("DOMContentLoaded", () => {
      * 画像とリンクの更新
      */
     function updateState() {
-        // 1. 画像更新
         const c = currentColor;
         const w = currentWheel;
-        const b = currentBumper;
+        
+        // ★修正: バンパーが normal または未定義なら bumper1 に置換
+        let b = currentBumper;
+        if (!b || b === "normal") {
+            b = "bumper1";
+        }
+
+        // ★修正: エアロが normal または未定義なら aero1 に置換
+        let a = currentAero;
+        if (!a || a === "normal") {
+            a = "aero1";
+        }
+
         const angle = angles[angleIndex];
 
-        // 画像パスの候補を作成 (バンパー有無や階層の違いに対応)
+        // 画像パスの候補を作成
         let urls = [];
         
-        // パターンA: 標準的なフルパス
-        if (b && b !== "normal") {
-            urls.push(`/media/uploads/vehicles/${carFolder}/${c}/${w}/${b}/${angle}.png`);
-        }
-        // パターンB: バンパーなし(normal) or 階層省略
-        urls.push(`/media/uploads/vehicles/${carFolder}/${c}/${w}/${angle}.png`);
-        // パターンC: ホイール省略 (念のため)
-        urls.push(`/media/uploads/vehicles/${carFolder}/${c}/${angle}.png`);
+        // メインパス: 全パーツ指定 (例: .../bumper1/aero1/front.png)
+        urls.push(`/media/uploads/vehicles/${carFolder}/${c}/${w}/${b}/${a}/${angle}.png`);
+        
+        // フォールバック: エアロなしパス (例: .../bumper1/front.png) ※aeroフォルダが無い場合用
+        urls.push(`/media/uploads/vehicles/${carFolder}/${c}/${w}/${b}/${angle}.png`);
 
         setSrcWithFallback(img, urls);
-        img.alt = `${carFolder} ${c} ${w} ${b} ${angle}`;
+        img.alt = `${carFolder} ${c} ${w} ${b} ${a} ${angle}`;
 
-        // 2. チップの選択状態更新
+        // チップの選択状態更新
         document.querySelectorAll('.garelabo-palette__chip, .color-dot').forEach(btn => {
             const btnColor = getFolderName(btn.dataset.color);
             btn.classList.toggle('is-selected', btnColor === currentColor);
         });
 
-        // 3. 自動カスタムリンクの更新
+        // 自動カスタムリンクの更新
         updateAutoCustomLink();
     }
 
@@ -181,11 +198,19 @@ document.addEventListener("DOMContentLoaded", () => {
         
         url.searchParams.set('color', currentColor);
         url.searchParams.set('wheel', currentWheel);
-        // バンパーが normal の場合はパラメータを含めない、または明示する（サーバー側の仕様に合わせる）
-        if (currentBumper && currentBumper !== "normal") {
+        
+        // バンパー (normal以外ならセット)
+        if (currentBumper && currentBumper !== "normal" && currentBumper !== "bumper1") {
             url.searchParams.set('bumper', currentBumper);
         } else {
             url.searchParams.delete('bumper');
+        }
+
+        // エアロ (normal以外ならセット)
+        if (currentAero && currentAero !== "normal" && currentAero !== "aero1") {
+            url.searchParams.set('aero', currentAero);
+        } else {
+            url.searchParams.delete('aero');
         }
 
         autoLink.href = url.toString();
@@ -196,16 +221,16 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     async function updateServerSession(type, value) {
         try {
-            const response = await fetch('/update_session_selection/', {
+            const response = await fetch('/update_session_parts/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken'),
                 },
-                body: JSON.stringify({ type: type, value: value })
+                body: JSON.stringify({ part_type: type, folder_name: value })
             });
             if (!response.ok) throw new Error("Network response was not ok");
-            console.log(`Session Synced: ${type} = ${value}`);
+            // console.log(`Session Synced: ${type} = ${value}`);
         } catch (e) {
             console.error("Session sync failed:", e);
         }
@@ -219,7 +244,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ================================================================= */
     
     // カラー・ホイール・バンパーボタンの共通ハンドラ
-    // (bodycolorページにはカラーしかありませんが、将来的な拡張や共通化に対応)
     const partBtns = document.querySelectorAll(".garelabo-palette__chip, .color-dot, .wheel-btn, .bumper-btn");
     
     partBtns.forEach(btn => {
@@ -241,7 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (type === "color") {
                 currentColor = folderName;
                 sessionStorage.setItem("currentColor", currentColor);
-                angleIndex = 0; // 色変更時は正面に戻すのが一般的
+                angleIndex = 0; // 色変更時は正面に戻す
             } else if (type === "wheel") {
                 currentWheel = folderName;
                 sessionStorage.setItem("currentWheel", currentWheel);
@@ -359,7 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fsImage.src = img.src;
         fsOverlay.classList.add("is-open");
         fsOverlay.setAttribute("aria-hidden", "false");
-        fsOverlay.style.display = "flex"; // CSSがない場合の保険
+        fsOverlay.style.display = "flex";
         document.body.style.overflow = "hidden";
     };
 

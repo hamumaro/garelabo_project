@@ -1,398 +1,198 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ja">
-<head>
+  <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="{% static 'assets/Garelabo_Logo.png' %}" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="{% static 'assets/Garelabo_Logo.png' %}"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GARELABO+｜エアロパーツ</title>
+    <link
+      rel="stylesheet"
+      href="{% static 'css/custom_menu_aeroparts_style.css' %}"
+    />
+  </head>
 
-    <!-- ✅ ボディカラーと同じ共通CSS -->
-    <link rel="stylesheet" href="{% static 'css/custom_menu_bodycolor_style.css' %}?v=20260129_2" />
-
-</head>
-
-<body>
-    <!-- ================= ヘッダー ================= -->
+  <body>
     <header class="header">
-        <div class="header-left">
-            <img src="{% static 'assets/ガレラボ+.png' %}" class="logo" alt="GARELABO+" />
-        </div>
+      <div class="header-left">
+        <img
+          src="{% static 'assets/ガレラボ+.png' %}"
+          class="logo"
+          alt="GARELABO+"
+        />
+      </div>
 
-        <nav class="header-nav">
-            {% if current_custom_id %}
-                <a href="{% url 'auto_custom' current_custom_id %}" class="nav-btn">自動カスタム</a>
-            {% else %}
-                <a href="{% url 'auto_custom' %}" class="nav-btn">自動カスタム</a>
-            {% endif %}
+      <nav class="header-nav">
+        <a href="{% url 'auto_custom' %}" id="auto-custom-link" class="nav-btn">自動カスタム</a>
+        
+        <button
+          id="favorite-toggle"
+          type="button"
+          class="nav-btn favorite-btn {% if is_favorite %}is-favorite{% endif %}"
+        >
+          {% if is_favorite %}
+            ✔ お気に入り
+          {% else %}
+            お気に入り
+          {% endif %}
+        </button>
+        
+        <a href="{% url 'custom_cancel' %}" class="nav-btn">カスタム中止</a>
+      </nav>
 
-            <button
-                id="favorite-toggle"
-                type="button"
-                class="nav-btn favorite-btn {% if is_favorite %}is-favorite{% endif %}"
-            >
-                {% if is_favorite %}✔ お気に入り{% else %}お気に入り{% endif %}
-            </button>
-
-            <a href="{% url 'estimate' %}" class="nav-btn">カスタム見積り</a>
-            <a href="{% url 'custom_cancel' %}" class="nav-btn">カスタム中止</a>
-        </nav>
-
-        <div class="header-user">
-            <span class="user-name">{{ user.nickname }}さん</span>
-            <a href="{% url 'account' %}" class="user-icon">
-                <img src="{% static 'assets/アカウントアイコン.png' %}" alt="アイコン" />
-            </a>
-        </div>
+      <div class="header-user">
+        <span class="user-name">{{ user.nickname }}さん</span>
+        <a href="{% url 'account' %}" class="user-icon">
+          <img
+            src="{% static 'assets/アカウントアイコン.png' %}"
+            alt="アイコン"
+          />
+        </a>
+      </div>
     </header>
 
-    <!-- ================= メニューボタン ================= -->
     <button
-        type="button"
-        id="menu-open"
-        class="menu-fab"
-        aria-label="メニュー"
-        aria-expanded="false"
+      type="button"
+      id="menu-open"
+      class="menu-fab"
+      aria-label="メニュー"
+      aria-expanded="false"
     ></button>
 
     <div id="menu-hint" class="menu-tooltip" aria-hidden="true">メニューを表示</div>
+    
     <div id="drawer-overlay" class="menu-overlay" aria-hidden="true"></div>
 
     <aside id="drawer" class="side-drawer" aria-hidden="true">
-        <div class="drawer-header">
-            <div class="drawer-title">カスタム項目</div>
-            <button type="button" id="drawer-close" class="drawer-close">×</button>
-        </div>
-
-        <div class="drawer-body">
-            <a href="{% url 'custom_menu_bodycolor' %}" class="drawer-item">
-                <span>ボディカラー</span><span class="arrow">›</span>
-            </a>
-            <a href="{% url 'custom_menu_wheel' %}" class="drawer-item">
-                <span>ホイール</span><span class="arrow">›</span>
-            </a>
-            <a href="{% url 'custom_menu_bumper' %}" class="drawer-item">
-                <span>バンパー</span><span class="arrow">›</span>
-            </a>
-            <a href="{% url 'custom_menu_aeroparts' %}" class="drawer-item is-active">
-                <span>エアロパーツ</span><span class="arrow">›</span>
-            </a>
-        </div>
+      <div class="drawer-header">
+        <span class="drawer-title">カスタム項目</span>
+        <button type="button" id="drawer-close" class="drawer-close">×</button>
+      </div>
+      
+      <div class="drawer-body">
+        <a href="{% url 'custom_menu_bodycolor' %}" class="drawer-item">
+          <span>ボディカラー</span><span class="arrow">›</span>
+        </a>
+        <a href="{% url 'custom_menu_wheel' %}" class="drawer-item">
+          <span>ホイール</span><span class="arrow">›</span>
+        </a>
+        <a href="{% url 'custom_menu_bumper' %}" class="drawer-item">
+          <span>バンパー</span><span class="arrow">›</span>
+        </a>
+        <a href="{% url 'custom_menu_aeroparts' %}" class="drawer-item is-active">
+          <span>エアロパーツ</span><span class="arrow">›</span>
+        </a>
+      </div>
     </aside>
 
-    <!-- ================= メイン ================= -->
     <main class="main-layout">
-        <section class="car-display-area">
-            <div class="car-frame">
-                <!-- ✅ サンプル画像（後で差し替え） -->
-                <img
-                    src="{% static 'assets/auto_custom_R35.jpg' %}?v=20260126_2"
-                    id="car-image"
-                    alt="car preview"
-                    loading="eager"
-                    onerror="this.onerror=null; this.src='{% static 'assets/auto_custom_R35.jpg' %}?v=20260126_2';"
-                />
+      <section class="car-display-area">
+        <div class="car-frame">
+          <img id="car-image" alt="aero preview" loading="eager" />
+        </div>
+
+        <div class="rotate-hint">
+          <button type="button" id="open-aero" class="nav-btn">エアロ</button>
+          <button type="button" id="prev-btn">←</button>
+          <button type="button" id="next-btn">→</button>
+        </div>
+
+        <div class="aero-palette-area">
+          <div class="garelabo-palette-panel" id="aero-panel" aria-hidden="true">
+            <div class="aero-row">
+              {% for aero in aeros %}
+                <button class="aero-btn" data-aero="{{ aero.image_url }}">
+                  {{ aero.name }}
+                </button>
+              {% empty %}
+                <button type="button" class="aero-btn" data-aero="aero1">Aero 1</button>
+              {% endfor %}
             </div>
+            <input type="hidden" id="aeroValue" name="aero_parts" value="">
+          </div>
+        </div>
 
-            <div class="rotate-hint">
-                <button type="button" id="open-aeroparts" class="nav-btn">エアロパーツ</button>
-                <button type="button" id="prev-btn">←</button>
-                <button type="button" id="next-btn">→</button>
-            </div>
+        <div class="save-area">
+          <form action="{% url 'save_custom' %}" method="post">
+            {% csrf_token %}
+  
+            <input
+                type="hidden"
+                name="is_favorite"
+                id="is-favorite"
+                value="{% if is_favorite %}true{% else %}false{% endif %}"
+            >
+            
+            {% if current_custom_id %}
+              <input type="hidden" name="custom_id" value="{{ current_custom_id }}">
+            {% endif %}
 
-            <!-- ================= エアロパーツパネル（wheel式：文字ボタン） ================= -->
-            <div class="aero-palette-area">
-                <div class="garelabo-palette-panel" id="aeroparts-panel" aria-hidden="true">
-                    <div class="aero-row" id="aeroRow">
-                        <!-- ✅ 取り消しは必ず none -->
-                        <button type="button" class="aero-btn is-selected" data-aero="none">取り消し</button>
-                        <button type="button" class="aero-btn" data-aero="aero1">aero1</button>
-                        <button type="button" class="aero-btn" data-aero="aero2">aero2</button>
-                        <button type="button" class="aero-btn" data-aero="aero3">aero3</button>
-                    </div>
-
-                    <input type="hidden" id="aeroValue" name="aeroparts" value="none" />
-                </div>
-            </div>
-
-            <!-- 保存 -->
-            <div class="save-area">
-                <form action="{% url 'save_custom' %}" method="post">
-                    {% csrf_token %}
-
-                    <input
-                        type="hidden"
-                        name="is_favorite"
-                        id="is-favorite"
-                        value="{% if is_favorite %}true{% else %}false{% endif %}"
-                    />
-
-                    <!-- ✅ 選択値送信 -->
-                    <input type="hidden" name="selected_aero" id="selected-aero" value="none" />
-
-                    <button type="submit" class="save-custom-btn">カスタム内容保存</button>
-                </form>
-            </div>
-        </section>
+            <button type="submit" class="save-custom-btn">
+              カスタム内容保存
+            </button>
+          </form>
+        </div>
+      </section>
     </main>
 
-    <!-- ================= 全画面表示 ================= -->
     <div id="fullscreen-overlay" class="fullscreen-overlay" aria-hidden="true">
         <div class="fullscreen-actions">
             <button id="fullscreen-save" class="fullscreen-save" type="button">画像保存</button>
             <button id="fullscreen-close" class="fullscreen-close" type="button">×</button>
         </div>
-        <img id="fullscreen-image" alt="fullscreen car" />
+        <img id="fullscreen-image" alt="Fullscreen Preview">
     </div>
 
+    <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}">
+    <input type="hidden" id="server-car-folder" value="{{ car_folder }}">
+    <input type="hidden" id="server-color-folder" value="{{ current_color_folder }}">
+    <input type="hidden" id="server-wheel-folder" value="{{ current_wheel_folder }}">
+    <input type="hidden" id="server-bumper-folder" value="{{ current_bumper_folder }}">
+    <input type="hidden" id="server-aero-folder" value="{{ current_aero_folder }}">
+
+    <script src="{% static 'js/aeroparts.js' %}"></script>
+    
     <script>
-        /* ===== ドロワー ===== */
-        const openBtn = document.getElementById("menu-open");
-        const hint = document.getElementById("menu-hint");
-        const overlay = document.getElementById("drawer-overlay");
-        const drawer = document.getElementById("drawer");
-        const closeBtn = document.getElementById("drawer-close");
+    document.addEventListener('DOMContentLoaded', function() {
+        const autoLink = document.getElementById('auto-custom-link');
+        const currentVehicleIdInput = document.getElementById('current-vehicle-id');
+        const currentVehicleId = currentVehicleIdInput ? currentVehicleIdInput.value : null;
+        
+        if (!autoLink) return;
 
-        function openDrawer() {
-            drawer.classList.add("is-open");
-            overlay.classList.add("is-open");
-        }
-
-        function closeDrawer() {
-            drawer.classList.remove("is-open");
-            overlay.classList.remove("is-open");
-        }
-
-        openBtn.addEventListener("mouseenter", () => hint.setAttribute("aria-hidden", "false"));
-        openBtn.addEventListener("mouseleave", () => hint.setAttribute("aria-hidden", "true"));
-
-        openBtn.addEventListener("click", () => {
-            drawer.classList.contains("is-open") ? closeDrawer() : openDrawer();
-        });
-
-        closeBtn.addEventListener("click", closeDrawer);
-        overlay.addEventListener("click", closeDrawer);
-
-        /* =========================================================
-           ✅ 画像が消える対策（src が空になったら戻す保険）
-           ========================================================= */
-        (() => {
-            const img = document.getElementById("car-image");
-            if (!img) return;
-
-            const defaultSrc = img.getAttribute("src") || "";
-            const ensureSrc = () => {
-                const s = img.getAttribute("src");
-                if (!s || !String(s).trim()) {
-                    img.setAttribute("src", defaultSrc);
-                }
-            };
-
-            ensureSrc();
-
-            const obs = new MutationObserver(() => ensureSrc());
-            obs.observe(img, { attributes: true, attributeFilter: ["src"] });
-
-            img.addEventListener("error", () => {
-                img.setAttribute("src", defaultSrc);
-            });
-        })();
-
-        /* ===== 全画面表示（✅ src を見る） ===== */
-        const carImage = document.getElementById("car-image");
-        const fsOverlay = document.getElementById("fullscreen-overlay");
-        const fsImage = document.getElementById("fullscreen-image");
-        const fsClose = document.getElementById("fullscreen-close");
-        const fsSave = document.getElementById("fullscreen-save");
-
-        function openFullscreen() {
-            if (!carImage) return;
-
-            const src = carImage.currentSrc || carImage.src;
-            if (!src) return;
-
-            fsImage.src = src;
-            fsOverlay.classList.add("is-open");
-            fsOverlay.setAttribute("aria-hidden", "false");
-        }
-
-        function closeFullscreen() {
-            fsOverlay.classList.remove("is-open");
-            fsOverlay.setAttribute("aria-hidden", "true");
-            fsImage.removeAttribute("src");
-        }
-
-        if (carImage) {
-            carImage.style.cursor = "zoom-in";
-            carImage.addEventListener("click", openFullscreen);
-        }
-
-        fsClose.addEventListener("click", closeFullscreen);
-        fsOverlay.addEventListener("click", (e) => {
-            if (e.target === fsOverlay) closeFullscreen();
-        });
-
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") {
-                if (fsOverlay.classList.contains("is-open")) closeFullscreen();
+        function updateAutoCustomLink() {
+            const url = new URL(autoLink.href, window.location.origin);
+            
+            if (currentVehicleId) {
+                url.searchParams.set('vehicle_id', currentVehicleId);
             }
-        });
 
-        /* ✅ 画像保存：右下に GARELABO+ */
-        if (fsSave) {
-            fsSave.addEventListener("click", (e) => {
-                e.stopPropagation();
+            const sColor = sessionStorage.getItem('currentColor');
+            const sWheel = sessionStorage.getItem('currentWheel');
+            const sBumper = sessionStorage.getItem('currentBumper');
+            const sAero = sessionStorage.getItem('currentAero'); 
 
-                const src = fsImage.currentSrc || fsImage.src;
-                if (!src) return;
+            if (sColor) url.searchParams.set('color', sColor);
+            if (sWheel) url.searchParams.set('wheel', sWheel);
+            if (sBumper) url.searchParams.set('bumper', sBumper);
+            if (sAero) url.searchParams.set('aero', sAero);
 
-                const img = new Image();
-                img.crossOrigin = "anonymous";
-                img.src = src;
-
-                img.onload = () => {
-                    const canvas = document.createElement("canvas");
-                    canvas.width = img.naturalWidth;
-                    canvas.height = img.naturalHeight;
-
-                    const ctx = canvas.getContext("2d");
-                    if (!ctx) return;
-
-                    ctx.drawImage(img, 0, 0);
-
-                    const text = "GARELABO+";
-                    const fontSize = Math.max(18, Math.floor(canvas.width * 0.03));
-                    const padding = Math.max(12, Math.floor(canvas.width * 0.015));
-
-                    ctx.font = `700 ${fontSize}px "Noto Sans JP", system-ui, sans-serif`;
-                    ctx.textBaseline = "bottom";
-
-                    const textW = ctx.measureText(text).width;
-                    const x = canvas.width - padding;
-                    const y = canvas.height - padding;
-
-                    ctx.shadowColor = "rgba(0,0,0,0.45)";
-                    ctx.shadowBlur = Math.max(2, Math.floor(fontSize * 0.2));
-                    ctx.shadowOffsetX = Math.max(1, Math.floor(fontSize * 0.06));
-                    ctx.shadowOffsetY = Math.max(1, Math.floor(fontSize * 0.06));
-
-                    ctx.fillStyle = "rgba(255,255,255,0.85)";
-                    ctx.fillText(text, x - textW, y);
-
-                    ctx.shadowColor = "transparent";
-                    ctx.shadowBlur = 0;
-                    ctx.shadowOffsetX = 0;
-                    ctx.shadowOffsetY = 0;
-
-                    const now = new Date();
-                    const yyyy = now.getFullYear();
-                    const mm = String(now.getMonth() + 1).padStart(2, "0");
-                    const dd = String(now.getDate()).padStart(2, "0");
-                    const hh = String(now.getHours()).padStart(2, "0");
-                    const mi = String(now.getMinutes()).padStart(2, "0");
-                    const ss = String(now.getSeconds()).padStart(2, "0");
-                    const filename = `garelabo_aero_${yyyy}${mm}${dd}_${hh}${mi}${ss}.jpg`;
-
-                    canvas.toBlob((blob) => {
-                        if (!blob) return;
-
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement("a");
-                        a.href = url;
-                        a.download = filename;
-
-                        document.body.appendChild(a);
-                        a.click();
-                        a.remove();
-
-                        URL.revokeObjectURL(url);
-                    }, "image/jpeg", 0.92);
-                };
-
-                img.onerror = () => {
-                    const a = document.createElement("a");
-                    a.href = src;
-                    a.download = "garelabo_aero.jpg";
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                };
-            });
+            autoLink.href = url.toString();
         }
 
-        /* ===== エアロパーツ：開閉 + 下からスライドイン ===== */
-        (() => {
-            const btn = document.getElementById("open-aeroparts");
-            const panel = document.getElementById("aeroparts-panel");
-            if (!btn || !panel) return;
+        updateAutoCustomLink();
 
-            const open = () => {
-                panel.classList.add("is-open");
-                panel.setAttribute("aria-hidden", "false");
-
-                panel.classList.remove("panel-enter");
-                void panel.offsetWidth;
-                panel.classList.add("panel-enter");
-            };
-
-            const close = () => {
-                panel.classList.remove("is-open");
-                panel.classList.remove("panel-enter");
-                panel.setAttribute("aria-hidden", "true");
-            };
-
-            btn.addEventListener("click", () => {
-                if (panel.classList.contains("is-open")) close();
-                else open();
+        const allBtns = document.querySelectorAll('.aero-btn, .bumper-btn, .wheel-btn, .color-dot');
+        allBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                 setTimeout(updateAutoCustomLink, 50);
             });
-
-            document.addEventListener("keydown", (e) => {
-                if (e.key === "Escape") close();
-            });
-        })();
-
-        /* ✅ エアロ選択：トグル取り消し対応（wheelと同じ） */
-        (() => {
-            const buttons = Array.from(document.querySelectorAll("#aeroRow .aero-btn"));
-            const noneBtn = document.querySelector('#aeroRow .aero-btn[data-aero="none"]');
-            const aeroValue = document.getElementById("aeroValue");
-            const selectedAero = document.getElementById("selected-aero");
-            if (!buttons.length || !noneBtn || !aeroValue || !selectedAero) return;
-
-            const selectValue = (val) => {
-                buttons.forEach((b) => b.classList.remove("is-selected"));
-
-                const target = buttons.find((b) => (b.dataset.aero || "none") === val) || noneBtn;
-                target.classList.add("is-selected");
-
-                aeroValue.value = val;
-                selectedAero.value = val;
-
-                // ✅ ここで車画像の差し替えとか合成処理を将来入れる
-                // console.log("selected aero:", val);
-            };
-
-            buttons.forEach((btn) => {
-                btn.addEventListener("click", () => {
-                    const val = btn.dataset.aero || "none";
-
-                    // 取り消しは常に none
-                    if (val === "none") {
-                        selectValue("none");
-                        return;
-                    }
-
-                    // 同じ選択をもう一回押したら解除（none）
-                    if (btn.classList.contains("is-selected")) {
-                        selectValue("none");
-                        return;
-                    }
-
-                    // 通常選択
-                    selectValue(val);
-                });
-            });
-        })();
+        });
+    });
     </script>
-</body>
+  </body>
 </html>
