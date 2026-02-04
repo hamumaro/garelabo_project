@@ -906,70 +906,103 @@ def update_session_parts(request):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
+
 # カスタム保存
 @login_required
 def custom_save(request):
-    if request.method == 'POST':
-        custom_data = request.session.get('custom_data', {})
-        vehicle_id = custom_data.get('vehicle_id')
-        
-        if not vehicle_id:
-            return redirect('car_select')
+    if request.method != 'POST':
+        return redirect('car_select')
 
-        # 1. 必要なオブジェクトをすべて取得
-        vehicle = get_object_or_404(Vehicle, id=vehicle_id)
-        color = Color.objects.filter(id=custom_data.get('color_id')).first()
-        wheel = Wheel.objects.filter(id=custom_data.get('wheel_id')).first()
-        bumper = Bumper.objects.filter(id=custom_data.get('bumper_id')).first()
-        
-        # 2. 価格計算
-        total = Decimal("0")
-        if color: total += Decimal(str(color.price or 0))
-        if wheel: total += Decimal(str(wheel.price or 0))
-        if bumper: total += Decimal(str(bumper.price or 0))
-        
-        # お気に入り状態の取得
-        is_favorite = request.POST.get('is_favorite') == 'true'
+    custom_data = request.session.get('custom_data', {})
+    vehicle_id = custom_data.get('vehicle_id')
 
-        # 3. DB保存処理
-        editing_id = request.session.get('editing_custom_id')
-        
-        
-        try:
-            with transaction.atomic():
-                if editing_id:
-                    # 編集（更新）
-                    custom_obj = get_object_or_404(SavedCustom, id=editing_id, user=request.user)
-                else:
-                    # 新規作成
-                    custom_obj = SavedCustom(user=request.user)
+    if not vehicle_id:
+        return redirect('car_select')
 
-                custom_obj.vehicle = vehicle
-                custom_obj.color = color
-                custom_obj.wheel = wheel
-                custom_obj.bumper = bumper
-                custom_obj.total_price = total
-                custom_obj.is_favorite = is_favorite
-                custom_obj.save()
-                
-                print(f"DEBUG: Saved Custom ID {custom_obj.id} for {request.user}")
+    # 1) 必要なオブジェクト取得
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
 
-            # 4. セッションのクリア（これをしないと「新規」が「更新」になり続けます）
-            if 'editing_custom_id' in request.session:
-                del request.session['editing_custom_id']
-            # custom_dataは削除しても良いし、残しても良いですが、一旦クリアを推奨
-            if 'custom_data' in request.session:
-                del request.session['custom_data']
-            
-            request.session.modified = True
-            return redirect('list_page')
+    color  = Color.objects.filter(id=custom_data.get('color_id')).first()
+    wheel  = Wheel.objects.filter(id=custom_data.get('wheel_id')).first()
+    bumper = Bumper.objects.filter(id=custom_data.get('bumper_id')).first()
 
-        except Exception as e:
-            print(f"SAVE ERROR: {e}")
-            return HttpResponse(f"保存失敗: {e}", status=500)
+    # aero を使うなら取得（モデルがある前提）
+    aero = Aero.objects.filter(id=custom_data.get('aero_id')).first() if 'aero_id' in custom_data else None
 
-    return redirect('car_select')
-    
+    # 2) 価格計算
+    total = Decimal("0")
+    if color:  total += Decimal(str(color.price or 0))
+    if wheel:  total += Decimal(str(wheel.price or 0))
+    if bumper: total += Decimal(str(bumper.price or 0))
+    if aero:   total += Decimal(str(getattr(aero, "price", 0) or 0))
+
+    is_favorite = (request.POST.get('is_favorite') == 'true')
+
+    # 3) 画像URL生成（JSのルールに合わせて normal を矯正）
+    def last_folder(value, default):
+        """
+        value: 例) 'uploads/xxx/bumper1' や 'bumper1'
+        """
+        if not value:
+            return default
+        s = str(value).replace("\\", "/").rstrip("/")
+        return s.split("/")[-1] if s else default
+
+    # 車フォルダ（Vehicle に name_en がある想定。無ければ別の字段へ）
+    car_folder = getattr(vehicle, "name_en", None) or "CompactSedan"
+
+    color_folder  = last_folder(getattr(color, "rotation_image_folder", None), "white")
+    wheel_folder  = last_folder(getattr(wheel, "image_url", None), "wheel1")
+
+    bumper_folder = last_folder(getattr(bumper, "image_url", None), "bumper1")
+    if bumper_folder == "normal":
+        bumper_folder = "bumper1"
+
+    aero_folder = last_folder(getattr(aero, "image_url", None), "aero1")
+    if aero_folder == "normal":
+        aero_folder = "aero1"
+
+    preview_url = f"/media/uploads/vehicles/{car_folder}/{color_folder}/{wheel_folder}/{bumper_folder}/{aero_folder}/side_left.png"
+
+    # 4) DB保存
+    editing_id = request.session.get('editing_custom_id')
+
+    try:
+        with transaction.atomic():
+            if editing_id:
+                custom_obj = get_object_or_404(SavedCustom, id=editing_id, user=request.user)
+            else:
+                custom_obj = SavedCustom(user=request.user)
+
+            custom_obj.vehicle = vehicle
+            custom_obj.color = color
+            custom_obj.wheel = wheel
+            custom_obj.bumper = bumper
+            custom_obj.total_price = total
+            custom_obj.is_favorite = is_favorite
+
+            # ★ここが重要: URL を保存
+            custom_obj.preview_image_url = preview_url  # ← SavedCustom のフィールド名に合わせる
+
+            # aero もDBに持たせるなら（SavedCustom に aero FK がある場合）
+            if hasattr(custom_obj, "aero"):
+                custom_obj.aero = aero
+
+            custom_obj.save()
+
+        # 5) セッションクリア
+        request.session.pop('editing_custom_id', None)
+        request.session.pop('custom_data', None)
+        request.session.modified = True
+
+        return redirect('list_page')
+
+    except Exception as e:
+        print(f"SAVE ERROR: {e}")
+        return HttpResponse(f"保存失敗: {e}", status=500)
+
+
+
 def menu_error_view(request):
     return render(request, "menu_error.html", status=500)
 

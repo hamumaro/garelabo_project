@@ -109,7 +109,7 @@ class SavedCustom(models.Model):
     aero = models.ForeignKey(Aero, on_delete=models.PROTECT, null=True, blank=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     display_mode = models.BooleanField(default=False)
-    preview_image_url = models.ImageField(upload_to=user_preview_path)
+    preview_image_url = models.CharField(max_length=255, blank=True, default="")
     saved_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_favorite = models.BooleanField(default=False)
