@@ -72,7 +72,7 @@ def list_page_view(request):
             # ★修正: パス構成を変更 (.../wheel/bumper/aero/...)
             item.generated_image_url = (
                 f"/media/uploads/vehicles/{car_folder}/"
-                f"{color_folder}/{wheel_folder}/{bumper_folder}/{aero_folder}/side_left.png"
+                f"{color_folder}/{wheel_folder}/{bumper_folder}/{aero_folder}/front.png"
             )
     else:
         custom_items = []
@@ -90,6 +90,37 @@ def favorite_page_view(request):
             user=request.user,
             is_favorite=True
         ).order_by('-updated_at')
+    else:
+        custom_items = []
+
+    if request.user.is_authenticated:
+        # 関連パーツを一括取得
+        custom_items = SavedCustom.objects.filter(
+            user=request.user,
+            is_favorite=True
+            
+        ).select_related(
+            "vehicle", "color", "wheel", "bumper", "light", "aero"
+        ).order_by('-updated_at')
+
+        for item in custom_items:
+            def get_folder(obj, attr_name, default=""):
+                if obj and getattr(obj, attr_name):
+                    return str(getattr(obj, attr_name)).replace('\\', '/').rstrip('/').split('/')[-1]
+                return default
+
+            car_folder = item.vehicle.name_en if item.vehicle else "CompactSedan"
+            color_folder = get_folder(item.color, 'rotation_image_folder', "black")
+            wheel_folder = get_folder(item.wheel, 'image_url', "wheel1")
+            bumper_folder = get_folder(item.bumper, 'image_url', "bumper1")
+            # ★追加: エアロフォルダの取得 (デフォルトは aero1 または normal など環境に合わせてください)
+            aero_folder = get_folder(item.aero, 'image_url', "normal")
+
+            # ★修正: パス構成を変更 (.../wheel/bumper/aero/...)
+            item.generated_image_url = (
+                f"/media/uploads/vehicles/{car_folder}/"
+                f"{color_folder}/{wheel_folder}/{bumper_folder}/{aero_folder}/front.png"
+            )
     else:
         custom_items = []
 
@@ -926,15 +957,16 @@ def custom_save(request):
     wheel  = Wheel.objects.filter(id=custom_data.get('wheel_id')).first()
     bumper = Bumper.objects.filter(id=custom_data.get('bumper_id')).first()
 
-    # aero を使うなら取得（モデルがある前提）
-    aero = Aero.objects.filter(id=custom_data.get('aero_id')).first() if 'aero_id' in custom_data else None
+    # custom_save 内：取得を追加
+    aero = Aero.objects.filter(id=custom_data.get('aero_id')).first()
 
     # 2) 価格計算
     total = Decimal("0")
     if color:  total += Decimal(str(color.price or 0))
     if wheel:  total += Decimal(str(wheel.price or 0))
     if bumper: total += Decimal(str(bumper.price or 0))
-    if aero:   total += Decimal(str(getattr(aero, "price", 0) or 0))
+    # 価格に加算（必要なら）
+    if aero: total += Decimal(str(aero.price or 0))
 
     is_favorite = (request.POST.get('is_favorite') == 'true')
 
@@ -962,7 +994,7 @@ def custom_save(request):
     if aero_folder == "normal":
         aero_folder = "aero1"
 
-    preview_url = f"/media/uploads/vehicles/{car_folder}/{color_folder}/{wheel_folder}/{bumper_folder}/{aero_folder}/side_left.png"
+    preview_url = f"/media/uploads/vehicles/{car_folder}/{color_folder}/{wheel_folder}/{bumper_folder}/{aero_folder}/front.png"
 
     # 4) DB保存
     editing_id = request.session.get('editing_custom_id')
@@ -984,7 +1016,7 @@ def custom_save(request):
             # ★ここが重要: URL を保存
             custom_obj.preview_image_url = preview_url  # ← SavedCustom のフィールド名に合わせる
 
-            # aero もDBに持たせるなら（SavedCustom に aero FK がある場合）
+            # DB保存に反映（SavedCustom に aero がある場合）
             if hasattr(custom_obj, "aero"):
                 custom_obj.aero = aero
 
