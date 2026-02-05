@@ -114,11 +114,25 @@
                 aria-label="black"
               ></button>
 
-              <button type="button" class="garelabo-palette__chip" style="--c:#f2c94c;" data-color="#f2c94c" aria-label="yellow"></button>
+              {% comment %} <button type="button" class="garelabo-palette__chip" style="--c:#f2c94c;" data-color="#f2c94c" aria-label="yellow"></button>
               <button type="button" class="garelabo-palette__chip" style="--c:#f2994a;" data-color="#f2994a" aria-label="orange"></button>
               <button type="button" class="garelabo-palette__chip" style="--c:#eb5757;" data-color="#eb5757" aria-label="red"></button>
               <button type="button" class="garelabo-palette__chip" style="--c:#2d9cdb;" data-color="#2d9cdb" aria-label="blue"></button>
-              <button type="button" class="garelabo-palette__chip" style="--c:#27ae60;" data-color="#27ae60" aria-label="green"></button>
+              <button type="button" class="garelabo-palette__chip" style="--c:#27ae60;" data-color="#27ae60" aria-label="green"></button> {% endcomment %}
+              {% for c in colors %}
+                {% if c.rotation_image_folder %}
+                  {# rotation_image_folder の末尾フォルダ名を dataset に入れる #}
+                  {% with c.rotation_image_folder|cut:"\\" as p %}
+                    <button
+                      type="button"
+                      class="garelabo-palette__chip"
+                      style="--c: {{ c.hex_color|default:'#888' }};"
+                      data-color="{{ p|slice:'-1:' }}"
+                      aria-label="{{ c.name|default:'color' }}"
+                    ></button>
+                  {% endwith %}
+                {% endif %}
+              {% endfor %}
             </div>
 
             <input type="hidden" id="bodyColorValue" name="body_color" value="#e6e6e6" />

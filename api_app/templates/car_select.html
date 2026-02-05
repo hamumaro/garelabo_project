@@ -141,7 +141,7 @@
                 return;
               }
               window.location.href =
-                "{% url 'custom_menu_bodycolor' %}?car=" + encodeURIComponent(nameEn);
+                "{% url 'custom_menu_bodycolor' %}?car=" + encodeURIComponent(nameEn) + "&reset=true";
             }
           </script>
 
@@ -169,6 +169,13 @@
           <p style="text-align: center; color: white;">車両データが存在しません</p>
         {% endif %}
       </section>
+      <!-- ✅ JSへ渡すサーバー値 -->
+      <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}">
+      <input type="hidden" id="server-car-folder" value="{{ car_folder }}">
+      <input type="hidden" id="server-color-folder" value="{{ current_color_folder }}">
+      <input type="hidden" id="server-wheel-folder" value="{{ current_wheel_folder }}">
+      <input type="hidden" id="server-bumper-folder" value="{{ current_bumper_folder }}">
+      <input type="hidden" id="server-aero-folder" value="{{ current_aero_folder }}">
     </main>
   </body>
 </html>
