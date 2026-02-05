@@ -130,6 +130,11 @@
                             id="is-favorite"
                             value="{% if is_favorite %}true{% else %}false{% endif %}"
                         />
+
+                        {% if current_custom_id %}
+                            <input type="hidden" name="custom_id" value="{{ current_custom_id }}">
+                        {% endif %}
+
                         <button type="submit" class="save-custom-btn">カスタム内容保存</button>
                     </form>
                 </div>

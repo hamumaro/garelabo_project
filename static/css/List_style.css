@@ -1,20 +1,42 @@
+/* ==============================
+   List_style.css
+   ・Favorite_Listのデザイン（ガンメタ背景、カード型）をベース
+   ・List独自のイントロアニメーション機能を追加統合
+============================== */
+
 :root {
     --blue: #4d94ff;
     --dark-ribbon: #1a237e;
+
+    --card-bg: #ffffff;
+    --card-border: rgba(0, 0, 0, 0.10);
+    --shadow-1: 0 16px 38px rgba(0, 0, 0, 0.10);
+
+    --text: #111;
+    --text-sub: rgba(0, 0, 0, 0.60);
 }
 
-* {
+/* ===== リセット + 事故防止 ===== */
+*,
+*::before,
+*::after {
     box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
 }
 
 html,
 body {
     margin: 0;
     font-family: Inter, "Noto Sans JP", system-ui, sans-serif;
-    overflow-x: hidden; /* ✅ 全画面で横ズレ・見切れ防止 */
+    overflow-x: hidden; /* 全画面で横ズレ・見切れ防止 */
+    color: var(--text);
 }
 
-/* ===== 背景（ガンメタ） ===== */
+/* ===== 背景（ガンメタ） - Favoriteのデザインを適用 ===== */
 body {
     background:
         radial-gradient(1200px 700px at 20% 0%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.00) 55%),
@@ -27,72 +49,90 @@ body {
     background-attachment: fixed;
 }
 
-/* ===== ヘッダー全体 ===== */
-.header {
-    background: #000;
-    color: #fff;
-    border-bottom: 3px solid #fff;
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
 }
 
-/* ✅ フル幅 + ロゴを切らない（見切れ対策） */
+button {
+    font: inherit;
+}
+
+/* ==============================
+   HEADER（Favoriteスタイル）
+============================== */
+.header {
+    width: 100%;
+    background: #000;
+    color: #fff;
+    position: relative;
+    z-index: 10;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.90);
+    
+    /* イントロアニメーション用の初期状態 */
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 520ms ease, transform 520ms cubic-bezier(.2, .9, .2, 1);
+}
+
 .header-inner {
     width: 100%;
     max-width: none;
     margin: 0;
     position: relative;
-    height: clamp(280px, 22vw, 380px); /* ✅ 全画面で窮屈になりにくい */
-    overflow: visible; /* ✅ ロゴを切らない */
+    padding: 18px 18px 12px;
+    height: clamp(280px, 22vw, 380px);
+    overflow: visible;
 }
 
-/* ===== 背景画像エリア（背景だけ切る） ===== */
 .header-grid {
     display: grid;
-    grid-template-columns: 1.2fr 1fr 1.2fr; /* ✅ “一覧の真上＝画面中央” を合わせやすい */
+    grid-template-columns: 1.2fr 1fr 1.2fr;
     height: 100%;
     width: 100%;
     gap: 0;
-    overflow: hidden; /* ✅ 背景画像だけはみ出しを切る */
+    overflow: hidden;
+    border-radius: 0;
 }
 
 .panel {
     height: 100%;
     background: #000;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
 }
 
 .panel img {
     width: 100%;
     height: 100%;
-    opacity: 0.9;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
-}
-
-/* ✅ 全画面で左右・中央が見切れる対策：切らずに全部見せる */
-.header-grid .panel:nth-child(1) img{
-    padding-bottom: 18px;
-    object-fit: contain;      /* ✅ 見切れゼロ優先 */
-    object-position: center top;  /* ✅ 真ん中寄せ */
     opacity: 1;
 }
 
-.header-grid .panel:nth-child(2) img {
-    object-fit: contain !important;
-    object-position: 50% 0% !important; /* center top */
-    opacity: 1 !important;
+/* ロゴ位置調整 */
+.garelabo-logo {
+    width: clamp(320px, 24vw, 520px);
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45));
     
+    /* grid内に配置される場合の調整（Favorite_List.htmlの構造準拠） */
+    grid-column: 3; 
+    position: absolute; /* header-grid内ではなく絶対配置で重ねる場合 */
+    right: 22px;
+    bottom: 58px;
+    z-index: 10;
 }
 
-/* 右の空パネル（黒） */
-.header-grid .panel:nth-child(3) {
-    background: #000;
-}
-
-/* ===== 右上：ユーザー情報 ===== */
 .user-info-overlay {
     position: absolute;
     top: 10px;
     right: 15px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 10px;
     z-index: 100;
@@ -104,47 +144,35 @@ body {
     right: 15px;
     background: #fff;
     color: #000;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 8px 12px;
+    border-radius: 10px;
     text-decoration: none;
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 900;
     z-index: 100;
+    border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
 .username {
     color: #fff;
-    font-weight: 700;
-    font-size: 16px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    font-weight: 800;
+    font-size: 14px;
+    white-space: nowrap;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.80);
 }
 
 .user-icon {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: #ccc;
-    border: 2px solid #fff;
+    background: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    object-fit: cover;
 }
 
-/* ===== 右側：ロゴ ===== */
-.logo-overlay {
-    position: absolute;
-    right: 22px;
-    bottom: 58px;
-    z-index: 10;
-    text-align: right;
-    pointer-events: none;
-}
-
-.garelabo-logo {
-    width: clamp(320px, 24vw, 520px); /* ✅ 右ロゴ拡大 */
-    max-width: 100%;
-    height: auto;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-}
-
-/* ===== 右下：リボン ===== */
+/* ==============================
+   リボンメニュー
+============================== */
 .ribbons-overlay {
     position: absolute;
     bottom: 0;
@@ -194,175 +222,242 @@ body {
     filter: brightness(1.1);
 }
 
-/* ===== セクションタイトル ===== */
-.section-title-bar {
-    background: #000;
-    padding: 5px 0;
-    text-align: center;
-    border-bottom: 1px solid #333;
-}
-
-.section-title-inner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    width: min(1100px, 96vw);
-    margin: 0 auto;
-}
-
+/* ==============================
+   セクションタイトル
+============================== */
 .section-title {
-    color: #fff;
-    font-weight: 500;
-    font-size: 20px;
-    letter-spacing: 0.1em;
-}
-
-.title-line {
-    display: block;
-    height: 1px;
-    width: 100px;
-    background: #fff;
-}
-
-/* ===== コンテンツ ===== */
-.content {
-    min-height: 520px;
-    padding: 40px 20px;
-    display: flex;
-    justify-content: center;
-}
-
-/* ===== 一覧グリッド ===== */
-.custom-data-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 30px;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    align-items: start;
-}
-
-/* ===== カード ===== */
-.custom-card {
-    background: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    height: fit-content;
-}
-
-.card-image-area {
-    padding: 10px;
-    background: #fff;
-}
-
-.preview-img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-.card-footer {
-    background: #e6e6e6;
-    padding: 8px 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid #ddd;
-}
-
-.saved-date {
-    font-size: 13px;
-    color: #333;
-    margin: 0;
-    font-weight: 500;
-}
-
-.delete-form {
-    margin: 0;
-}
-
-.delete-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    opacity: 0.6;
-}
-
-.delete-btn:hover {
-    opacity: 1;
-}
-
-.delete-btn img {
-    width: 16px;
-    height: 16px;
-}
-
-/* ===== empty表示（中央・大きい・見やすい） ===== */
-.no-data-message-wrap {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 16px;
-}
-
-.no-data-message {
-    margin: 0;
-    padding: 22px 26px;
+    width: min(1100px, 96vw);
+    margin: 18px auto 0;
+    padding: 0 16px;
     text-align: center;
-
-    font-size: 32px;
+    font-size: 18px;
     font-weight: 900;
     letter-spacing: 0.06em;
-    line-height: 1.8;
-
-    color: rgba(255, 255, 255, 0.96);
+    color: rgba(255, 255, 255, 0.92);
     text-shadow:
         0 2px 8px rgba(0, 0, 0, 0.65),
         0 14px 40px rgba(0, 0, 0, 0.55);
 
-    background: rgba(0, 0, 0, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 14px;
-    backdrop-filter: blur(10px);
-
-    max-width: 900px;
-}
-
-/* =========================================
-   ✅ イントロ（文字だけ）
-========================================= */
-@media (prefers-reduced-motion: reduce) {
-    .intro-overlay,
-    .intro-text {
-        animation: none !important;
-        transition: none !important;
-        transform: none !important;
-        opacity: 1 !important;
-        filter: none !important;
-    }
-    .intro-overlay {
-        display: none !important;
-    }
-}
-
-.header,
-.section-title-bar,
-main.content {
+    /* イントロアニメーション用 */
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 520ms ease, transform 520ms cubic-bezier(.2, .9, .2, 1);
 }
 
+/* ==============================
+   メインコンテンツ
+============================== */
+.content {
+    min-height: 520px;
+    padding: 34px 16px 56px;
+    width: min(1200px, 96vw);
+    margin: 0 auto;
+
+    /* イントロアニメーション用 */
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 520ms ease, transform 520ms cubic-bezier(.2, .9, .2, 1);
+}
+
+/* ==============================
+   カードグリッド（Favoriteデザイン）
+============================== */
+.fav-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+    align-items: start;
+}
+
+.fav-card {
+    border-radius: 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+    box-shadow: var(--shadow-1);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.fav-thumb {
+    display: block;
+    background: #0b0b0b;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+}
+
+.fav-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #0b0b0b;
+}
+
+.fav-body {
+    padding: 14px 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.fav-title {
+    font-weight: 900;
+    font-size: 14px;
+    color: #111;
+    line-height: 1.4;
+}
+
+.fav-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 900;
+    color: rgba(0, 0, 0, 0.70);
+    background: rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.date {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-sub);
+    white-space: nowrap;
+}
+
+.fav-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 2px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    padding: 0 14px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 900;
+    font-size: 13px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    color: #fff;
+    background: linear-gradient(135deg, var(--blue), var(--dark-ribbon));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
+}
+
+.btn-ghost {
+    color: #111;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+/* ==============================
+   空状態
+============================== */
+.empty {
+    margin: 28px auto 0;
+    padding: 26px 18px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(0, 0, 0, 0.45);
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.28);
+    text-align: center;
+    color: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    width: min(900px, 96vw);
+}
+
+.empty-title {
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 0.06em;
+}
+
+.empty-text {
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+/* ==============================
+   レスポンシブ
+============================== */
+@media (max-width: 980px) {
+    .header-inner {
+        height: clamp(240px, 32vw, 320px);
+    }
+
+    .ribbons-overlay {
+        right: 12px;
+        bottom: 12px;
+        justify-content: center;
+    }
+
+    .fav-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .garelabo-logo {
+        width: clamp(260px, 62vw, 420px);
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        bottom: 78px;
+    }
+
+    .user-info-overlay,
+    .login-btn-overlay {
+        top: 10px;
+        right: 10px;
+    }
+
+    .ribbons-overlay {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        bottom: 12px;
+    }
+
+    .fav-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================
+   ✅ イントロアニメーション (List機能の統合)
+========================================= */
+
+/* アニメーション完了時の表示状態 */
 body.is-ready .header,
-body.is-ready .section-title-bar,
+body.is-ready .section-title,
 body.is-ready main.content {
     opacity: 1;
     transform: translateY(0);
@@ -372,7 +467,8 @@ body.is-intro {
     overflow: hidden;
 }
 
-body.is-intro .logo-overlay {
+/* イントロ中はロゴを隠す（オーバーレイと被るため） */
+body.is-intro .garelabo-logo {
     opacity: 0;
     visibility: hidden;
 }
@@ -419,6 +515,49 @@ body.is-intro .intro-overlay {
     transform: translateY(22px) scale(0.88);
     animation: introCine 1550ms cubic-bezier(.18, .9, .18, 1) forwards;
 }
+
+@keyframes introCine {
+    0% {
+        opacity: 0;
+        transform: translateY(22px) scale(0.88);
+        filter: brightness(0.95);
+    }
+    30% {
+        opacity: 1;
+        transform: translateY(0) scale(1.06);
+        filter: brightness(1.14);
+    }
+    62% {
+        opacity: 1;
+        transform: translateY(0) scale(1.00);
+        filter: brightness(1.03);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-10px) scale(1.02);
+        filter: brightness(1.00);
+    }
+}
+
+/* 減弱モーション設定 */
+@media (prefers-reduced-motion: reduce) {
+    .intro-overlay,
+    .intro-text {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+        filter: none !important;
+    }
+    .intro-overlay {
+        display: none !important;
+    }
+    .header, .section-title, .content {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
 
 @keyframes introCine {
     0% {

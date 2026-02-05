@@ -11,6 +11,12 @@
 
 <body>
 
+    <div class="intro-overlay" aria-hidden="true">
+<div class="intro-sheen">
+<h1 class="intro-text" aria-label="GARELABO+">GARELABO+</h1>
+</div>
+</div>
+
 <header class="header">
     <div class="header-inner">
 
@@ -50,7 +56,7 @@
                 カスタム作成
             </a>
             {% endif %}
-            <a class="ribbon ribbon-dark" href="{% url 'favorite_page' %}">
+            <a class="ribbon ribbon-dark" href="{% url 'list_page' %}">
                 <img src="{% static 'assets/一覧.png' %}" alt="一覧へ戻る">
                 一覧へ戻る
             </a>
@@ -68,13 +74,22 @@
         {% if custom_items %}
         <div class="fav-grid">
             {% for item in custom_items %}
-            <article class="fav-card">
+                <article class="fav-card">
                 <a class="fav-thumb" href="{% url 'custom_menu_bodycolor' item.id %}">
-                    {% if item.vehicle and item.vehicle.base_image_path %}
-                        <img src="{{ item.vehicle.base_image_path.url }}" alt="preview">
-                    {% else %}
-                        <img src="{% static 'assets/一覧車両.png' %}" alt="no image">
-                    {% endif %}
+
+                                        {% if item.preview_image_url %}
+                <img src="{{ item.preview_image_url }}" alt="preview">
+
+                                        {% elif item.generated_image_url %}
+                <img src="{{ item.generated_image_url }}" alt="generated">
+
+                                        {% elif item.vehicle and item.vehicle.base_image_path %}
+                <img src="{{ item.vehicle.base_image_path.url }}" alt="base">
+
+                                        {% else %}
+                <img src="{% static 'assets/一覧車両.png' %}" alt="no image">
+
+                                        {% endif %}
                 </a>
 
                 <div class="fav-body">
@@ -125,6 +140,52 @@
     {% endif %}
 
 </main>
+<script>
+
+        window.addEventListener("DOMContentLoaded", () => {
+
+            const overlay = document.querySelector(".intro-overlay");
+
+            const text = document.querySelector(".intro-overlay .intro-text");
+ 
+            document.body.classList.add("is-intro");
+ 
+            // 保険：アニメーション終了を検知できない場合のフォールバック時間
+
+            const INTRO_FALLBACK_MS = 1900;
+ 
+            const finishIntro = () => {
+
+                document.body.classList.remove("is-intro");
+
+                document.body.classList.add("is-ready");
+
+                if (overlay) overlay.remove();
+
+            };
+ 
+            if (text) {
+
+                text.addEventListener("animationend", () => {
+
+                    finishIntro();
+
+                }, { once: true });
+
+            }
+ 
+            window.setTimeout(() => {
+
+                if (document.body.classList.contains("is-intro")) {
+
+                    finishIntro();
+
+                }
+
+            }, INTRO_FALLBACK_MS);
+
+        });
+</script>
 
 </body>
 </html>
