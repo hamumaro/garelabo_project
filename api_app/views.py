@@ -829,15 +829,23 @@ def auto_custom_api(request):
         custom_data = request.session.get('custom_data', {})
         current_is_favorite = custom_data.get('is_favorite', False)
 
-        # ランダムにパーツを取得
-        vehicle = Vehicle.objects.order_by('?').first()
+        # ▼▼▼ 修正箇所: 車両をランダムではなく、セッションの選択状態から取得する ▼▼▼
+        vehicle_id = custom_data.get('vehicle_id')
+        vehicle = Vehicle.objects.filter(id=vehicle_id).first()
+
+        # 万が一セッションに車両がない場合の安全策（ランダムまたは最初の1台）
+        if not vehicle:
+            vehicle = Vehicle.objects.first()
+        # ▲▲▲ 修正ここまで ▲▲▲
+
+        # 選択された車両(vehicle)に紐づくパーツをランダムに取得
         color   = Color.objects.filter(vehicle=vehicle).order_by('?').first()
         wheel   = Wheel.objects.filter(vehicle=vehicle).order_by('?').first()
         bumper  = Bumper.objects.filter(vehicle=vehicle).order_by('?').first()
         light   = Light.objects.filter(vehicle=vehicle).order_by('?').first()
         aero    = Aero.objects.filter(vehicle=vehicle).order_by('?').first()
 
-        # セッション更新
+        # セッション更新 (車両IDは維持、パーツIDのみ更新)
         custom_data.update({
             'vehicle_id': vehicle.id,
             'color_id': color.id if color else None,
@@ -850,7 +858,7 @@ def auto_custom_api(request):
         request.session['custom_data'] = custom_data
         request.session.modified = True 
 
-        # --- フォルダ名抽出ロジック ---
+        # --- フォルダ名抽出ロジック (既存のまま) ---
 
         # 1. カラー
         color_folder_name = "black"
@@ -864,13 +872,13 @@ def auto_custom_api(request):
             clean_path = str(wheel.image_url).replace('\\', '/').rstrip('/')
             wheel_folder_name = clean_path.split('/')[-1]
 
-        # 3. バンパー (★ここを追加)
+        # 3. バンパー
         bumper_folder = "bumper1"
         if bumper and bumper.image_url:
             clean_path = str(bumper.image_url).replace('\\', '/').rstrip('/')
             bumper_folder = clean_path.split('/')[-1]
 
-        # 4. エアロ (★ここを追加)
+        # 4. エアロ
         aero_folder = "aero1"
         if aero and aero.image_url:
             clean_path = str(aero.image_url).replace('\\', '/').rstrip('/')
@@ -893,6 +901,7 @@ def auto_custom_api(request):
     except Exception as e:
         print(f"API Error: {e}") 
         return JsonResponse({'error': str(e)}, status=500)
+    
 
 
 def car_select(request):
@@ -1109,10 +1118,16 @@ def custom_save(request):
 
     try:
         with transaction.atomic():
+            # ▼▼▼ 修正箇所: get_object_or_404 をやめて、安全な取得方法に変更 ▼▼▼
+            custom_obj = None
             if editing_id:
-                custom_obj = get_object_or_404(SavedCustom, id=editing_id, user=request.user)
-            else:
+                # IDがある場合は検索してみる（無ければ None になる）
+                custom_obj = SavedCustom.objects.filter(id=editing_id, user=request.user).first()
+            
+            if not custom_obj:
+                # ID指定がない、または指定されたIDのデータが消えていた場合は「新規作成」
                 custom_obj = SavedCustom(user=request.user)
+            # ▲▲▲ 修正ここまで ▲▲▲
 
             custom_obj.vehicle = vehicle
             custom_obj.color = color
@@ -1122,7 +1137,7 @@ def custom_save(request):
             custom_obj.is_favorite = is_favorite
 
             # ★ここが重要: URL を保存
-            custom_obj.preview_image_url = preview_url  # ← SavedCustom のフィールド名に合わせる
+            custom_obj.preview_image_url = preview_url
 
             # DB保存に反映（SavedCustom に aero がある場合）
             if hasattr(custom_obj, "aero"):
@@ -1140,7 +1155,6 @@ def custom_save(request):
     except Exception as e:
         print(f"SAVE ERROR: {e}")
         return HttpResponse(f"保存失敗: {e}", status=500)
-
 
 
 def menu_error_view(request):
