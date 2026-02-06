@@ -358,6 +358,91 @@ def custom_menu(request, custom_id=None):
 
 
 # カラー (★ここを修正: リセットロジック追加)
+# def custom_menu_bodycolor(request, custom_id=None):
+#     restore_session_backup(request)
+
+#     # ===== 初期化 (編集モード) =====
+#     if custom_id:
+#         saved = SavedCustom.objects.filter(id=custom_id, user=request.user).first()
+#         if saved:
+#             request.session["custom_data"] = {
+#                 'vehicle_id': saved.vehicle.id if saved.vehicle else None,
+#                 'color_id': saved.color.id if saved.color else None,
+#                 'wheel_id': saved.wheel.id if saved.wheel else None,
+#                 'bumper_id': saved.bumper.id if saved.bumper else None,
+#                 'light_id': saved.light.id if saved.light else None,
+#                 'aero_id': saved.aero.id if saved.aero else None,
+#                 'is_favorite': saved.is_favorite,
+#             }
+#             request.session['editing_custom_id'] = saved.id
+#         else:
+#             request.session.pop('editing_custom_id', None)
+
+#     custom_data = request.session.get('custom_data', {})
+
+#     # ▼▼▼▼▼ 修正箇所 ▼▼▼▼▼
+#     req_car_name = request.GET.get('car')
+#     req_reset = request.GET.get('reset') # ★リセットフラグ取得
+
+#     if req_car_name:
+#         vehicle_obj = Vehicle.objects.filter(name_en=req_car_name).first()
+#         if vehicle_obj:
+#             current_vid = custom_data.get('vehicle_id')
+            
+#             # 車両が違う場合、または「reset=true」がある場合は強制リセット
+#             if (current_vid != vehicle_obj.id) or (req_reset == 'true'):
+#                 custom_data = {
+#                     'vehicle_id': vehicle_obj.id,
+#                     'color_id': None,   # 全パーツをリセット
+#                     'wheel_id': None,
+#                     'bumper_id': None,
+#                     'light_id': None,
+#                     'aero_id': None,
+#                     'is_favorite': False 
+#                 }
+#                 request.session['custom_data'] = custom_data
+#                 request.session.modified = True
+#     # ▲▲▲▲▲ 修正箇所ここまで ▲▲▲▲▲
+    
+#     vehicle_id = custom_data.get('vehicle_id')
+#     vehicle = Vehicle.objects.filter(id=vehicle_id).first() or Vehicle.objects.first()
+    
+#     vehicles = Vehicle.objects.all().order_by('id')
+#     if not vehicle_id and vehicles.exists():
+#         vehicle_id = vehicles.first().id
+#         custom_data['vehicle_id'] = vehicle_id
+#         request.session['custom_data'] = custom_data
+
+#     colors = Color.objects.filter(vehicle_id=vehicle_id)
+#     current_color = Color.objects.filter(id=custom_data.get('color_id')).first()
+#     current_wheel = Wheel.objects.filter(id=custom_data.get('wheel_id')).first()
+#     current_bumper = Bumper.objects.filter(id=custom_data.get('bumper_id')).first()
+
+#     def get_folder(obj, attr_name):
+#         if obj and getattr(obj, attr_name):
+#             return str(getattr(obj, attr_name)).replace('\\', '/').rstrip('/').split('/')[-1]
+#         return ""
+
+#     car_folder = vehicle.name_en if vehicle else "CompactSedan"
+#     current_color_folder = get_folder(current_color, 'rotation_image_folder')
+#     current_wheel_folder = get_folder(current_wheel, 'image_url')
+#     current_bumper_folder = get_folder(current_bumper, 'image_url')
+
+#     context = {
+#         'colors': colors,
+#         'color': current_color,
+#         'current_color_id': int(custom_data.get('color_id')) if custom_data.get('color_id') else None,
+#         'vehicle_id': vehicle_id,
+#         'vehicle': vehicle,
+#         'vehicles': vehicles,
+#         'is_favorite': custom_data.get('is_favorite', False),
+#         'car_folder': car_folder,
+#         'current_color_folder': current_color_folder,
+#         'current_wheel_folder': current_wheel_folder,
+#         'current_bumper_folder': current_bumper_folder,
+#     }
+#     return render(request, "custom_menu_bodycolor.html", context)
+
 def custom_menu_bodycolor(request, custom_id=None):
     restore_session_backup(request)
 
@@ -380,20 +465,18 @@ def custom_menu_bodycolor(request, custom_id=None):
 
     custom_data = request.session.get('custom_data', {})
 
-    # ▼▼▼▼▼ 修正箇所 ▼▼▼▼▼
+    # ===== 車両変更・リセットロジック =====
     req_car_name = request.GET.get('car')
-    req_reset = request.GET.get('reset') # ★リセットフラグ取得
+    req_reset = request.GET.get('reset')
 
     if req_car_name:
         vehicle_obj = Vehicle.objects.filter(name_en=req_car_name).first()
         if vehicle_obj:
             current_vid = custom_data.get('vehicle_id')
-            
-            # 車両が違う場合、または「reset=true」がある場合は強制リセット
             if (current_vid != vehicle_obj.id) or (req_reset == 'true'):
                 custom_data = {
                     'vehicle_id': vehicle_obj.id,
-                    'color_id': None,   # 全パーツをリセット
+                    'color_id': None,
                     'wheel_id': None,
                     'bumper_id': None,
                     'light_id': None,
@@ -402,44 +485,69 @@ def custom_menu_bodycolor(request, custom_id=None):
                 }
                 request.session['custom_data'] = custom_data
                 request.session.modified = True
-    # ▲▲▲▲▲ 修正箇所ここまで ▲▲▲▲▲
     
+    # 車両の確定
     vehicle_id = custom_data.get('vehicle_id')
-    vehicle = Vehicle.objects.filter(id=vehicle_id).first() or Vehicle.objects.first()
-    
     vehicles = Vehicle.objects.all().order_by('id')
-    if not vehicle_id and vehicles.exists():
-        vehicle_id = vehicles.first().id
+    vehicle = Vehicle.objects.filter(id=vehicle_id).first() or vehicles.first()
+    
+    if vehicle and not vehicle_id:
+        vehicle_id = vehicle.id
         custom_data['vehicle_id'] = vehicle_id
         request.session['custom_data'] = custom_data
 
-    colors = Color.objects.filter(vehicle_id=vehicle_id)
+    # --- 【機能修正】DBからカラー一覧を取得してパレット用に整形 ---
+    colors_query = Color.objects.filter(vehicle_id=vehicle_id)
+    
+    # DBにカラーコードがないため、色名からコードへの変換マップを定義
+    color_map = {
+        '白': '#ffffff', 'ホワイト': '#ffffff', 'White': '#ffffff',
+        '黒': '#111111', 'ブラック': '#111111', 'Black': '#111111',
+        '赤': '#c40000', 'レッド': '#c40000', 'Red': '#c40000',
+        '青': '#2d9cdb', 'ブルー': '#2d9cdb', 'Blue': '#2d9cdb',
+        '緑': '#27ae60', 'グリーン': '#27ae60', 'Green': '#27ae60',
+        '紫': '#cb4af2', 'パープル': '#cb4af2','Purple' : '#cb4af2',
+        '黄': '#f2c94c', 'イエロー': '#f2c94c', 'Yellow': '#f2c94c',
+        '橙': '#f2994a','オレンジ':'#f2994a', 'Orange': '#f2994a',
+    }
+
+    processed_colors = []
+    for c in colors_query:
+        # パスからフォルダ名を抽出 (例: "uploads/colors/white" -> "white")
+        raw_folder = str(c.rotation_image_folder)
+        folder_name = raw_folder.replace('\\', '/').rstrip('/').split('/')[-1]
+        
+        # テンプレートで使用する一時的な属性を追加
+        c.hex_code = color_map.get(c.name, '#888888') # マップになければグレー
+        c.folder_name = folder_name
+        processed_colors.append(c)
+    # ---------------------------------------------------------
+
+    # 各パーツ情報の取得
     current_color = Color.objects.filter(id=custom_data.get('color_id')).first()
     current_wheel = Wheel.objects.filter(id=custom_data.get('wheel_id')).first()
     current_bumper = Bumper.objects.filter(id=custom_data.get('bumper_id')).first()
+    current_aero = Aero.objects.filter(id=custom_data.get('aero_id')).first()
 
     def get_folder(obj, attr_name):
         if obj and getattr(obj, attr_name):
             return str(getattr(obj, attr_name)).replace('\\', '/').rstrip('/').split('/')[-1]
         return ""
 
-    car_folder = vehicle.name_en if vehicle else "CompactSedan"
-    current_color_folder = get_folder(current_color, 'rotation_image_folder')
-    current_wheel_folder = get_folder(current_wheel, 'image_url')
-    current_bumper_folder = get_folder(current_bumper, 'image_url')
-
     context = {
-        'colors': colors,
+        'colors': processed_colors,  # DBから取得・整形したリスト
         'color': current_color,
         'current_color_id': int(custom_data.get('color_id')) if custom_data.get('color_id') else None,
         'vehicle_id': vehicle_id,
         'vehicle': vehicle,
         'vehicles': vehicles,
         'is_favorite': custom_data.get('is_favorite', False),
-        'car_folder': car_folder,
-        'current_color_folder': current_color_folder,
-        'current_wheel_folder': current_wheel_folder,
-        'current_bumper_folder': current_bumper_folder,
+        'car_folder': vehicle.name_en if vehicle else "CompactSedan",
+        'current_color_folder': get_folder(current_color, 'rotation_image_folder'),
+        'current_wheel_folder': get_folder(current_wheel, 'image_url'),
+        'current_bumper_folder': get_folder(current_bumper, 'image_url'),
+        'current_aero_folder': get_folder(current_aero, 'image_url'),
+        'current_custom_id': request.session.get('editing_custom_id'),
     }
     return render(request, "custom_menu_bodycolor.html", context)
 
