@@ -44,19 +44,27 @@
                 <div class="form-group">
                     <label for="nickname">ニックネーム</label>
                     <span id="nickname-error" class="error" style="display:block; color:red;"></span>
-                    <input type="text" id="nickname" name="nickname" value="{{ nickname }}">                        
+                    <input type="text" id="nickname" name="nickname" value="{{ form.nickname.value|default_if_none:'' }}">  
+                    {% comment %} value="{{ nickname }}" {% endcomment %}
+                    {% for error in form.nickname.errors %}
+                        <p style="color:red;">{{ error }}</p>
+                    {% endfor %}
                 </div>
 
                 <div class="form-group">
                     <label for="email">メールアドレス</label>
+                    <p class="note">※ メールアドレスは変更できません</p>
                     <span id="email-error" class="error" style="display:block; color:red;"></span>
-                    <input type="email" id="email" name="email" value="{{ email }}">
+                    <input type="email" id="email" name="email" value="{{ email }}"readonly>
                 </div>
 
                 <div class="form-group">
                     <label for="password">パスワード</label>
                     <span id="password-error" class="error" style="display:block; color:red;"></span>
                     <input type="password" id="password" name="password" value="{{ password }}">
+                    {% for error in form.password.errors %}
+                        <p style="color:red;">{{ error }}</p>
+                    {% endfor %}
                 </div>
 
                 <div class="form-actions">
@@ -73,7 +81,7 @@
             </form>
         </main>
 
-        <script src="{% static 'js/account_error.js' %}"></script>
+        {% comment %} <script src="{% static 'js/account_error.js' %}"></script> {% endcomment %}
         <script>
     (function () {
         const btn = document.getElementById('account-update-back-btn');
