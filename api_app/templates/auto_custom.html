@@ -1,118 +1,122 @@
 {% load static %}
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-    <head>
+  <head>
     <link
-        rel="icon"
-        type="image/png"
-        href="{% static 'assets/Garelabo_Logo.png' %}"
+      rel="icon"
+      type="image/png"
+      href="{% static 'assets/Garelabo_Logo.png' %}"
     />
-        <meta charset="UTF-8">
-        <title>自動カスタム</title>
-        <link rel="stylesheet" href="{% static 'css/auto_custom_style.css' %}">
-    </head>
-    <body>
-
+    <meta charset="UTF-8" />
+    <title>自動カスタム</title>
+    <link rel="stylesheet" href="{% static 'css/auto_custom_style.css' %}" />
+  </head>
+  <body>
     <header>
-        <img src="{% static 'assets/ガレラボ+.png' %}" alt="GARELABO+" class="logo">
-        <div class="title-box">
-            <img src="{% static 'assets/自動カスタム.png' %}" alt="custom-icon" class="icon">
-            <div class="title-text">
-                <h1>自動カスタム</h1>
-                <p>　　　～ AIが導く、最高の一台へ ～</p>
-            </div>
+      <img
+        src="{% static 'assets/ガレラボ+.png' %}"
+        alt="GARELABO+"
+        class="logo"
+      />
+      <div class="title-box">
+        <img
+          src="{% static 'assets/自動カスタム.png' %}"
+          alt="custom-icon"
+          class="icon"
+        />
+        <div class="title-text">
+          <h1>自動カスタム</h1>
+          <p>　　　～ 最高の一台へ ～</p>
         </div>
+      </div>
     </header>
 
     <main>
+      <!-- 車画像エリア -->
+      <div class="car-area">
+        <h2 id="display-vehicle-name" class="vehicle-name-label"></h2>
+        <section class="car-display-area">
+          <div class="car-frame">
+            <!-- JSが画像を差し込む -->
+            <img id="car-image" alt="car preview" />
+          </div>
 
-        <!-- 車画像エリア -->
-        <div class="car-area">
-        <h2 id="display-vehicle-name" class="vehicle-name-label"></h2> <section class="car-display-area">
-                    <div class="car-frame">
-                        <!-- JSが画像を差し込む -->
-                        <img id="car-image" alt="car preview" />
-                    </div>
+          <!-- 回転 -->
+          <div class="rotate-hint">
+            <button id="prev-btn">←</button>
+            <button id="next-btn">→</button>
+          </div>
+        </section>
+      </div>
+      <!-- 右側エリア -->
+      <div class="right-area">
+        <!-- ボタン行 -->
+        <div class="btn-row">
+          <button type="button" id="btn-random" onclick="loadCustomData()">
+            自動カスタム
+          </button>
 
-                    <!-- 回転 -->
-                    <div class="rotate-hint">
-                        <button id="prev-btn">←</button>
-                        <button id="next-btn">→</button>
-                    </div>
-                </section>
+          <button
+            type="button"
+            onclick="location.href='{% if editing_id %}{% url 'custom_menu_bodycolor' editing_id %}{% else %}{% url 'custom_menu_bodycolor' %}{% endif %}'"
+          >
+            メニューに戻る
+          </button>
+        </div>
 
-            </div>
-            <!-- 右側エリア -->
-            <div class="right-area">
+        <!-- カスタム内容表示 -->
+        <div class="custom-box">
+          <h2 class="custom-title">カスタム内容表示▼</h2>
+          <div id="custom-content" class="custom-content">
+            <!-- JSで動的に追加される -->
+          </div>
+        </div>
 
-                <!-- ボタン行 -->
-                <div class="btn-row">
-                    <button type="button" id="btn-random" onclick="loadCustomData()">
-                        自動カスタム
-                    </button>
+        <!-- 保存ボタン -->
+        <form method="post" action="{% url 'save_custom' %}">
+          {% csrf_token %}
 
-                    <button type="button" 
-                            onclick="location.href='{% if editing_id %}{% url 'custom_menu_bodycolor' editing_id %}{% else %}{% url 'custom_menu_bodycolor' %}{% endif %}'">
-                        メニューに戻る
-                    </button>
-                </div>
+          <input
+            type="hidden"
+            name="is_favorite"
+            id="is-favorite"
+            value="{% if is_favorite %}true{% else %}false{% endif %}"
+          />
 
-                <!-- カスタム内容表示 -->
-                <div class="custom-box">
-                    <h2 class="custom-title">カスタム内容表示▼</h2>
-                    <div id="custom-content" class="custom-content">
-                        <!-- JSで動的に追加される -->
-                    </div>
-                </div>
-
-                <p class="note">※AIによって自動カスタムされています</p>
-
-                <!-- 保存ボタン -->
-                <form method="post" action="{% url 'save_custom' %}">
-                    {% csrf_token %}
-                    
-                    <input
-                        type="hidden"
-                        name="is_favorite"
-                        id="is-favorite"
-                        value="{% if is_favorite %}true{% else %}false{% endif %}"
-                    >
-
-                    <button type="submit" class="save-btn">
-                        カスタム内容保存
-                    </button>
-                </form>
-            </div>
-
-        </main>
-        {% csrf_token %}
-        <script id="vehicles-data" type="application/json">[]</script>
-        <script>
-        // APIのURL
-        window.API_URLS = {
-            auto_custom: "{% url 'auto_custom_api' %}"
-        };
-
-        // 初期表示データ (ここが修正ポイント)
-        window.autoCustomResult = {
-            carFolder: "{{ vehicle.name_en }}",
-            carName: "{{ vehicle.name }}",
-            // views.py から渡されたフォルダ名変数を使う
-            color: "{{ color_rotation_folder|default:'black' }}", 
-            wheel: "{{ wheel_folder|default:'wheel1' }}",
-            bumper: "{{ bumper_folder|default:'bumper1' }}",
-            aero: "{{aero_folder|default:'aero1'}}",
-        };
-
-        // パーツ名リスト
-        window.initialSelected = {
-            vehicle: { name: "{{ vehicle.name }}" },
-            color: { name: "{{ color_name }}" },
-            wheel: { name: "{{ wheel_name }}" },
-            bumper: { name: "{{ bumper_name }}" },
-            aero: { name: "{{ aero_name }}"},
-        };
+          <button type="submit" class="save-btn">カスタム内容保存</button>
+        </form>
+      </div>
+    </main>
+    {% csrf_token %}
+    <script id="vehicles-data" type="application/json">
+      []
     </script>
-        <script src="{% static 'js/auto_custom.js' %}" defer></script>
-    </body>
+    <script>
+      // APIのURL
+      window.API_URLS = {
+        auto_custom: "{% url 'auto_custom_api' %}",
+      };
+
+      // 初期表示データ (ここが修正ポイント)
+      window.autoCustomResult = {
+        carFolder: "{{ vehicle.name_en }}",
+        carName: "{{ vehicle.name }}",
+        // views.py から渡されたフォルダ名変数を使う
+        color: "{{ color_rotation_folder|default:'black' }}",
+        wheel: "{{ wheel_folder|default:'wheel1' }}",
+        bumper: "{{ bumper_folder|default:'bumper1' }}",
+        aero: "{{aero_folder|default:'aero1'}}",
+      };
+
+      // パーツ名リスト
+      window.initialSelected = {
+        vehicle: { name: "{{ vehicle.name }}" },
+        color: { name: "{{ color_name }}" },
+        wheel: { name: "{{ wheel_name }}" },
+        bumper: { name: "{{ bumper_name }}" },
+        aero: { name: "{{ aero_name }}" },
+      };
+    </script>
+    <script src="{% static 'js/auto_custom.js' %}" defer></script>
+  </body>
 </html>
