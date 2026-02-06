@@ -16,7 +16,7 @@ from django.shortcuts import redirect
 from django.views.decorators.http import require_POST
 from django.views.decorators.cache import never_cache
 # モデルとフォームのインポート
-from .forms import LoginForm, RegisterForm, VerificationForm
+from .forms import LoginForm, RegisterForm, VerificationForm, AccountUpdateForm
 from .models import SavedCustom, Vehicle, Wheel, Aero, Bumper, Color, Light
 import os
 from django.db.models import Q
@@ -269,31 +269,57 @@ def account_view(request):
 # アカウント情報更新表示
 def account_update_view(request):
     user = request.user
+
+    form = AccountUpdateForm(initial={
+        'nickname': user.nickname,
+    })
+
     return render(request, "account_update.html", {
-        "nickname": user.nickname,
+        "form": form,
         "email": user.email,
-        "password": ""
+        # "nickname": user.nickname,
+        # "email": user.email,
+        # "password": ""
     })
 
 # アカウント情報保存処理
 def account_save_view(request):
+    user = request.user
     if request.method == 'POST':
-        user = request.user
-        nickname = request.POST.get('nickname')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
+        # user = request.user
+        # nickname = request.POST.get('nickname')
+        # email = request.POST.get('email')
+        # password = request.POST.get('password')
 
-        user.nickname = nickname
-        user.email = email
-        if password and password.strip() != "":
-            user.set_password(password)
+        # user.nickname = nickname
+        # # user.email = email
+        # if password and password.strip() != "":
+        #     user.set_password(password)
         
-        update_session_auth_hash(request, user)
-        user.save()
+        # update_session_auth_hash(request, user)
+        # user.save()
 
-        return redirect('account')
-    else:
-        return redirect('account_update')
+        form = AccountUpdateForm(request.POST)
+
+        if form.is_valid():
+            user.nickname = form.cleaned_data['nickname']
+
+            password = form.cleaned_data.get('password')
+            if password:
+                user.set_password(password)
+
+            user.save()
+            update_session_auth_hash(request, user)
+
+            return redirect('account')
+        
+        #バリデーションエラー時
+        return render(request, "account_update.html", {
+            "form": form,
+            "email": user.email,
+        })
+    
+    return redirect('account_update')
 
 # ログアウト
 def logout_view(request):
