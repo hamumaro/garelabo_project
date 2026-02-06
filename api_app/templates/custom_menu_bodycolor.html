@@ -98,40 +98,24 @@
         <div class="color-palette-area">
           <div class="garelabo-palette-panel" id="bodycolor-panel" aria-hidden="true">
             <div class="garelabo-palette" id="bodyPalette">
-              <button
-                type="button"
-                class="garelabo-palette__chip is-selected"
-                style="--c:#e6e6e6;"
-                data-color="white"
-                aria-label="white"
-              ></button>
-
-              <button
-                type="button"
-                class="garelabo-palette__chip"
-                style="--c:#111111;"
-                data-color="black"
-                aria-label="black"
-              ></button>
-
-              {% comment %} <button type="button" class="garelabo-palette__chip" style="--c:#f2c94c;" data-color="#f2c94c" aria-label="yellow"></button>
-              <button type="button" class="garelabo-palette__chip" style="--c:#f2994a;" data-color="#f2994a" aria-label="orange"></button>
-              <button type="button" class="garelabo-palette__chip" style="--c:#eb5757;" data-color="#eb5757" aria-label="red"></button>
-              <button type="button" class="garelabo-palette__chip" style="--c:#2d9cdb;" data-color="#2d9cdb" aria-label="blue"></button>
-              <button type="button" class="garelabo-palette__chip" style="--c:#27ae60;" data-color="#27ae60" aria-label="green"></button> {% endcomment %}
-              {% for c in colors %}
-                {% if c.rotation_image_folder %}
-                  {# rotation_image_folder の末尾フォルダ名を dataset に入れる #}
-                  {% with c.rotation_image_folder|cut:"\\" as p %}
-                    <button
-                      type="button"
-                      class="garelabo-palette__chip"
-                      style="--c: {{ c.hex_color|default:'#888' }};"
-                      data-color="{{ p|slice:'-1:' }}"
-                      aria-label="{{ c.name|default:'color' }}"
-                    ></button>
-                  {% endwith %}
-                {% endif %}
+              {% for color in colors %}
+                <button
+                  type="button"
+                  class="garelabo-palette__chip"
+                  style="--c: {{ color.hex_code }};"
+                  data-color="{{ color.folder_name }}"
+                  aria-label="{{ color.name }}"
+                  title="{{ color.name }}"
+                ></button>
+              {% empty %}
+                {# 万が一データがない場合のフォールバック（白） #}
+                <button
+                  type="button"
+                  class="garelabo-palette__chip"
+                  style="--c: #ffffff;"
+                  data-color="white"
+                  aria-label="White"
+                ></button>
               {% endfor %}
             </div>
 
@@ -168,7 +152,6 @@
       <img id="fullscreen-image" alt="fullscreen car" />
     </div>
 
-      <!-- ✅ JSへ渡すサーバー値 -->
       <input type="hidden" id="current-vehicle-id" value="{{ vehicle.id }}">
       <input type="hidden" id="server-car-folder" value="{{ car_folder }}">
       <input type="hidden" id="server-color-folder" value="{{ current_color_folder }}">
