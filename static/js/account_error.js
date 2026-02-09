@@ -12,21 +12,21 @@ window.addEventListener("DOMContentLoaded", () => {
 
     form.addEventListener("submit", function (e) {
 
-        e.preventDefault();
+        // e.preventDefault();
 
         // 入力要素の取得
         const nickname = document.getElementById("nickname");
-        const email = document.getElementById("email");
+        // const email = document.getElementById("email");
         const password = document.getElementById("password");
 
         // エラー表示用要素
         const nicknameError = document.getElementById("nickname-error");
-        const emailError = document.getElementById("email-error");
+        // const emailError = document.getElementById("email-error");
         const passwordError = document.getElementById("password-error");
 
         // 事前エラーリセット
         nicknameError.textContent = "";
-        emailError.textContent = "";
+        // emailError.textContent = "";
         passwordError.textContent = "";
 
         let hasError = false;
@@ -41,10 +41,10 @@ window.addEventListener("DOMContentLoaded", () => {
             hasError = true;
         }
 
-        if (!email.value.trim()) {
-            emailError.textContent = "メールアドレスを入力してください。";
-            hasError = true;
-        }
+        // if (!email.value.trim()) {
+        //     emailError.textContent = "メールアドレスを入力してください。";
+        //     hasError = true;
+        // }
 
         if (!password.value.trim()) {
             passwordError.textContent = "パスワードを入力してください。";
@@ -57,11 +57,13 @@ window.addEventListener("DOMContentLoaded", () => {
         // ------------------------
         // バリデーション成功 → 送信
         // ------------------------
-        if (!hasError) {
-            form.submit();
-        } else {
-            console.log("Validation FAILED");
+        // if (!hasError) {
+        //     form.submit();
+        // } else {
+        //     console.log("Validation FAILED");
+        // }
+        if (hasError) {
+            e.preventDefault();
         }
     });
-
 });

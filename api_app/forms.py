@@ -4,6 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 
 from .models import User
 from django.contrib.auth.hashers import make_password
+import re
 
 # ログイン
 class LoginForm(AuthenticationForm):
@@ -33,7 +34,6 @@ class LoginForm(AuthenticationForm):
 # 新規登録
 class RegisterForm(forms.Form):
     nickname = forms.CharField(
-        max_length=30,
         required=True,
         label='ニックネーム',
         widget=forms.TextInput(attrs={
@@ -56,6 +56,28 @@ class RegisterForm(forms.Form):
             "id" : "password",
         })
     )
+    # ニックネーム文字数チェック
+    def clean_nickname(self):
+        nickname = self.cleaned_data['nickname']
+
+        if len(nickname) > 20:
+            raise forms.ValidationError("ニックネームは20文字以内で入力してください。")
+
+        return nickname
+    
+    # パスワード形式チェック
+    def clean_password(self):
+        password = self.cleaned_data['password']
+
+        # ★ 半角英数字チェック
+        if not re.fullmatch(r'[a-zA-Z0-9]+', password):
+            raise forms.ValidationError("パスワードは半角英数字で入力してください。")
+
+        # ★ 念のため最大文字数チェック（UI bypass対策）
+        if len(password) > 64:
+            raise forms.ValidationError("パスワードは64文字以内で入力してください。")
+
+        return password
 
     def save(self, commit=True):
         user = User(
@@ -91,3 +113,46 @@ class VerificationForm(forms.Form):
             "id": "authCode"
         })
     )
+
+# アカウント情報更新
+class AccountUpdateForm(forms.Form):
+    nickname = forms.CharField(
+        required=True,
+        label='ニックネーム',
+        widget=forms.TextInput(attrs={
+            "id": "nickname", 
+        })
+    )
+
+    password = forms.CharField(
+        required=False,
+        label='パスワード',
+        widget=forms.PasswordInput(attrs={
+            "id": "password", 
+        })
+    )
+
+    def clean_nickname(self):
+        nickname = self.cleaned_data['nickname']
+
+        if len(nickname) > 20:
+            raise forms.ValidationError("ニックネームは20文字以内で入力してください。")
+        
+        return nickname
+    
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+
+        # 未変更(空)の場合はOK
+        if not password:
+            return password
+
+        # ★ 半角英数字チェック
+        if not re.fullmatch(r'[a-zA-Z0-9]+', password):
+            raise forms.ValidationError("パスワードは半角英数字で入力してください。")
+        
+        # ★ 最大文字数チェック
+        if len(password) > 64:
+            raise forms.ValidationError("パスワードは64文字以内で入力してください。")
+        
+        return password
