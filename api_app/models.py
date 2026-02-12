@@ -41,14 +41,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.nickname if self.nickname else self.email
 
-# --- 3. Token テーブル ---
-class Token(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    jwt_token = models.TextField()
-    expires_at = models.DateTimeField()
-    is_logged_in = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
 # --- 4. Vehicle テーブル (子モデルより先に書く) ---
 class Vehicle(models.Model):
     name = models.CharField(max_length=255, unique=True)
