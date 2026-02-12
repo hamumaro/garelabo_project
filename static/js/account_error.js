@@ -3,67 +3,56 @@
 // ================================================================
 
 window.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("registerForm");
+  if (!form) {
+    console.error("ERROR: #registerForm が見つかりません");
+    return;
+  }
 
-    const form = document.getElementById("registerForm");
-    if (!form) {
-        console.error("ERROR: #registerForm が見つかりません");
-        return;
+  form.addEventListener("submit", function (e) {
+    // e.preventDefault();
+
+    // 入力要素の取得
+    const nickname = document.getElementById("nickname");
+    // const email = document.getElementById("email");
+    const password = document.getElementById("password");
+
+    // エラー表示用要素
+    const nicknameError = document.getElementById("nickname-error");
+    // const emailError = document.getElementById("email-error");
+    const passwordError = document.getElementById("password-error");
+
+    // 事前エラーリセット
+    nicknameError.textContent = "";
+    // emailError.textContent = "";
+    passwordError.textContent = "";
+
+    let hasError = false;
+    const halfWidthAlphaNum = /^[A-Za-z0-9]+$/;
+
+    // ------------------------
+    // 各項目バリデーション
+    // ------------------------
+
+    if (!nickname.value.trim()) {
+      nicknameError.textContent = "ニックネームを入力してください。";
+      hasError = true;
     }
 
-    form.addEventListener("submit", function (e) {
+    if (!password.value.trim()) {
+      passwordError.textContent = "パスワードを入力してください。";
+      hasError = true;
+    } else if (!halfWidthAlphaNum.test(password.value)) {
+      passwordError.textContent = "パスワードは半角英数字で入力してください。";
+      hasError = true;
+    }
 
-        // e.preventDefault();
+    // ------------------------
+    // バリデーション成功 → 送信
+    // ------------------------
 
-        // 入力要素の取得
-        const nickname = document.getElementById("nickname");
-        // const email = document.getElementById("email");
-        const password = document.getElementById("password");
-
-        // エラー表示用要素
-        const nicknameError = document.getElementById("nickname-error");
-        // const emailError = document.getElementById("email-error");
-        const passwordError = document.getElementById("password-error");
-
-        // 事前エラーリセット
-        nicknameError.textContent = "";
-        // emailError.textContent = "";
-        passwordError.textContent = "";
-
-        let hasError = false;
-        const halfWidthAlphaNum = /^[A-Za-z0-9]+$/;
-
-        // ------------------------
-        // 各項目バリデーション
-        // ------------------------
-
-        if (!nickname.value.trim()) {
-            nicknameError.textContent = "ニックネームを入力してください。";
-            hasError = true;
-        }
-
-        // if (!email.value.trim()) {
-        //     emailError.textContent = "メールアドレスを入力してください。";
-        //     hasError = true;
-        // }
-
-        if (!password.value.trim()) {
-            passwordError.textContent = "パスワードを入力してください。";
-            hasError = true;
-        } else if (!halfWidthAlphaNum.test(password.value)) {
-            passwordError.textContent = "パスワードは半角英数字で入力してください。";
-            hasError = true;
-        }
-
-        // ------------------------
-        // バリデーション成功 → 送信
-        // ------------------------
-        // if (!hasError) {
-        //     form.submit();
-        // } else {
-        //     console.log("Validation FAILED");
-        // }
-        if (hasError) {
-            e.preventDefault();
-        }
-    });
+    if (hasError) {
+      e.preventDefault();
+    }
+  });
 });
