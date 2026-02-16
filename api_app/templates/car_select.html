@@ -89,7 +89,6 @@
                 <img
                   id="carImage"
                   {% if vehicles.0.base_image_path %}
-                    {# フォルダパスの末尾にファイル名を強制的に付与 #}
                     src="{{ vehicles.0.base_image_path.url }}side_left.png"
                   {% else %}
                     src="{% static 'assets/no_image.png' %}"
@@ -118,7 +117,7 @@
             value="{{ vehicles.0.name_en }}"
           />
 
-          <script id="vehicles-data" type="application/json">
+          {% comment %} <script id="vehicles-data" type="application/json">
               [
                 {% for v in vehicles %}
                 {
@@ -129,6 +128,17 @@
                   {% else %}
                   "url": "{% static 'assets/no_image.png' %}"
                   {% endif %}
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+              ]
+            </script> {% endcomment %}
+            <script id="vehicles-data" type="application/json">
+              [
+                {% for v in vehicles %}
+                {
+                  "name": "{{ v.name }}",
+                  "name_en": "{{ v.name_en }}",
+                  "url": "{% if v.base_image_path %}{{ v.base_image_path.url }}side_left.png{% else %}{% static 'assets/no_image.png' %}{% endif %}"
                 }{% if not forloop.last %},{% endif %}
                 {% endfor %}
               ]

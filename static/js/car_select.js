@@ -25,18 +25,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateDisplay() {
     const vehicle = vehicles[index];
-    let imageUrl = vehicle.url;
+    const imageUrl = vehicle.url;
 
-    // 【修正点】URLが画像拡張子で終わっていない場合、代表画像(0.png)を付与する
-    // ※ サーバー内の実際のファイル名に合わせて '0.png' や '1.png' に変更してください
-    if (imageUrl && !imageUrl.match(/\.(png|jpg|jpeg|gif)$/i)) {
-        // 末尾にスラッシュがない場合は追加
-        if (!imageUrl.endsWith('/')) {
-            imageUrl += '/';
-        }
-        imageUrl += 'side_left.png'; // ここでフォルダ内のファイル名を指定
-    }
+    if (!imageUrl) return;
 
+    // HTML側でパスを完成させているため、ここでの文字列結合は不要です
     img.src = imageUrl;
     img.alt = vehicle.name;
 
@@ -49,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // 初期化時の実行
   updateDisplay();
 
   prevBtn.addEventListener("click", () => {
@@ -61,4 +55,3 @@ document.addEventListener("DOMContentLoaded", () => {
     updateDisplay();
   });
 });
-
