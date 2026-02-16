@@ -1012,9 +1012,17 @@ def custom_save(request):
     color  = Color.objects.filter(id=custom_data.get('color_id')).first()
     wheel  = Wheel.objects.filter(id=custom_data.get('wheel_id')).first()
     bumper = Bumper.objects.filter(id=custom_data.get('bumper_id')).first()
-
-    # custom_save 内：取得を追加
     aero = Aero.objects.filter(id=custom_data.get('aero_id')).first()
+
+    # 中身がNUllの場合は初期状態で保存を行う
+    if not color:
+        color = Color.objects.filter(vehicle=vehicle, rotation_image_folder__icontains='white').first() or Color.objects.filter(vehicle=vehicle).first()
+    if not wheel:
+        wheel = Wheel.objects.filter(vehicle=vehicle, image_url__icontains='wheel1').first() or Wheel.objects.filter(vehicle=vehicle).first()
+    if not bumper:
+        bumper = Bumper.objects.filter(vehicle=vehicle, image_url__icontains='bumper1').first() or Bumper.objects.filter(vehicle=vehicle).first()
+    if not aero:
+        aero = Aero.objects.filter(vehicle=vehicle).filter(Q(image_url__icontains='aero1')|Q(image_url__icontains='normal')).first() or Aero.objects.filter(vehicle=vehicle).first()
 
     # 2) 価格計算
     total = Decimal("0")
