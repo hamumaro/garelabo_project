@@ -153,11 +153,6 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # .env に EMAIL_HOST_PASSWORD=xxxxxx を入れておくこと
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
-# デバッグ用（本番では消す）
-print("--------------------------------------------------")
-print("メールパスワード読み込み確認:", EMAIL_HOST_PASSWORD)
-print("--------------------------------------------------")
-
 
 # ログインに関する記述を試験的に追加
 # ログインページのURLは 'login' (urls.pyのname='login') であると指定

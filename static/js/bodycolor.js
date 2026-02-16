@@ -1,5 +1,3 @@
-console.log("NEW bodycolor.js LOADED (SERVER PRIORITY FIX)");
-
 document.addEventListener("DOMContentLoaded", () => {
   /* =================================================================
        1. 要素の取得 & ヘルパー関数
@@ -18,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const autoLink = document.getElementById("auto-custom-link");
 
   if (!img) {
-    console.error("car-image が見つかりません");
     return;
   }
 
@@ -62,12 +59,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tryLoad = () => {
       if (i >= urls.length) {
-        console.error("全ての画像候補が見つかりませんでした", urls);
         imgEl.onerror = null;
         return;
       }
       imgEl.onerror = () => {
-        console.warn(`画像読み込み失敗、次を試行: ${urls[i]}`);
         i++;
         tryLoad();
       };
@@ -103,7 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
     (serverCarFolder && storedCar && serverCarFolder !== storedCar);
 
   if (shouldReset) {
-    console.log("リセット実行: セッションストレージを更新します");
     sessionStorage.removeItem("currentColor");
     sessionStorage.removeItem("currentWheel");
     sessionStorage.removeItem("currentBumper");
@@ -247,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       if (!response.ok) throw new Error("Network response was not ok");
     } catch (e) {
-      console.error("Session sync failed:", e);
+      // エラー処理削除
     }
   }
 
@@ -327,7 +321,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         body: JSON.stringify({ is_favorite: newState }),
         keepalive: true,
-      }).catch((err) => console.error("通信エラー:", err));
+      }).catch(() => {});
     });
   }
 
@@ -485,7 +479,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }, "image/png");
     } catch (err) {
-      console.error("保存エラー:", err);
       alert("画像の保存に失敗しました。");
     }
   });

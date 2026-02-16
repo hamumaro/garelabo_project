@@ -88,7 +88,12 @@
               {% if vehicles.0.base_image_path %}
                 <img
                   id="carImage"
-                  src="{{ vehicles.0.base_image_path.url }}"
+                  {% if vehicles.0.base_image_path %}
+                    {# フォルダパスの末尾にファイル名を強制的に付与 #}
+                    src="{{ vehicles.0.base_image_path.url }}side_left.png"
+                  {% else %}
+                    src="{% static 'assets/no_image.png' %}"
+                  {% endif %}
                   alt="{{ vehicles.0.name }}"
                   class="car-image"
                   onerror="this.src='{% static 'assets/no_image.png' %}';"
@@ -114,20 +119,20 @@
           />
 
           <script id="vehicles-data" type="application/json">
-            [
-              {% for v in vehicles %}
-              {
-                "name": "{{ v.name }}",
-                "name_en": "{{ v.name_en }}",
-                {% if v.base_image_path %}
-                "url": "{{ v.base_image_path.url }}"
-                {% else %}
-                "url": "{% static 'assets/no_image.png' %}"
-                {% endif %}
-              }{% if not forloop.last %},{% endif %}
-              {% endfor %}
-            ]
-          </script>
+              [
+                {% for v in vehicles %}
+                {
+                  "name": "{{ v.name }}",
+                  "name_en": "{{ v.name_en }}",
+                  {% if v.base_image_path %}
+                  "url": "{{ v.base_image_path.url }}side_left.png"
+                  {% else %}
+                  "url": "{% static 'assets/no_image.png' %}"
+                  {% endif %}
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+              ]
+            </script>
 
           <script src="{% static 'js/car_select.js' %}?v=20260127_2"></script>
 
