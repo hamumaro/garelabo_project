@@ -5,7 +5,6 @@
 window.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("registerForm");
   if (!form) {
-    console.error("ERROR: #registerForm が見つかりません");
     return;
   }
 

@@ -1,5 +1,4 @@
 // custom_slider.js
-console.log("custom_slider.js 読み込まれたよ！");
 
 document.addEventListener("DOMContentLoaded", () => {
     const img = document.getElementById("car-image");
@@ -8,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const dataElement = document.getElementById("vehicles-data");
 
     if (!dataElement) {
-        console.error("❌ slider: vehicles-data が見つかりません。");
         return;
     }
 

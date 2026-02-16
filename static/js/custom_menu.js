@@ -32,8 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
   updateDisplay();
 });
 
-console.log("NEW bodycolor.js LOADED");
-
 document.addEventListener("DOMContentLoaded", () => {
   const img = document.getElementById("car-image");
   const prevBtn = document.getElementById("prev-btn");
@@ -41,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const dots = document.querySelectorAll(".color-dot");
 
   if (!img) {
-    console.error("car-image が見つかりません");
     return;
   }
 
@@ -57,8 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const path = `/media/uploads/vehicles/${carFolder}/${currentColor}/${angles[angleIndex]}.png`;
     img.src = path;
     img.alt = `${carFolder} ${currentColor} ${angles[angleIndex]}`;
-
-    console.log("表示中:", path);
   }
 
   // 初期表示

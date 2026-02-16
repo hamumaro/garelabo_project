@@ -1,5 +1,3 @@
-console.log("car_select.js loaded!");
-
 document.addEventListener("DOMContentLoaded", () => {
   const img = document.getElementById("carImage");
   const nameDisplay = document.getElementById("carName");
@@ -49,8 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (hiddenNameEn) {
       hiddenNameEn.value = vehicle.name_en;
     }
-
-    console.log("現在表示中:", vehicle.name, "画像パス:", imageUrl);
   }
 
   updateDisplay();

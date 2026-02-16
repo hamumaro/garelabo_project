@@ -20,7 +20,6 @@ async function fetchAndRenderCustoms() {
 
         if (!response.ok) {
             // エラー処理（例：未認証、サーバーエラーなど）
-            console.error('Failed to fetch customs:', response.statusText);
             customListContainer.innerHTML = '<p>カスタムデータを取得できませんでした。ログイン状態を確認してください。</p>';
             return;
         }
@@ -31,7 +30,6 @@ async function fetchAndRenderCustoms() {
         renderCustomList(data);
 
     } catch (error) {
-        console.error('Error during API call:', error);
         customListContainer.innerHTML = '<p>ネットワークエラーが発生しました。</p>';
     }
 }
@@ -104,7 +102,6 @@ async function deleteCustom(customId, itemElement) {
             alert('削除に失敗しました。認証トークンやサーバー設定を確認してください。');
         }
     } catch (error) {
-        console.error('Error during DELETE API call:', error);
         alert('ネットワークエラーにより削除できませんでした。');
     }
 }
