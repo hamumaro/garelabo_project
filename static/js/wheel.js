@@ -1,5 +1,3 @@
-console.log("NEW wheel.js LOADED (UNIFIED WITH BODYCOLOR)");
-
 document.addEventListener("DOMContentLoaded", () => {
     /* =================================================================
        1. 要素の取得 & ヘルパー関数
@@ -19,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const autoLink = document.getElementById('auto-custom-link');
 
     if (!img) {
-        console.error("car-image が見つかりません");
         return;
     }
 
@@ -49,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
         imgEl.onload = null;
         const tryLoad = () => {
             if (i >= urls.length) {
-                console.error("全ての画像候補が見つかりませんでした", urls);
                 imgEl.onerror = null;
                 return;
             }
@@ -180,7 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ part_type: type, folder_name: value })
             });
         } catch (e) {
-            console.error("Session sync failed:", e);
+            // エラーハンドリング削除
         }
     }
 
@@ -232,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { "X-CSRFToken": getCookie('csrftoken'), "Content-Type": "application/json" },
                 body: JSON.stringify({ is_favorite: newState }),
                 keepalive: true,
-            }).catch(console.error);
+            }).catch(() => {});
         });
     }
 
@@ -378,7 +374,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }, "image/png");
 
         } catch (err) {
-            console.error("保存エラー:", err);
             alert("画像の保存に失敗しました。");
         }
     });

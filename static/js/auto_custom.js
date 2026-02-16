@@ -1,14 +1,12 @@
 /**
  * GARELABO+ 自動カスタム制御スクリプト
  */
-console.log("🚗 自動カスタムJS読み込み開始");
 
 // 角度の定義
 const ANGLES = ["front", "side_right", "rear", "side_left"];
 let angleIndex = 0;
 
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOM読み込み完了");
     
     // 1. 初回表示
     renderVehicle();
@@ -44,11 +42,10 @@ function renderVehicle() {
     // パス生成: エアロパーツを含めた構成
     const path = `/media/uploads/vehicles/${config.carFolder}/${config.color}/${config.wheel}/${config.bumper}/${config.aero}/${ANGLES[angleIndex]}.png`;
     
-    console.log("🎬 表示更新:", path);
     img.src = path;
 
     img.onerror = () => {
-        console.warn("❌ 画像が見つかりません:", path);
+        // エラーログ削除
     };
 }
 
@@ -59,15 +56,12 @@ function loadCustomData() {
     const carName = window.autoCustomResult.carName;
     const url = `${window.API_URLS.auto_custom}?carName=${encodeURIComponent(carName)}`;
 
-    console.log("📡 APIリクエスト送信中...");
-
     fetch(url)
         .then(response => {
             if (!response.ok) throw new Error(`HTTP Error! status: ${response.status}`);
             return response.json();
         })
         .then(data => {
-            console.log("✅ API受信:", data);
 
             // 車種フォルダ名とカラーを両方更新！
             window.autoCustomResult.carFolder = data.carFolder; 
@@ -102,7 +96,7 @@ function loadCustomData() {
             renderVehicle(); 
             loadInitialCustom();
         })
-        .catch(error => console.error("❌ APIエラー:", error));
+        .catch(() => {});
 }
 
 /**

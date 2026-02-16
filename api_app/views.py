@@ -145,12 +145,7 @@ def register_view(request):
 
                     # 2. 認証コード(6桁)生成
                     code = str(random.randint(100000, 999999))
-
-                    # ★★★ 開発用ログ出力 ★★★
-                    print("--------------------------------------------------")
-                    print(f"【開発用】認証コード: {code}")
-                    print("--------------------------------------------------")
-
+                    
                     # 3. セッションに保存
                     request.session['verification_code'] = code
                     request.session['verification_user_id'] = user.id
@@ -204,10 +199,6 @@ def verify_code_view(request):
             code = str(random.randint(100000, 999999))
             request.session['verification_code'] = code
             
-            print("--------------------------------------------------")
-            print(f"【開発用(再送信)】認証コード: {code}")
-            print("--------------------------------------------------")
-
             user = User.objects.get(id=user_id)
             try:
                 send_mail(
@@ -766,7 +757,7 @@ def auto_custom(request, custom_id=None):
         'aero_folder': aero_folder_name,
     }
 
-    print(color)
+
     return render(request, "auto_custom.html", context)
 
 @login_required(login_url='/login/')
@@ -847,7 +838,7 @@ def auto_custom_api(request):
     except Exception as e:
         print(f"API Error: {e}") 
         return JsonResponse({'error': str(e)}, status=500)
-    
+
 
 @login_required(login_url='/login/')
 def car_select(request):
