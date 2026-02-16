@@ -267,6 +267,7 @@ def account_view(request):
     })
 
 # アカウント情報更新表示
+@login_required(login_url='/login/')
 def account_update_view(request):
     user = request.user
 
@@ -283,6 +284,7 @@ def account_update_view(request):
     })
 
 # アカウント情報保存処理
+@login_required(login_url='/login/')
 def account_save_view(request):
     user = request.user
     if request.method == 'POST':
@@ -332,6 +334,7 @@ def dashboard_view(request):
     return render(request, 'dashboard.html')
 
 # 削除機能
+@login_required(login_url='/login/')
 def delete_item(request, item_id):
     item = get_object_or_404(SavedCustom, id=item_id, user=request.user)
     item.delete()
@@ -339,6 +342,7 @@ def delete_item(request, item_id):
 
 
 # カスタムメニュー
+@login_required(login_url='/login/')
 def custom_menu(request, custom_id=None):
     # --- パターンA: 編集モード ---
     if custom_id:
@@ -382,6 +386,7 @@ def custom_menu(request, custom_id=None):
     }
     return render(request, "custom_menu.html", context)
 
+@login_required(login_url='/login/')
 def custom_menu_bodycolor(request, custom_id=None):
     restore_session_backup(request)
 
@@ -490,7 +495,7 @@ def custom_menu_bodycolor(request, custom_id=None):
     }
     return render(request, "custom_menu_bodycolor.html", context)
 
-
+@login_required(login_url='/login/')
 def custom_menu_wheel(request):
     restore_session_backup(request)
     custom_data = request.session.get('custom_data', {})
@@ -530,7 +535,7 @@ def custom_menu_wheel(request):
     }
     return render(request, "custom_menu_wheel.html", context)
 
-
+@login_required(login_url='/login/')
 def custom_menu_bumper(request):
     restore_session_backup(request)
     
@@ -579,6 +584,7 @@ def custom_menu_light(request):
  
 
 # エアロパーツ
+@login_required(login_url='/login/')
 def custom_menu_aeroparts(request):
     restore_session_backup(request)
     
@@ -631,6 +637,7 @@ def custom_menu_aeroparts(request):
 
  
 # # 自動カスタムページ
+@login_required(login_url='/login/')
 @never_cache
 def auto_custom(request, custom_id=None):
     custom_data = request.session.get('custom_data', {})
@@ -762,7 +769,7 @@ def auto_custom(request, custom_id=None):
     print(color)
     return render(request, "auto_custom.html", context)
 
-
+@login_required(login_url='/login/')
 def auto_custom_api(request):
     try:
         custom_data = request.session.get('custom_data', {})
@@ -842,12 +849,13 @@ def auto_custom_api(request):
         return JsonResponse({'error': str(e)}, status=500)
     
 
-
+@login_required(login_url='/login/')
 def car_select(request):
     from .models import Vehicle
     vehicles = Vehicle.objects.all()
     return render(request, 'car_select.html', {'vehicles': vehicles})
 
+@login_required(login_url='/login/')
 def custom_cancel(request):
     # バックアップがあれば復元
     if 'pre_auto_custom_backup' in request.session:
