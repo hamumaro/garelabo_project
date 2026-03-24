@@ -1,0 +1,184 @@
+@charset "UTF-8";
+
+/* 基本的なリセット */
+body {
+    font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; /* 日本語フォントを優先 */
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* --- ヘッダー全体 --- */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;        
+    background-color: #000000;
+    color: #ffffff;
+    height: 120px; /* 200pxだと少し大きすぎる可能性があるため調整（好みで戻してください） */
+    padding: 0 20px;
+}
+
+/* 左：ロゴエリア */
+.header-logo {
+    display: flex;
+    align-items: center;
+    width: 250px;
+}
+
+.header-logo .logo-img {
+    height: 80px; /* 高さを指定 */
+    width: auto;
+}
+
+/* 中央：タイトル（見積りアイコン）エリア */
+.header-center {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.custom-estimate-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    width: 260px;
+}
+
+.custom-estimate-box .logo-img {
+    width: 100px; /* 中央アイコンのサイズ */
+    height: auto;
+}
+
+/* 右：ユーザー情報・戻るボタン */
+.header-user {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 10px;
+    width: 260px;
+}
+
+/* ユーザー名＋アイコンを横並びに */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.username {
+    font-size: 18px; /* 少しサイズ調整 */
+    font-weight: bold;
+}
+
+/* アイコン本体 (HTMLではimgタグに直接このクラスがついている想定) */
+.user-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover; /* 画像の縦横比を崩さず丸く切り抜く */
+    border: 2px solid #ffffff;
+    background-color: #fff; /* 透明画像対策 */
+}
+
+/* 戻るボタン */
+.btn-back {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 8px 20px;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: background-color 0.3s;
+}
+
+.btn-back:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* --- メインコンテンツ --- */
+.container {
+    max-width: 800px; /* 読みやすい幅に調整 */
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* セクションタイトル */
+.section-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border-left: 5px solid #000; /* アクセント */
+    padding-left: 15px;
+}
+
+/* 見積もり項目のリスト */
+.item-list {
+    margin-bottom: 40px;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+/* ボディカラーなど単独項目の微調整 */
+.estimate-section:not(.options-section) .item-row {
+    border-bottom: 2px solid #000; /* 強調 */
+}
+
+.item-name {
+    font-size: 18px;
+    font-weight: normal;
+}
+
+.item-price {
+    font-size: 18px;
+    font-weight: bold;
+    font-family: "Helvetica Neue", Arial, sans-serif; /* 数字を見やすく */
+}
+
+/* 区切り線 */
+.separator {
+    border: 0;
+    border-top: 2px dashed #ccc;
+    margin: 40px 0;
+}
+
+/* 合計金額エリア */
+.total-area {
+    display: flex;
+    justify-content: flex-end; /* 右寄せにする */
+    align-items: center;
+    gap: 30px;
+    margin-top: 20px;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.total-label button {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 10px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.total-price {
+    font-size: 36px;
+    font-weight: bold;
+    color: #d00000; /* 金額を目立たせる赤系 */
+    font-family: "Helvetica Neue", Arial, sans-serif;
+}

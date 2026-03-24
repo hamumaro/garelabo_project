@@ -7,3 +7,4 @@ psycopg2-binary
 pillow
 djangorestframework-simplejwt
 boto3
+whitenoise

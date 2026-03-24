@@ -1,0 +1,406 @@
+/* ==============================
+car_select_style.css (standalone)
+・他CSSに依存しない
+・ヘッダー画像の見切れ防止
+・カスタム作成ボタン欠け防止
+・車両選択の中央寄せ復活
+・✅ リボン見た目を「一覧のカスタム作成」に統一
+・✅ ヘッダーの大きさ/画像の大きさを「一覧」と同じにする
+============================== */
+
+:root {
+    --blue: #4d94ff;
+    --dark-ribbon: #1a237e;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: "Noto Sans JP", system-ui, sans-serif;
+    color: #111;
+    overflow-x: hidden;
+
+    /* ✅ 一覧と同じ：ガンメタ背景 */
+    background:
+        radial-gradient(1200px 700px at 20% 0%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.00) 55%),
+        radial-gradient(900px 600px at 80% 10%, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.00) 60%),
+        radial-gradient(1400px 900px at 50% 40%, rgba(0, 0, 0, 0.10), rgba(0, 0, 0, 0.35) 80%),
+        url("../assets/ガンメタ背景.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* 画像が暴走してレイアウト壊さない保険 */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ボタンのブラウザ差を消す */
+button {
+    font: inherit;
+}
+
+/* ==============================
+HEADER（✅ 一覧と同じ寸法）
+============================== */
+.header {
+    width: 100%;
+    background: #000;
+    color: #fff;
+    border-bottom: 3px solid #fff;
+    position: relative;
+    z-index: 10;
+}
+
+/* ✅ 一覧：フル幅 + 高さ clamp */
+.header-inner {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    position: relative;
+    height: clamp(280px, 22vw, 380px);
+    overflow: visible;
+    padding: 0;
+}
+
+/* ✅ 一覧：3カラム（1.2 / 1 / 1.2）+ gap無し + 高さ100% */
+.header-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1.2fr;
+    height: 100%;
+    width: 100%;
+    gap: 0;
+    overflow: hidden;
+}
+
+/* ✅ 一覧：パネルは高さ100%、角丸なし */
+.panel {
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+}
+
+/* ✅ 一覧：基本はcover（雰囲気） */
+.panel img {
+    width: 100%;
+    height: 100%;
+    opacity: 0.9;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* ✅ 一覧：左・中央は contain で見切れゼロ（必要なら top 寄せ） */
+.header-grid .panel:nth-child(1) img,
+.header-grid .panel:nth-child(2) img {
+    object-fit: contain;
+    object-position: center top; /* 上寄せしたいならここ */
+    opacity: 1;
+}
+
+/* ✅ 右カラム：車両選択ではロゴ領域として使う（一覧の“黒パネル”枠と同じサイズ） */
+.brand-area {
+    height: 100%;
+    background: #000;
+    position: relative;
+    display: flex;
+    align-items: flex-end;     /* 一覧のロゴが下寄りなので寄せる */
+    justify-content: flex-end; /* 右寄せ */
+    padding: 0 22px 58px 0;    /* 一覧の logo-overlay っぽい位置 */
+    min-width: 0;
+    overflow: visible;
+}
+
+/* ✅ 一覧：ロゴのサイズ感（右ロゴ拡大） */
+.garelabo-logo {
+    width: clamp(320px, 24vw, 520px);
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* 右上のユーザー表示（一覧寄せ） */
+.user-info {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 100;
+}
+
+.username {
+    color: #fff;
+    font-weight: 800;
+    font-size: 16px;
+    white-space: nowrap;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.user-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ccc;
+    border: 2px solid #fff;
+    object-fit: cover;
+}
+
+/* ==============================
+✅ リボン（一覧のカスタム作成に統一）
+※ 車両選択HTMLが「ヘッダー直下」に置く想定のまま（必要CSSは維持）
+============================== */
+.ribbons-overlay {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+    z-index: 20;
+}
+
+.ribbon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 10px 30px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 45px;
+
+    height: 50px;
+    min-width: 190px;
+
+    transform: skewX(-20deg);
+    transform-origin: bottom;
+
+    margin-right: -5px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+
+    background: var(--blue);
+
+    border: none;
+    cursor: pointer;
+    padding:1px px;
+    height: 6px 70px;
+}
+
+.ribbon > * {
+    transform: skewX(20deg);
+}
+
+.ribbon img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.ribbon-blue {
+    background: var(--blue);
+}
+
+.ribbon-dark {
+    background: var(--dark-ribbon);
+    margin-right: 20px;
+}
+
+.ribbon:hover {
+    filter: brightness(1.1);
+}
+
+.ribbon:active {
+    filter: brightness(1.0);
+}
+
+.ribbon:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.25);
+    outline-offset: 3px;
+}
+
+/* ==============================
+セクションタイトル（車両選択側のHTMLに合わせて維持）
+============================== */
+.section-title {
+    max-width: 1100px;
+    margin: 18px auto 0;
+    padding: 0 16px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+}
+
+/* ==============================
+メイン（中央寄せ固定）
+✅ ここ以降「車両選択に必要なCSS」は変更しない
+============================== */
+.content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 18px 16px 40px;
+}
+
+.car-display-area {
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 車表示 */
+.car-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(12px, 3vw, 34px);
+    width: 100%;
+    margin-top: 18px;
+}
+
+/* 左右矢印 */
+.arrow-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    background: #111;
+    color: #fff;
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);
+    transition: transform 0.12s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.arrow-btn:hover {
+    background: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
+.arrow-btn:active {
+    transform: translateY(0);
+}
+
+.arrow-btn:focus-visible {
+    outline: 3px solid rgba(245, 196, 0, 0.85);
+    outline-offset: 3px;
+}
+
+/* 画像枠：見切れない */
+.car-frame {
+    width: min(90vw, 980px);
+    aspect-ratio: 2 / 1;
+    display: grid;
+    place-items: center;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 2px dashed #c8ccd0;
+    overflow: hidden;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.10);
+}
+
+.car-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+}
+
+/* 車名 */
+.car-name {
+    text-align: center;
+    font-size: clamp(18px, 2.6vw, 28px);
+    margin: 16px 0 0;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+}
+
+/* ==============================
+レスポンシブ
+============================== */
+@media (max-width: 980px) {
+    .header-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .brand-area {
+        justify-content: center;
+        align-items: center;
+        padding: 18px 0;
+    }
+
+    .ribbons-overlay {
+        justify-content: center;
+    }
+
+    .arrow-btn {
+        width: 54px;
+        height: 54px;
+        font-size: 36px;
+        border-radius: 14px;
+    }
+}
+.create-below {
+    margin-top: 14px;
+    transform: skewX(-20deg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 中身のskew戻し（既存.ribbonと同じ思想） */
+.create-below > * {
+    transform: skewX(20deg);
+}
+/* =========================
+   車両選択 見出し：中央固定
+========================= */
+.section-title-bar {
+    width: 100%;
+}
+
+.section-title-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* ← 中央寄せの本体 */
+    gap: 16px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* 左右のラインが伸びるようにする */
+.section-title-inner .title-line {
+    flex: 1;
+    max-width: 520px; /* 好みで調整（伸びすぎ防止） */
+}
+
+/* タイトル本体は縮まない */
+.section-title-inner .section-title {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    text-align: center;
+}

@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=garelabo_db
+      - POSTGRES_USER=garelabo_user
+      - POSTGRES_PASSWORD=garelabo_pass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U garelabo_user -d garelabo_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    # 静的ファイルの集約、マイグレーション、サーバー起動を一括実行
+    command: sh -c "python manage.py collectstatic --noinput && python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - .:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - "80:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=sqlite:////app/db.sqlite3
+      - PYTHONPATH=/app
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
+# version: '3.8'
+
+# services:
+#   db:
+#     image: postgres:15-alpine
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     environment:
+#       - POSTGRES_DB=garelabo_db
+#       - POSTGRES_USER=garelabo_user
+#       - POSTGRES_PASSWORD=garelabo_pass
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U garelabo_user -d garelabo_db"]
+#       interval: 5s
+#       timeout: 5s
+#       retries: 5
+
+#   web:
+#     build: .
+#     command: sh -c "python manage.py collectstatic --noinput && python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+#     volumes:
+#       - .:/app
+#       - static_volume:/app/static
+#       - media_volume:/app/media
+#     ports:
+#       - "80:8000"
+#     depends_on:
+#       db:
+#         condition: service_healthy
+#     env_file:
+#       - .env
+#     environment:
+#       - DATABASE_URL=postgres://garelabo_user:garelabo_pass@db:5432/garelabo_db
+#       - PYTHONPATH=/app
+
+# volumes:
+#   postgres_data:
+#   static_volume:
+#   media_volume:

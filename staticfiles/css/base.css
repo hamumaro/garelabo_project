@@ -1,0 +1,40 @@
+
+.header-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    gap: clamp(8px, 2vw, 24px);
+    height: clamp(120px, 18vw, 240px);
+}
+
+.header-grid .panel {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;          
+}
+
+/* 画像タグで入れている場合 */
+.header-grid .panel img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;        
+    object-position: center;
+}
+
+/* 背景画像で使う場合（どちらか片方だけ使用） */
+.header-grid .panel.bg {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+/* 右端ロゴの調整 */
+.header-grid .brand-area .garelabo-logo {
+    max-height: 80%;
+    height: auto;
+    width: auto;
+}
