@@ -1,5 +1,8 @@
 ※　ガレラボ＋
 
+----------------------------------
+
+構築手順
 
 githubのURL: https://github.com/hamumaro/garelabo_project
 
@@ -18,6 +21,44 @@ cd garelabo_project
 sudo apt update
 sudo apt install docker.io docker-compose-v2 -y
 sudo docker compose up -d --build
+
+
+----------------------------------
+
+注釈　インバウンドルールについて
+
+計４個
+
+IP バージョン ：IPv6
+タイプ： SSH
+プロトコル：TCP
+ポート範囲：80
+ソース　：::/0
+
+
+IP バージョン ：IPv6
+タイプ：HTTP
+プロトコル：TCP
+ポート範囲：22
+ソース　：　::/0
+
+
+IP バージョン ：IPv4
+タイプ： SSH
+プロトコル：TCP
+ポート範囲：22
+ソース　：0.0.0.0/0
+
+
+IP バージョン ：IPv4
+タイプ： HTTP
+プロトコル：TCP
+ポート範囲：80
+ソース　：0.0.0.0/0
+
+
+
+----------------------------------
 
 
 動作確認URL： http://
