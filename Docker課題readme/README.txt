@@ -1,6 +1,9 @@
 ※　ガレラボ＋
 
 
+githubのURL: 
+
+
 １，GitHubからリポジトリをクローン
 git clone https://github.com/hamumaro/garelabo_project.git
 
