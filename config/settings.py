@@ -149,7 +149,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'test.games.12356@gmail.com'
+EMAIL_HOST_USER = '' # メールアドレスを入力
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # .env に EMAIL_HOST_PASSWORD=xxxxxx を入れておくこと
